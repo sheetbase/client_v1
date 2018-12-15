@@ -1,8 +1,14 @@
 import { Options } from './types';
-import { Apps } from './app';
+import { AppsService } from './apps.service';
 
-export const APPS = new Apps();
+const SHEETBASE_APPS = new AppsService();
+
+export const App = SHEETBASE_APPS.getApp(); // default app, if exists
+
+export function app(name?: string) {
+    return SHEETBASE_APPS.getApp(name);
+}
 
 export function initializeApp(options: Options, name?: string) {
-    return APPS.createApp(options, name);
+    return SHEETBASE_APPS.createApp(options, name);
 }

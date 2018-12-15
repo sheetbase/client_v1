@@ -2,18 +2,31 @@
   "name": "@sheetbase/client",
   "version": "0.0.1",
   "description": "JS client for Sheetbase app.",
-  "main": "dist/bundles/sheetbase-client.umd.js",
-  "module": "dist/fesm5/sheetbase-client.js",
-  "typings": "dist/public_api.d.ts",
+  "main": "dist/bundles/sheetbase.js",
+  "module": "dist/fesm5/sheetbase.js",
+  "es2015": "dist/fesm2015/sheetbase.js",
+  "esm5": "dist/esm5/sheetbase.js",
+  "esm2015": "dist/esm2015/sheetbase.js",
+  "fesm5": "dist/fesm5/sheetbase.js",
+  "fesm2015": "dist/fesm2015/sheetbase.js",
+  "typings": "dist/sheetbase.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "transpile": "tsc -p tsconfig.json",
-    "bundle": "rollup -c",
-    "minify": "uglifyjs dist/bundles/sheetbase-client.umd.js --compress --mangle --comments --source-map -o dist/bundles/sheetbase-client.umd.min.js",
+    "transpile-es2015": "tsc -p tsconfig.json",
+    "transpile-es5": "tsc -p tsconfig-es5.json",
+    "bundle-es2015": "rollup --silent -c ",
+    "bundle-es5": "rollup --silent -c rollup-es5.config.js",
+    "transpile": "npm run transpile-es2015 && npm run transpile-es5",
+    "bundle": "npm run bundle-es2015 && npm run bundle-es5",
+    "minify": "uglifyjs dist/bundles/sheetbase.js --compress --mangle --comments --source-map -o dist/bundles/sheetbase.min.js",
     "build": "npm run transpile && npm run bundle && npm run minify",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "tslint --project tslint.json && echo 'All files pass linting.'",
+    "transpile-test": "tsc -p tests/tsconfig.test.json",
+    "run-test": "nyc --cache false mocha --timeout 100000 -- build/tests/*.js",
+    "test": "npm run build && npm run transpile-test && npm run run-test",
+    "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
   },
   "nyc": {
     "exclude": [
@@ -36,7 +49,7 @@
   },
   "homepage": "https://sheetbase.net",
   "dependencies": {
-    "ky": "^0.5.1"
+    "kyx": "file:../../../opensources/kyx/kyx-0.5.1.tgz"
   },
   "devDependencies": {
     "@sheetbase/core-server": "0.0.19",

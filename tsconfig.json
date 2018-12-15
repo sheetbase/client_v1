@@ -1,20 +1,9 @@
 {
+  "extends": "./tsconfig-es5.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "moduleResolution": "node",
-    "module": "es2015",
-    "lib": [
-      "es2015"
-    ],
     "target": "es2015",
     "outDir": "./dist/esm2015",
     "declaration": true,
     "declarationDir": "./dist"
-  },
-  "exclude": [
-    "node_modules",
-  ],
-  "files": [
-    "./src/public_api.ts"
-  ]
+  }
 }
