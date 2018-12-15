@@ -4,6 +4,7 @@
 
         "**/dist": true,
         "**/build": true,
+        "**/docs": true,
 
         "**/.nyc_output": true,
         "**/coverage": true

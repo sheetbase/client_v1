@@ -1,4 +1,4 @@
-import kyx from 'kyx';
+import ky from 'kyx';
 import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
 
 import { App } from './app';
@@ -9,18 +9,9 @@ export class ApiService {
     constructor(app: App) { this.app = app; }
 
     async get(endpoint?: string, params = {}) {
-        let url = this.buildUrl(endpoint, params);
-        const { apiKey } = this.app.options();
-        // if there is api key
-        if (!!apiKey) {
-            if (!endpoint && Object.keys(params).length < 1) {
-              url += '?apiKey=' + apiKey;
-            } else {
-              url += '&apiKey=' + apiKey;
-            }
-        }
+        const url = this.buildUrl(endpoint, params);
         // send request
-        const data: ResponseSuccess & ResponseError = await kyx.get(url).json() as any;
+        const data: ResponseSuccess & ResponseError = await ky.get(url).json() as any;
         if (data.error) {
             throw new Error(data.message);
         }
@@ -29,10 +20,8 @@ export class ApiService {
 
     async post(endpoint?: string, params = {}, body = {}) {
         const url = this.buildUrl(endpoint, params);
-        const { apiKey } = this.app.options();
-        body = { ... body, apiKey };
         // send request
-        const data: ResponseSuccess & ResponseError = await kyx.post(url, { json: body }).json() as any;
+        const data: ResponseSuccess & ResponseError = await ky.post(url, { json: body }).json() as any;
         if (data.error) {
             throw new Error(data.message);
         }
@@ -51,15 +40,19 @@ export class ApiService {
         return await this.post(endpoint, { ... params, method: 'DELETE' }, body);
     }
 
-    private buildUrl(endpoint?: string, params = {}): string {
-        let { backendUrl: url } = this.app.options();
+    private buildUrl(endpoint?: string, params = {}) {
+        const { backendUrl, apiKey } = this.app.options();
+        let url = backendUrl;
+        if (!!apiKey) {
+            params = { apiKey, ... params };
+        }
         if (!!endpoint) {
           url += '?e=' + endpoint;
         } else if (Object.keys(params).length > 0) {
           url += '?';
         }
         for (const key of Object.keys(params)) {
-          url += `&${key}=${params[key]}`;
+          url += '&' + key + '=' + params[key];
         }
         return url.replace('?&', '?');
     }

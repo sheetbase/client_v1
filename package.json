@@ -21,11 +21,12 @@
     "transpile": "npm run transpile-es2015 && npm run transpile-es5",
     "bundle": "npm run bundle-es2015 && npm run bundle-es5",
     "minify": "uglifyjs dist/bundles/sheetbase.js --compress --mangle --comments --source-map -o dist/bundles/sheetbase.min.js",
-    "build": "npm run transpile && npm run bundle && npm run minify",
+    "docs": "typedoc src --out \"docs/api\" --mode file --readme none --excludeExternals --excludeNotExported --ignoreCompilerErrors",
+    "build": "npm run transpile && npm run bundle && npm run minify && npm run docs",
     "lint": "tslint --project tslint.json && echo 'All files pass linting.'",
     "transpile-test": "tsc -p tests/tsconfig.test.json",
     "run-test": "nyc --cache false mocha --timeout 100000 -- build/tests/*.js",
-    "test": "npm run build && npm run transpile-test && npm run run-test",
+    "test": "npm run transpile-test && npm run run-test",
     "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
   },
   "nyc": {
@@ -49,7 +50,7 @@
   },
   "homepage": "https://sheetbase.net",
   "dependencies": {
-    "kyx": "file:../../../opensources/kyx/kyx-0.5.1.tgz"
+    "kyx": "^0.5.1-1"
   },
   "devDependencies": {
     "@sheetbase/core-server": "0.0.19",
@@ -64,6 +65,7 @@
     "rollup-plugin-node-resolve": "^4.0.0",
     "sinon": "^7.2.2",
     "tslint": "^5.11.0",
+    "typedoc": "^0.13.0",
     "typescript": "^3.2.2",
     "uglify-js": "^3.4.9"
   }
