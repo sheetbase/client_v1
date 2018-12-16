@@ -1,7 +1,7 @@
 import ky from 'kyx';
 import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
 
-import { App } from './app';
+import { App } from '../app';
 
 export class ApiService {
     private app: App;

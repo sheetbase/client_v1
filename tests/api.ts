@@ -3,9 +3,10 @@ import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 import ky from 'kyx';
 
-import { initializeApp } from '../src/sheetbase';
+import { ApiService } from '../src/lib/api/api.service';
 
-const app = initializeApp({ backendUrl: '' }, 'Api');
+const fakeApp: any = (options) => ({ options: () => options });
+const apiService = new ApiService(fakeApp({ backendUrl: '' }));
 
 let kyGetStub: sinon.SinonStub;
 let kyPostStub: sinon.SinonStub;
@@ -14,7 +15,7 @@ let apiPostStub: sinon.SinonStub;
 function buildStubs() {
     kyGetStub = sinon.stub(ky, 'get');
     kyPostStub = sinon.stub(ky, 'post');
-    apiPostStub = sinon.stub(app.Api, 'post');
+    apiPostStub = sinon.stub(apiService, 'post');
 }
 
 function restoreStubs() {
@@ -30,20 +31,20 @@ describe('(Api) Api service', () => {
 
     it('.app should work', () => {
         // @ts-ignore
-        expect(!!app.Api.app).to.equal(true);
+        expect(!!apiService.app).to.equal(true);
     });
 
     it('#buildUrl should work', async () => {
         // @ts-ignore
-        const result1 = await app.Api.buildUrl();
+        const result1 = await apiService.buildUrl();
         // @ts-ignore
-        const result2 = await app.Api.buildUrl('/');
+        const result2 = await apiService.buildUrl('/');
         // @ts-ignore
-        const result3 = await app.Api.buildUrl(null, { x: 1 });
+        const result3 = await apiService.buildUrl(null, { x: 1 });
         // @ts-ignore
-        const result4 = await app.Api.buildUrl('/', { x: 1 });
+        const result4 = await apiService.buildUrl('/', { x: 1 });
         // @ts-ignore
-        const result5 = await app.Api.buildUrl('/x', { a: 1, b: 2 });
+        const result5 = await apiService.buildUrl('/x', { a: 1, b: 2 });
         expect(result1).to.equal('');
         expect(result2).to.equal('?e=/');
         expect(result3).to.equal('?x=1');
@@ -52,9 +53,9 @@ describe('(Api) Api service', () => {
     });
 
     it('#buildUrl should work (has apiKey)', async () => {
-        const app = initializeApp({ backendUrl: '', apiKey: 'xxx' }, 'Api2');
+        const apiService = new ApiService(fakeApp({ backendUrl: '', apiKey: 'xxx' }));
         // @ts-ignore
-        const result = await app.Api.buildUrl();
+        const result = await apiService.buildUrl();
         expect(result).to.equal('?apiKey=xxx');
     });
 
@@ -63,7 +64,7 @@ describe('(Api) Api service', () => {
             json: async () => true,
         });
 
-        const result = await app.Api.get();
+        const result = await apiService.get();
         expect(result).to.equal(true);
     });
 
@@ -73,7 +74,7 @@ describe('(Api) Api service', () => {
         });
         apiPostStub.restore();
 
-        const result = await app.Api.post();
+        const result = await apiService.post();
         expect(result).to.equal(true);
     });
 
@@ -82,7 +83,7 @@ describe('(Api) Api service', () => {
             return { endpoint, params, body };
         });
 
-        const result = await app.Api.put('/');
+        const result = await apiService.put('/');
         expect(result).to.eql({
             endpoint: '/',
             params: { method: 'PUT' },
@@ -95,7 +96,7 @@ describe('(Api) Api service', () => {
             return { endpoint, params, body };
         });
 
-        const result = await app.Api.patch('/', { a: 1 });
+        const result = await apiService.patch('/', { a: 1 });
         expect(result).to.eql({
             endpoint: '/',
             params: { method: 'PATCH', a: 1 },
@@ -108,7 +109,7 @@ describe('(Api) Api service', () => {
             return { endpoint, params, body };
         });
 
-        const result = await app.Api.delete('/', {}, { b: 2 });
+        const result = await apiService.delete('/', {}, { b: 2 });
         expect(result).to.eql({
             endpoint: '/',
             params: { method: 'DELETE' },
