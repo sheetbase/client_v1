@@ -14,14 +14,15 @@ JS client for Sheetbase app.
 
 ## Usage
 
-```js
+```ts
+
 import { initializeApp } from '@sheetbase/client';
 
 // init an app
-const app = initializeApp({ /* app configs */ });
+const app = initializeApp({ /* configs */ });
 
 // send a GET request
-app.api().get('/');
+const result = await app.api().get('/');
 
 ```
 
