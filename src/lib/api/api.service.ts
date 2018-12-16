@@ -6,7 +6,22 @@ import { App } from '../app';
 export class ApiService {
     private app: App;
 
-    constructor(app: App) { this.app = app; }
+    constructor(app: App) {
+        this.app = app;
+    }
+
+    async request(inputs: {
+        method?: string,endpoint?: string, params?: {}, body?: {},
+    } = {}) {
+        const { method = 'get', endpoint = '/', params = {}, body = {} } = inputs;
+        if (method.toLowerCase() === 'get') {
+            return this.get(endpoint, params);
+        } else if (method.toLowerCase() === 'post') {
+            return this.post(endpoint, params, body);
+        } else {
+            return this.post(endpoint, { method, ... params }, body);
+        }
+    }
 
     async get(endpoint?: string, params = {}) {
         const url = this.buildUrl(endpoint, params);

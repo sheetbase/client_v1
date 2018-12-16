@@ -10,17 +10,20 @@ const apiService = new ApiService(fakeApp({ backendUrl: '' }));
 
 let kyGetStub: sinon.SinonStub;
 let kyPostStub: sinon.SinonStub;
+let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
 
 function buildStubs() {
     kyGetStub = sinon.stub(ky, 'get');
     kyPostStub = sinon.stub(ky, 'post');
+    apiGetStub = sinon.stub(apiService, 'get');
     apiPostStub = sinon.stub(apiService, 'post');
 }
 
 function restoreStubs() {
     kyGetStub.restore();
     kyPostStub.restore();
+    apiGetStub.restore();
     apiPostStub.restore();
 }
 
@@ -59,10 +62,43 @@ describe('(Api) Api service', () => {
         expect(result).to.equal('?apiKey=xxx');
     });
 
+    it('#request should work ', async () => {
+        apiGetStub.callsFake(async (endpoint, params) => {
+            return { method: 'get', endpoint, params };
+        });
+        apiPostStub.callsFake(async (endpoint, params, body) => {
+            return { method: 'post', endpoint, params, body };
+        });
+
+        const result1 = await apiService.request();
+        const result2 = await apiService.request({
+            method: 'get',
+        });
+        const result3 = await apiService.request({
+            method: 'post',
+        });
+        const result4 = await apiService.request({
+            method: 'put', endpoint: '/xxx', params: { a: 1 }, body: { b: 2 },
+        });
+        expect(result1).to.eql({
+            method: 'get', endpoint: '/', params: {},
+        });
+        expect(result2).to.eql({
+            method: 'get', endpoint: '/', params: {},
+        });
+        expect(result3).to.eql({
+            method: 'post', endpoint: '/', params: {}, body: {},
+        });
+        expect(result4).to.eql({
+            method: 'post', endpoint: '/xxx', params: { method: 'put', a: 1 }, body: { b: 2 },
+        });
+    });
+
     it('#get should work ', async () => {
         kyGetStub.onFirstCall().returns({
             json: async () => true,
         });
+        apiGetStub.restore();
 
         const result = await apiService.get();
         expect(result).to.equal(true);

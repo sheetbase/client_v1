@@ -25,6 +25,7 @@ export class App {
     options() {
         return this._options;
     }
+
     api() {
         return this.Api;
     }
