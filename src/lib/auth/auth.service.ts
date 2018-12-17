@@ -6,7 +6,10 @@ export class AuthService {
     private apiService: ApiService;
 
     constructor(options: Options) {
-        this.options = options;
+        this.options = {
+            authEndpoint: 'auth',
+            ... options,
+        };
         this.apiService = new ApiService(options);
     }
 

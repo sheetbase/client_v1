@@ -22,9 +22,17 @@ function restoreStubs() {
     apiPostStub.restore();
 }
 
-describe('(Storage) Storage service', () => {
+describe('(Mail) Mail service', () => {
 
-    beforeEach(() => buildStubs());
+    beforeEach(() => {
+        buildStubs();
+        apiGetStub.callsFake(async (endpoint, params) => {
+            return { method: 'GET', endpoint, params };
+        });
+        apiPostStub.callsFake(async (endpoint, params, body) => {
+            return { method: 'POST', endpoint, params, body };
+        });
+    });
     afterEach(() => restoreStubs());
 
     it('.options should have default values', () => {
@@ -52,26 +60,20 @@ describe('(Storage) Storage service', () => {
     });
 
     it('#quota should work', async () => {
-        apiGetStub.callsFake(async (endpoint, params) => {
-            return { endpoint, params };
-        });
-
         const result = await mailService.quota();
         expect(result).to.eql({
+            method: 'GET',
             endpoint: '/mail/quota',
             params: {},
         });
     });
 
     it('#send should work', async () => {
-        apiPostStub.callsFake(async (endpoint, params, body) => {
-            return { endpoint, params, body };
-        });
-
         const result = await mailService.send({
             recipient: 'xxx@xxx.xxx',
         }, 'mail');
         expect(result).to.eql({
+            method: 'POST',
             endpoint: '/mail',
             params: {},
             body: {

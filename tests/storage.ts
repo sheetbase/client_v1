@@ -24,7 +24,15 @@ function restoreStubs() {
 
 describe('(Storage) Storage service', () => {
 
-    beforeEach(() => buildStubs());
+    beforeEach(() => {
+        buildStubs();
+        apiGetStub.callsFake(async (endpoint, params) => {
+            return { method: 'GET', endpoint, params };
+        });
+        apiPostStub.callsFake(async (endpoint, params, body) => {
+            return { method: 'POST', endpoint, params, body };
+        });
+    });
     afterEach(() => restoreStubs());
 
     it('.options should have default values', () => {
@@ -52,28 +60,22 @@ describe('(Storage) Storage service', () => {
     });
 
     it('#info should work', async () => {
-        apiGetStub.callsFake(async (endpoint, params) => {
-            return { endpoint, params };
-        });
-
         const result = await storageService.info('xxx');
         expect(result).to.eql({
+            method: 'GET',
             endpoint: '/storage',
             params: { id: 'xxx' },
         });
     });
 
     it('#upload should work', async () => {
-        apiPostStub.callsFake(async (endpoint, params, body) => {
-            return { endpoint, params, body };
-        });
-
         const result = await storageService.upload({
             name: 'file1.txt',
             size: 1000,
             base64Data: '<base64Data>',
         }, 'me', 'filex');
         expect(result).to.eql({
+            method: 'POST',
             endpoint: '/storage',
             params: {},
             body: {

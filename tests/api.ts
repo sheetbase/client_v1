@@ -28,7 +28,15 @@ function restoreStubs() {
 
 describe('(Api) Api service', () => {
 
-    beforeEach(() => buildStubs());
+    beforeEach(() => {
+        buildStubs();
+        apiGetStub.callsFake(async (endpoint, params) => {
+            return { method: 'GET', endpoint, params };
+        });
+        apiPostStub.callsFake(async (endpoint, params, body) => {
+            return { method: 'POST', endpoint, params, body };
+        });
+    });
     afterEach(() => restoreStubs());
 
     it('#buildUrl should work', async () => {
@@ -57,34 +65,27 @@ describe('(Api) Api service', () => {
     });
 
     it('#request should work ', async () => {
-        apiGetStub.callsFake(async (endpoint, params) => {
-            return { method: 'get', endpoint, params };
-        });
-        apiPostStub.callsFake(async (endpoint, params, body) => {
-            return { method: 'post', endpoint, params, body };
-        });
-
         const result1 = await apiService.request();
         const result2 = await apiService.request({
-            method: 'get',
+            method: 'GET',
         });
         const result3 = await apiService.request({
-            method: 'post',
+            method: 'POST',
         });
         const result4 = await apiService.request({
-            method: 'put', endpoint: '/xxx', params: { a: 1 }, body: { b: 2 },
+            method: 'PUT', endpoint: '/xxx', params: { a: 1 }, body: { b: 2 },
         });
         expect(result1).to.eql({
-            method: 'get', endpoint: '/', params: {},
+            method: 'GET', endpoint: '/', params: {},
         });
         expect(result2).to.eql({
-            method: 'get', endpoint: '/', params: {},
+            method: 'GET', endpoint: '/', params: {},
         });
         expect(result3).to.eql({
-            method: 'post', endpoint: '/', params: {}, body: {},
+            method: 'POST', endpoint: '/', params: {}, body: {},
         });
         expect(result4).to.eql({
-            method: 'post', endpoint: '/xxx', params: { method: 'put', a: 1 }, body: { b: 2 },
+            method: 'POST', endpoint: '/xxx', params: { method: 'PUT', a: 1 }, body: { b: 2 },
         });
     });
 
@@ -109,12 +110,9 @@ describe('(Api) Api service', () => {
     });
 
     it('#put should work ', async () => {
-        apiPostStub.callsFake(async (endpoint, params, body) => {
-            return { endpoint, params, body };
-        });
-
         const result = await apiService.put('/');
         expect(result).to.eql({
+            method: 'POST',
             endpoint: '/',
             params: { method: 'PUT' },
             body: {},
@@ -122,12 +120,9 @@ describe('(Api) Api service', () => {
     });
 
     it('#patch should work ', async () => {
-        apiPostStub.callsFake(async (endpoint, params, body) => {
-            return { endpoint, params, body };
-        });
-
         const result = await apiService.patch('/', { a: 1 });
         expect(result).to.eql({
+            method: 'POST',
             endpoint: '/',
             params: { method: 'PATCH', a: 1 },
             body: {},
@@ -135,12 +130,9 @@ describe('(Api) Api service', () => {
     });
 
     it('#delete should work ', async () => {
-        apiPostStub.callsFake(async (endpoint, params, body) => {
-            return { endpoint, params, body };
-        });
-
         const result = await apiService.delete('/', {}, { b: 2 });
         expect(result).to.eql({
+            method: 'POST',
             endpoint: '/',
             params: { method: 'DELETE' },
             body: { b: 2 },
