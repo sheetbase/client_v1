@@ -1,6 +1,6 @@
 import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
 import ky from 'kyx';
-import { get as cacheGet, set as cacheSet } from 'lscache';
+import { get as cacheGet, set as cacheSet } from 'lscache/lscache.min';
 
 import { Options } from '../types';
 
@@ -30,7 +30,9 @@ export class ApiService {
     async get(endpoint?: string, params = {}, cache = false) {
         const url = this.buildUrl(endpoint, params);
         // retrieve cache
-        const cacheKey = url.replace('https://script.google.com/macros/s/', '');
+        const cacheKey = url
+            .replace('https://script.google.com/macros/s/', '')
+            .replace(/\/|\.|\?|\&/g, '-');
         const cachedData = cacheGet(cacheKey);
         if (cache && !!cachedData) {
             return cachedData;

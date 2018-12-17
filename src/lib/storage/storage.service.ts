@@ -38,7 +38,7 @@ export class StorageService {
         return await this.apiService.post(this.endpoint(), {}, body);
     }
 
-    async load(file: File): Promise<FileResource> {
+    async load(file: File) {
         return new Promise((resolve, reject) => {
             if (!file) {
                 reject('No file.');

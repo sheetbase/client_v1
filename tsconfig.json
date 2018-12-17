@@ -1,9 +1,23 @@
 {
-  "extends": "./tsconfig-es5.json",
   "compilerOptions": {
-    "target": "es2015",
-    "outDir": "./dist/esm2015",
-    "declaration": true,
-    "declarationDir": "./dist"
-  }
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "module": "es2015",
+    "skipLibCheck": true,
+    "lib": [
+      "dom",
+      "es2015"
+    ],
+    "target": "es5",
+    "outDir": "./dist/esm5",
+    "declaration": false
+  },
+  "files": [
+    "./src/sheetbase.ts",
+    "./src/lib/api/index.ts",
+    "./src/lib/database/index.ts",
+    "./src/lib/auth/index.ts",
+    "./src/lib/storage/index.ts",
+    "./src/lib/mail/index.ts"
+  ]
 }

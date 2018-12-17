@@ -3,8 +3,6 @@ import { SQLQuery, NoSQLQuery } from '@sheetbase/sheets-server';
 import { Options } from '../types';
 import { ApiService } from '../api/api.service';
 
-// TODO: add cache
-
 export class DatabaseService {
     private options: Options;
     private apiService: ApiService;
@@ -25,17 +23,18 @@ export class DatabaseService {
      * SQL
      */
 
-    async all(table: string) {
-        return await this.apiService.get(this.endpoint(), { table });
+    async all(table: string, cache = true) {
+        return await this.apiService.get(this.endpoint(), { table }, cache);
     }
 
     async item(
         table: string,
         idOrCondition: number | {[field: string]: string},
+        cache = true,
     ) {
         return await this.apiService.get(this.endpoint(), {
             ... this.parseIdOrDocOrCondition(idOrCondition), table,
-        });
+        }, cache);
     }
 
     async delete(
@@ -51,26 +50,26 @@ export class DatabaseService {
      * NoSQL
      */
 
-    async collection(collection: string, returnObject = false) {
+    async collection(collection: string, returnObject = false, cache = true) {
         return await this.apiService.get(this.endpoint(), {
             collection, type: returnObject ? 'object' : 'list',
-        });
+        }, cache);
     }
 
-    async doc(collection: string, doc: string) {
-        return await this.apiService.get(this.endpoint(), { collection, doc });
+    async doc(collection: string, doc: string, cache = true) {
+        return await this.apiService.get(this.endpoint(), { collection, doc }, cache);
     }
 
-    async object(path: string) {
+    async object(path: string, cache = true) {
         return await this.apiService.get(this.endpoint(), {
             path, type: 'object',
-        });
+        }, cache);
     }
 
-    async list(path: string) {
+    async list(path: string, cache = true) {
         return await this.apiService.get(this.endpoint(), {
             path, type: 'list',
-        });
+        }, cache);
     }
 
     async updateDoc(
@@ -87,20 +86,20 @@ export class DatabaseService {
      * Both
      */
 
-    async query(tableOrCollection: string, query: SQLQuery | NoSQLQuery = {}) {
+    async query(tableOrCollection: string, query: SQLQuery | NoSQLQuery = {}, cache = true) {
         return await this.apiService.get(this.endpoint() + '/query', {
             ... query,
             table: tableOrCollection,
             collection: tableOrCollection,
-        });
+        }, cache);
     }
 
-    async search(tableOrCollection: string, s: string) {
+    async search(tableOrCollection: string, s: string, cache = true) {
         return await this.apiService.get(this.endpoint() + '/search', {
             table: tableOrCollection,
             collection: tableOrCollection,
             s,
-        });
+        }, cache);
     }
 
     async update(

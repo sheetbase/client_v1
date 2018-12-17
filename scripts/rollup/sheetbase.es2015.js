@@ -1,4 +1,4 @@
-import resolve from 'rollup-plugin-node-resolve';
+import config from './sheetbase';
 
 export default {
     input: './dist/esm2015/sheetbase.js',
@@ -9,7 +9,5 @@ export default {
             sourcemap: true
         }
     ],
-    plugins: [
-        resolve()
-    ]
+    plugins: config.plugins
 };

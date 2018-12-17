@@ -1,21 +1,19 @@
-import resolve from 'rollup-plugin-node-resolve';
+import config from './sheetbase';
 
 export default {
-    input: './dist/esm5/sheetbase.js',
+    input: './dist/esm5/lib/database/index.js',
     output: [
         {
-            file: './dist/fesm5/sheetbase.js',
+            file: './dist/database/database.js',
             format: 'esm',
             sourcemap: true
         },
         {
-            file: './dist/bundles/sheetbase.js',
+            file: './dist/database.js',
             format: 'umd',
             sourcemap: true,
             name: 'sheetbase'
         }
     ],
-    plugins: [
-        resolve()
-    ]
+    plugins: config.plugins
 };
