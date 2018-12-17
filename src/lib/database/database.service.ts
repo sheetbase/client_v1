@@ -1,10 +1,13 @@
-import { App } from '../app';
+import { Options } from '../types';
+import { ApiService } from '../api/api.service';
 
 export class DatabaseService {
-    private app: App;
+    private options: Options;
+    private apiService: ApiService;
 
-    constructor(app: App) {
-        this.app = app;
+    constructor(options: Options) {
+        this.options = options;
+        this.apiService = new ApiService(options);
     }
 
 }

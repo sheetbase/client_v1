@@ -15,11 +15,11 @@ export class App {
 
     constructor(options: Options) {
         this._options = { ... options };
-        this.Api = new ApiService(this);
-        this.Database = new DatabaseService(this);
-        this.Auth = new AuthService(this);
-        this.Storage = new StorageService(this);
-        this.Mail = new MailService(this);
+        this.Api = new ApiService(options);
+        this.Database = new DatabaseService(options);
+        this.Auth = new AuthService(options);
+        this.Storage = new StorageService(options);
+        this.Mail = new MailService(options);
     }
 
     options() {

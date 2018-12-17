@@ -1,5 +1,5 @@
 import { Options } from './types';
-import { AppsService } from './app';
+import { AppsService, App } from './app';
 
 const SHEETBASE_APPS = new AppsService();
 
@@ -11,22 +11,27 @@ export function app(name?: string) {
     return SHEETBASE_APPS.getApp(name);
 }
 
-export function api(appName?: string) {
-    return SHEETBASE_APPS.getApp(appName).Api;
+export function api(app?: App) {
+    app = app || SHEETBASE_APPS.getApp();
+    return app.Api;
 }
 
-export function database(appName?: string) {
-    return SHEETBASE_APPS.getApp(appName).Database;
+export function database(app?: App) {
+    app = app || SHEETBASE_APPS.getApp();
+    return app.Database;
 }
 
-export function auth(appName?: string) {
-    return SHEETBASE_APPS.getApp(appName).Auth;
+export function auth(app?: App) {
+    app = app || SHEETBASE_APPS.getApp();
+    return app.Auth;
 }
 
-export function storage(appName?: string) {
-    return SHEETBASE_APPS.getApp(appName).Storage;
+export function storage(app?: App) {
+    app = app || SHEETBASE_APPS.getApp();
+    return app.Storage;
 }
 
-export function mail(appName?: string) {
-    return SHEETBASE_APPS.getApp(appName).Mail;
+export function mail(app?: App) {
+    app = app || SHEETBASE_APPS.getApp();
+    return app.Mail;
 }

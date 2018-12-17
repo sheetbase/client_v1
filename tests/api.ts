@@ -5,8 +5,7 @@ import ky from 'kyx';
 
 import { ApiService } from '../src/lib/api/api.service';
 
-const fakeApp: any = (options) => ({ options: () => options });
-const apiService = new ApiService(fakeApp({ backendUrl: '' }));
+const apiService = new ApiService({ backendUrl: '' });
 
 let kyGetStub: sinon.SinonStub;
 let kyPostStub: sinon.SinonStub;
@@ -32,11 +31,6 @@ describe('(Api) Api service', () => {
     beforeEach(() => buildStubs());
     afterEach(() => restoreStubs());
 
-    it('.app should work', () => {
-        // @ts-ignore
-        expect(!!apiService.app).to.equal(true);
-    });
-
     it('#buildUrl should work', async () => {
         // @ts-ignore
         const result1 = await apiService.buildUrl();
@@ -56,7 +50,7 @@ describe('(Api) Api service', () => {
     });
 
     it('#buildUrl should work (has apiKey)', async () => {
-        const apiService = new ApiService(fakeApp({ backendUrl: '', apiKey: 'xxx' }));
+        const apiService = new ApiService({ backendUrl: '', apiKey: 'xxx' });
         // @ts-ignore
         const result = await apiService.buildUrl();
         expect(result).to.equal('?apiKey=xxx');

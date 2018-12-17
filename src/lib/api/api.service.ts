@@ -1,17 +1,20 @@
 import ky from 'kyx';
 import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
 
-import { App } from '../app';
+import { Options } from '../types';
 
 export class ApiService {
-    private app: App;
+    private options: Options;
 
-    constructor(app: App) {
-        this.app = app;
+    constructor(options: Options) {
+        this.options = options;
     }
 
     async request(inputs: {
-        method?: string,endpoint?: string, params?: {}, body?: {},
+        method?: string,
+        endpoint?: string,
+        params?: {},
+        body?: {},
     } = {}) {
         const { method = 'get', endpoint = '/', params = {}, body = {} } = inputs;
         if (method.toLowerCase() === 'get') {
@@ -56,7 +59,7 @@ export class ApiService {
     }
 
     private buildUrl(endpoint?: string, params = {}) {
-        const { backendUrl, apiKey } = this.app.options();
+        const { backendUrl, apiKey } = this.options;
         let url = backendUrl;
         if (!!apiKey) {
             params = { apiKey, ... params };

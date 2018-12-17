@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "@sheetbase/core-server": "0.0.19",
+    "@sheetbase/drive-server": "0.0.8",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "@types/sinon": "^7.0.0",
