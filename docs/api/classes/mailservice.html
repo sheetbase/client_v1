@@ -87,6 +87,14 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="mailservice.html#options" class="tsd-kind-icon">options</a></li>
 							</ul>
 						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="mailservice.html#endpoint" class="tsd-kind-icon">endpoint</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="mailservice.html#quota" class="tsd-kind-icon">quota</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="mailservice.html#send" class="tsd-kind-icon">send</a></li>
+							</ul>
+						</section>
 					</div>
 				</section>
 			</section>
@@ -102,7 +110,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/1200aed/src/lib/mail/mail.service.ts#L6">lib/mail/mail.service.ts:6</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/0ec4f86/src/lib/mail/mail.service.ts#L8">lib/mail/mail.service.ts:8</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -124,7 +132,7 @@
 					<div class="tsd-signature tsd-kind-icon">api<wbr>Service<span class="tsd-signature-symbol">:</span> <a href="apiservice.html" class="tsd-signature-type">ApiService</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/1200aed/src/lib/mail/mail.service.ts#L6">lib/mail/mail.service.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/0ec4f86/src/lib/mail/mail.service.ts#L8">lib/mail/mail.service.ts:8</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -134,9 +142,72 @@
 					<div class="tsd-signature tsd-kind-icon">options<span class="tsd-signature-symbol">:</span> <a href="../interfaces/options.html" class="tsd-signature-type">Options</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/1200aed/src/lib/mail/mail.service.ts#L5">lib/mail/mail.service.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/0ec4f86/src/lib/mail/mail.service.ts#L7">lib/mail/mail.service.ts:7</a></li>
 						</ul>
 					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="endpoint" class="tsd-anchor"></a>
+					<h3>endpoint</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">endpoint<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/0ec4f86/src/lib/mail/mail.service.ts#L18">lib/mail/mail.service.ts:18</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="quota" class="tsd-anchor"></a>
+					<h3>quota</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">quota<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ResponseSuccess</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">ResponseError</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/0ec4f86/src/lib/mail/mail.service.ts#L22">lib/mail/mail.service.ts:22</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ResponseSuccess</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">ResponseError</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="send" class="tsd-anchor"></a>
+					<h3>send</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">send<span class="tsd-signature-symbol">(</span>mailingData<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">MailingData</span>, transporter<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ResponseSuccess</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">ResponseError</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/0ec4f86/src/lib/mail/mail.service.ts#L26">lib/mail/mail.service.ts:26</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>mailingData: <span class="tsd-signature-type">MailingData</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> transporter: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;gmail&quot;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ResponseSuccess</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">ResponseError</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -178,6 +249,15 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="mailservice.html#options" class="tsd-kind-icon">options</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="mailservice.html#endpoint" class="tsd-kind-icon">endpoint</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="mailservice.html#quota" class="tsd-kind-icon">quota</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="mailservice.html#send" class="tsd-kind-icon">send</a>
 							</li>
 						</ul>
 					</li>
