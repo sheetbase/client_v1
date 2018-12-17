@@ -91,7 +91,7 @@ describe('(Api) Api service', () => {
 
     it('#get should work ', async () => {
         kyGetStub.onFirstCall().returns({
-            json: async () => true,
+            json: async () => ({ data: true }),
         });
         apiGetStub.restore();
 
@@ -101,7 +101,7 @@ describe('(Api) Api service', () => {
 
     it('#post should work ', async () => {
         kyPostStub.onFirstCall().returns({
-            json: async () => true,
+            json: async () => ({ data: true }),
         });
         apiPostStub.restore();
 

@@ -1,5 +1,6 @@
-import ky from 'kyx';
 import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
+import ky from 'kyx';
+import { get as cacheGet, set as cacheSet } from 'lscache';
 
 import { Options } from '../types';
 
@@ -26,24 +27,34 @@ export class ApiService {
         }
     }
 
-    async get(endpoint?: string, params = {}) {
+    async get(endpoint?: string, params = {}, cache = false) {
         const url = this.buildUrl(endpoint, params);
-        // send request
-        const data: ResponseSuccess & ResponseError = await ky.get(url).json() as any;
-        if (data.error) {
-            throw new Error(data.message);
+        // retrieve cache
+        const cacheKey = url.replace('https://script.google.com/macros/s/', '');
+        const cachedData = cacheGet(cacheKey);
+        if (cache && !!cachedData) {
+            return cachedData;
         }
-        return data;
+        // send request
+        const response: ResponseSuccess & ResponseError = await ky.get(url).json() as any;
+        if (response.error) {
+            throw new Error(response.code);
+        }
+        // save cache
+        if (cache) {
+            cacheSet(cacheKey, response.data, 60);
+        }
+        return response.data;
     }
 
     async post(endpoint?: string, params = {}, body = {}) {
         const url = this.buildUrl(endpoint, params);
         // send request
-        const data: ResponseSuccess & ResponseError = await ky.post(url, { json: body }).json() as any;
-        if (data.error) {
-            throw new Error(data.message);
+        const response: ResponseSuccess & ResponseError = await ky.post(url, { json: body }).json() as any;
+        if (response.error) {
+            throw new Error(response.code);
         }
-        return data;
+        return response.data;
     }
 
     async put(endpoint?: string, params = {}, body = {}) {
