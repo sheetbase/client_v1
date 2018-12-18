@@ -4,6 +4,6 @@
     "target": "es2015",
     "outDir": "../../dist/esm2015",
     "declaration": true,
-    "declarationDir": "./dist"
+    "declarationDir": "../../dist"
   }
 }

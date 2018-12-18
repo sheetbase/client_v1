@@ -1,6 +1,6 @@
 {
   "name": "@sheetbase/client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "JS client for Sheetbase app.",
   "main": "dist/sheetbase.js",
   "module": "dist/fesm5/sheetbase.js",
