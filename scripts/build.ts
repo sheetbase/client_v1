@@ -32,20 +32,20 @@ import { removeSync } from 'fs-extra';
     execSync(minify('dist/sheetbase-api.js'));
     console.log('[OK] Bundle & minify api.');
 
-    execSync(rollup + ' ' + rollupPath('auth.js'));
-    execSync(minify('dist/sheetbase-auth.js'));
-    console.log('[OK] Bundle & minify auth.');
-
     execSync(rollup + ' ' + rollupPath('database.js'));
     execSync(minify('dist/sheetbase-database.js'));
     console.log('[OK] Bundle & minify database.');
 
-    execSync(rollup + ' ' + rollupPath('mail.js'));
-    execSync(minify('dist/sheetbase-mail.js'));
-    console.log('[OK] Bundle & minify mail.');
+    execSync(rollup + ' ' + rollupPath('auth.js'));
+    execSync(minify('dist/sheetbase-auth.js'));
+    console.log('[OK] Bundle & minify auth.');
 
     execSync(rollup + ' ' + rollupPath('storage.js'));
     execSync(minify('dist/sheetbase-storage.js'));
     console.log('[OK] Bundle & minify storage.');
+
+    execSync(rollup + ' ' + rollupPath('mail.js'));
+    execSync(minify('dist/sheetbase-mail.js'));
+    console.log('[OK] Bundle & minify mail.');
 
 })();

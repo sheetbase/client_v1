@@ -161,36 +161,21 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#updateDoc should work', async () => {
-        const result1 = await databaseService.updateDoc('foo', { a: 1 }, 1);
-        const result2 = await databaseService.updateDoc('foo', { a: 1 }, 'xxx');
-        const result3 = await databaseService.updateDoc('foo', { a: 1 }, { name: 'xxx' });
-        expect(result1).to.eql({
-            method: 'POST',
-            endpoint: '/database/doc',
-            params: {},
-            body: { collection: 'foo', data: { a: 1 }, id: 1 },
-        });
-        expect(result2).to.eql({
-            method: 'POST',
-            endpoint: '/database/doc',
-            params: {},
-            body: { collection: 'foo', data: { a: 1 }, doc: 'xxx' },
-        });
-        expect(result3).to.eql({
-            method: 'POST',
-            endpoint: '/database/doc',
-            params: {},
-            body: { collection: 'foo', data: { a: 1 }, where: 'name', equal: 'xxx' },
-        });
-    });
-
     it('#query should work', async () => {
         const result = await databaseService.query('foo', { limit: 10 });
         expect(result).to.eql({
             method: 'GET',
             endpoint: '/database/query',
-            params: { table: 'foo', collection: 'foo', limit: 10 },
+            params: { table: 'foo', limit: 10 },
+        });
+    });
+
+    it('#deepQuery should work', async () => {
+        const result = await databaseService.deepQuery('foo', { limitToFirst: 10 });
+        expect(result).to.eql({
+            method: 'GET',
+            endpoint: '/database/query',
+            params: { collection: 'foo', limitToFirst: 10 },
         });
     });
 
@@ -203,27 +188,54 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#update should work', async () => {
-        const result1 = await databaseService.update({ '/foo/foo-1': null }, {}, 1);
-        const result2 = await databaseService.update('foo', { a: 1 }, 1);
-        const result3 = await databaseService.update('foo', { a: 1 }, { name: 'xxx' });
+    it('#updateDoc should work', async () => {
+        const result1 = await databaseService.updateDoc('foo', { a: 1 }, 1);
+        const result2 = await databaseService.updateDoc('foo', { a: 1 }, 'xxx');
+        const result3 = await databaseService.updateDoc('foo', { a: 1 }, { name: 'xxx' });
         expect(result1).to.eql({
             method: 'POST',
             endpoint: '/database',
             params: {},
-            body: { updates: { '/foo/foo-1': null } },
+            body: { collection: 'foo', data: { a: 1 }, id: 1 },
         });
         expect(result2).to.eql({
             method: 'POST',
             endpoint: '/database',
             params: {},
-            body: { table: 'foo', data: { a: 1 }, id: 1 },
+            body: { collection: 'foo', data: { a: 1 }, doc: 'xxx' },
         });
         expect(result3).to.eql({
             method: 'POST',
             endpoint: '/database',
             params: {},
+            body: { collection: 'foo', data: { a: 1 }, where: 'name', equal: 'xxx' },
+        });
+    });
+
+    it('#update should work', async () => {
+        const result1 = await databaseService.update('foo', { a: 1 }, 1);
+        const result2 = await databaseService.update('foo', { a: 1 }, { name: 'xxx' });
+        expect(result1).to.eql({
+            method: 'POST',
+            endpoint: '/database',
+            params: {},
+            body: { table: 'foo', data: { a: 1 }, id: 1 },
+        });
+        expect(result2).to.eql({
+            method: 'POST',
+            endpoint: '/database',
+            params: {},
             body: { table: 'foo', data: { a: 1 }, where: 'name', equal: 'xxx' },
+        });
+    });
+
+    it('#updates should work', async () => {
+        const result1 = await databaseService.updates({ '/foo/foo-1': null });
+        expect(result1).to.eql({
+            method: 'POST',
+            endpoint: '/database',
+            params: {},
+            body: { updates: { '/foo/foo-1': null } },
         });
     });
 

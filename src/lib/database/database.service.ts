@@ -19,9 +19,21 @@ export class DatabaseService {
         return '/' + this.options.databaseEndpoint;
     }
 
-    /**
-     * SQL
-     */
+    private parseIdOrDocOrCondition(input: number | string | {[field: string]: string}) {
+        let result = {};
+        if (typeof input === 'number') {
+            result = { id: input };
+        } else if (typeof input === 'string') {
+            result = { doc: input };
+        } else {
+            const [ where ] = Object.keys(input);
+            result = {
+                where,
+                equal: input[where],
+            };
+        }
+        return result;
+    }
 
     async all(table: string, cache = true) {
         return await this.apiService.get(this.endpoint(), { table }, cache);
@@ -46,10 +58,6 @@ export class DatabaseService {
         });
     }
 
-    /**
-     * NoSQL
-     */
-
     async collection(collection: string, returnObject = false, cache = true) {
         return await this.apiService.get(this.endpoint(), {
             collection, type: returnObject ? 'object' : 'list',
@@ -72,25 +80,17 @@ export class DatabaseService {
         }, cache);
     }
 
-    async updateDoc(
-        collection: string,
-        data: {},
-        idOrDocOrCondition?: number | string | {[field: string]: string},
-    ) {
-        return await this.apiService.post(this.endpoint() + '/doc', {}, {
-            ... this.parseIdOrDocOrCondition(idOrDocOrCondition), collection, data,
-        });
-    }
-
-    /**
-     * Both
-     */
-
-    async query(tableOrCollection: string, query: SQLQuery | NoSQLQuery = {}, cache = true) {
+    async query(table: string, query: SQLQuery = {}, cache = true) {
         return await this.apiService.get(this.endpoint() + '/query', {
             ... query,
-            table: tableOrCollection,
-            collection: tableOrCollection,
+            table,
+        }, cache);
+    }
+
+    async deepQuery(collection: string, query: NoSQLQuery = {}, cache = true) {
+        return await this.apiService.get(this.endpoint() + '/query', {
+            ... query,
+            collection,
         }, cache);
     }
 
@@ -102,38 +102,33 @@ export class DatabaseService {
         }, cache);
     }
 
+    async updateDoc(
+        collection: string,
+        data: {},
+        idOrDocOrCondition?: number | string | {[field: string]: string},
+    ) {
+        return await this.apiService.post(this.endpoint(), {}, {
+            ... this.parseIdOrDocOrCondition(idOrDocOrCondition), collection, data,
+        });
+    }
+
     async update(
-        tableOrUpdates: string | {[path: string]: any},
-        data?: {},
+        table: string,
+        data: {},
         idOrCondition?: number | {[field: string]: string},
     ) {
-        let body = {};
-        if (typeof tableOrUpdates === 'string') {
-            body = {
-                ... this.parseIdOrDocOrCondition(idOrCondition),
-                table: tableOrUpdates,
-                data,
-            };
-        } else {
-            body = { updates: tableOrUpdates };
-        }
+        const body = {
+            ... this.parseIdOrDocOrCondition(idOrCondition),
+            table,
+            data,
+        };
         return await this.apiService.post(this.endpoint(), {}, body);
     }
 
-    private parseIdOrDocOrCondition(input: number | string | {[field: string]: string}) {
-        let result = {};
-        if (typeof input === 'number') {
-            result = { id: input };
-        } else if (typeof input === 'string') {
-            result = { doc: input };
-        } else {
-            const [ where ] = Object.keys(input);
-            result = {
-                where,
-                equal: input[where],
-            };
-        }
-        return result;
+    async updates(
+        updates: {[path: string]: any},
+    ) {
+        return await this.apiService.post(this.endpoint(), {}, { updates });
     }
 
 }

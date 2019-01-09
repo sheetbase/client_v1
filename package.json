@@ -1,7 +1,10 @@
 {
   "name": "@sheetbase/client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "JS client for Sheetbase app.",
+  "author": "Sheetbase",
+  "homepage": "https://sheetbase.net",
+  "license": "MIT",
   "main": "dist/sheetbase.js",
   "module": "dist/fesm5/sheetbase.js",
   "es2015": "dist/fesm2015/sheetbase.js",
@@ -15,12 +18,9 @@
   ],
   "scripts": {
     "docs": "typedoc src --out \"docs/api\" --mode file --readme none --excludeExternals --excludeNotExported --ignoreCompilerErrors",
-    "transpile-scripts": "tsc -p scripts/tsconfig.scripts.json",
-    "build": "npm run transpile-scripts && node build/scripts/build.js && npm run docs",
+    "build": "tsc -p scripts/tsconfig.scripts.json && node build/scripts/build.js && npm run docs",
     "lint": "tslint --project tslint.json && echo 'All files pass linting.'",
-    "transpile-test": "tsc -p tests/tsconfig.test.json",
-    "run-test": "nyc --cache false mocha --timeout 100000 -- build/tests/*.js",
-    "test": "npm run transpile-test && npm run run-test",
+    "test": "tsc -p tests/tsconfig.test.json && nyc --cache false mocha --timeout 100000 -- build/tests/*.js",
     "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
   },
   "nyc": {
@@ -28,21 +28,18 @@
       "**/tests"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/sheetbase/client.git"
-  },
   "keywords": [
     "sheetbase",
     "google-apps-script",
     "javascript"
   ],
-  "author": "Sheetbase",
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sheetbase/client.git"
+  },
   "bugs": {
     "url": "https://github.com/sheetbase/client/issues"
   },
-  "homepage": "https://sheetbase.net",
   "dependencies": {
     "kyx": "^0.5.1-1",
     "lscache": "^1.3.0"
@@ -51,7 +48,8 @@
     "@sheetbase/core-server": "0.0.19",
     "@sheetbase/drive-server": "0.0.8",
     "@sheetbase/gmail-server": "0.0.6",
-    "@sheetbase/sheets-server": "0.0.3",
+    "@sheetbase/sheets-server": "0.0.4",
+    "@sheetbase/user-server": "0.0.3",
     "@types/chai": "^4.1.7",
     "@types/lscache": "^1.0.29",
     "@types/mocha": "^5.2.5",
