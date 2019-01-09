@@ -40,15 +40,10 @@ describe('(Api) Api service', () => {
     afterEach(() => restoreStubs());
 
     it('#buildUrl should work', async () => {
-        // @ts-ignore
         const result1 = await apiService.buildUrl();
-        // @ts-ignore
         const result2 = await apiService.buildUrl('/');
-        // @ts-ignore
         const result3 = await apiService.buildUrl(null, { x: 1 });
-        // @ts-ignore
         const result4 = await apiService.buildUrl('/', { x: 1 });
-        // @ts-ignore
         const result5 = await apiService.buildUrl('/x', { a: 1, b: 2 });
         expect(result1).to.equal('');
         expect(result2).to.equal('?e=/');
@@ -59,7 +54,6 @@ describe('(Api) Api service', () => {
 
     it('#buildUrl should work (has apiKey)', async () => {
         const apiService = new ApiService({ backendUrl: '', apiKey: 'xxx' });
-        // @ts-ignore
         const result = await apiService.buildUrl();
         expect(result).to.equal('?apiKey=xxx');
     });

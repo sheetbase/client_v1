@@ -71,7 +71,7 @@ export class ApiService {
         return await this.post(endpoint, { ... params, method: 'DELETE' }, body);
     }
 
-    private buildUrl(endpoint?: string, params = {}) {
+    buildUrl(endpoint?: string, params = {}) {
         const { backendUrl, apiKey } = this.options;
         let url = backendUrl;
         if (!!apiKey) {
@@ -86,6 +86,18 @@ export class ApiService {
           url += '&' + key + '=' + params[key];
         }
         return url.replace('?&', '?');
+    }
+
+    buildEndpoint(base: string, paths?: string | string[]) {
+        let child = '';
+        if (!!paths) {
+            if (paths instanceof Array) {
+                child = '/' + paths.join('/');
+            } else {
+                child += ('/' + paths).replace('//', '/');
+            }
+        }
+        return '/' + base + child;
     }
 
 }
