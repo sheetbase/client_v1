@@ -15,12 +15,12 @@ export class MailService {
         this.apiService = new ApiService(options);
     }
 
-    endpoint() {
-        return '/' + this.options.mailEndpoint;
+    endpoint(paths?: string | string[]) {
+        return this.apiService.buildEndpoint(this.options.mailEndpoint, paths);
     }
 
     async quota() {
-        return await this.apiService.get(this.endpoint() + '/quota', {});
+        return await this.apiService.get(this.endpoint('quota'), {});
     }
 
     async send(mailingData: MailingData, transporter = 'gmail') {

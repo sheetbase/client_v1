@@ -15,8 +15,8 @@ export class DatabaseService {
         this.apiService = new ApiService(options);
     }
 
-    endpoint() {
-        return '/' + this.options.databaseEndpoint;
+    endpoint(paths?: string | string[]) {
+        return this.apiService.buildEndpoint(this.options.databaseEndpoint, paths);
     }
 
     private parseIdOrDocOrCondition(input: number | string | {[field: string]: string}) {
@@ -81,21 +81,21 @@ export class DatabaseService {
     }
 
     async query(table: string, query: SQLQuery = {}, cache = true) {
-        return await this.apiService.get(this.endpoint() + '/query', {
+        return await this.apiService.get(this.endpoint('query'), {
             ... query,
             table,
         }, cache);
     }
 
     async deepQuery(collection: string, query: NoSQLQuery = {}, cache = true) {
-        return await this.apiService.get(this.endpoint() + '/query', {
+        return await this.apiService.get(this.endpoint('query'), {
             ... query,
             collection,
         }, cache);
     }
 
     async search(tableOrCollection: string, s: string, cache = true) {
-        return await this.apiService.get(this.endpoint() + '/search', {
+        return await this.apiService.get(this.endpoint('search'), {
             table: tableOrCollection,
             collection: tableOrCollection,
             s,

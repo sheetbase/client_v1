@@ -15,8 +15,8 @@ export class StorageService {
         this.apiService = new ApiService(options);
     }
 
-    endpoint() {
-        return '/' + this.options.storageEndpoint;
+    endpoint(paths?: string | string[]) {
+        return this.apiService.buildEndpoint(this.options.storageEndpoint, paths);
     }
 
     async info(fileId: string) {
