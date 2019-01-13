@@ -1,4 +1,4 @@
-import { UserData } from '@sheetbase/user-server';
+import { UserInfo, UserProfile } from '@sheetbase/user-server';
 
 import { ApiService } from '../api/api.service';
 import { AuthService } from './auth.service';
@@ -11,10 +11,11 @@ export class User {
     private idToken: string;
     refreshToken: string;
 
-    private profile: UserData;
     // user info
+    private info: UserInfo;
     uid: string;
-    provider: string;
+    providerId: string;
+    providerData: any;
     email: string;
     emailVerified: boolean;
     createdAt: number;
@@ -22,13 +23,13 @@ export class User {
     username: string;
     displayName: string;
     phoneNumber: string;
-    photoUrl: string;
+    photoURL: string;
     claims: {[claim: string]: any};
 
     constructor(
         Auth: AuthService,
         Api: ApiService,
-        profile: UserData,
+        info: UserInfo,
         idToken: string,
         refreshToken: string,
     ) {
@@ -36,28 +37,28 @@ export class User {
         this.Api = Api;
         this.idToken = idToken;
         this.refreshToken = refreshToken;
-        this.setProfile(profile);
+        this.setInfo(info);
     }
 
-    private setProfile(profile: UserData) {
-        this.profile = profile;
+    private setInfo(info: UserInfo) {
+        this.info = info;
         // user info
-        this.uid = this.profile.uid;
-        this.provider = this.profile.provider;
-        this.email = this.profile.email;
-        this.emailVerified = this.profile.emailVerified;
-        this.createdAt = this.profile.createdAt;
-        this.lastLogin = this.profile.lastLogin;
-        this.username = this.profile.username;
-        this.displayName = this.profile.displayName;
-        this.phoneNumber = this.profile.phoneNumber;
-        this.photoUrl = this.profile.photoUrl;
-        this.claims = this.profile.claims;
-
+        this.uid = this.info.uid;
+        this.providerId = this.info.providerId;
+        this.providerData = this.info.providerData;
+        this.email = this.info.email;
+        this.emailVerified = this.info.emailVerified;
+        this.createdAt = this.info.createdAt;
+        this.lastLogin = this.info.lastLogin;
+        this.username = this.info.username;
+        this.displayName = this.info.displayName;
+        this.phoneNumber = this.info.phoneNumber;
+        this.photoURL = this.info.photoURL;
+        this.claims = this.info.claims;
     }
 
     toJSON() {
-        return this.profile;
+        return { ... this.info };
     }
 
     async getIdToken(forceRefresh = false) {
@@ -79,16 +80,28 @@ export class User {
         );
     }
 
-    async updateProfile(profile: UserData) {
-        this.setProfile(
+    async sendEmailVerification() {
+        await this.Api.put(this.Auth.endpoint('action'), {}, {
+            mode: 'verifyEmail',
+            email: this.email,
+        });
+    }
+
+    // TODO: async updateEmail(newEmail: string) {}
+
+    // TODO: async updatePassword(newPassword: string) {}
+
+    // TODO: async updatePhoneNumber(phoneCredential: any) {}
+
+    async updateProfile(profile: UserProfile) {
+        this.setInfo(
             await this.Api.post(this.Auth.endpoint(), {}, { profile }),
         );
     }
 
-    async sendEmailVerification() {
-        await this.Api.put(this.Auth.endpoint('action'), {}, {
-            mode: 'emailConfirmation',
-            email: this.email,
+    async delete() {
+        await this.Api.delete(this.Auth.endpoint('cancel'), {}, {
+            refreshToken: this.refreshToken,
         });
     }
 

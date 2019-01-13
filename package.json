@@ -41,7 +41,9 @@
     "url": "https://github.com/sheetbase/client/issues"
   },
   "dependencies": {
+    "js-cookie": "^2.2.0",
     "kyx": "^0.5.1-1",
+    "localforage": "^1.7.3",
     "lscache": "^1.3.0",
     "pubsub-js": "^1.7.0"
   },
@@ -50,8 +52,9 @@
     "@sheetbase/drive-server": "0.0.8",
     "@sheetbase/gmail-server": "0.0.6",
     "@sheetbase/sheets-server": "0.0.4",
-    "@sheetbase/user-server": "0.0.3",
+    "@sheetbase/user-server": "file:../../server/sheetbase-user-server-0.0.4.tgz",
     "@types/chai": "^4.1.7",
+    "@types/js-cookie": "^2.2.0",
     "@types/lscache": "^1.0.29",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.15",
