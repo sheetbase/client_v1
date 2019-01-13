@@ -12,9 +12,8 @@ export class DatabaseService {
             databaseEndpoint: 'database',
             ... options,
         };
-        this.Api = new ApiService(options, {
-            endpoint: this.options.databaseEndpoint,
-        });
+        this.Api = new ApiService(options)
+            .setData({ endpoint: this.options.databaseEndpoint });
     }
 
     private parseIdOrDocOrCondition(input: number | string | {[field: string]: string}) {

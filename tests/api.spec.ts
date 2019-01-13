@@ -59,18 +59,14 @@ describe('(Api) Api service', () => {
     });
 
     it('#buildEndpoint (has baseEndpoint)', () => {
-        const apiService1 = new ApiService({ backendUrl: '' }, {
-            endpoint: '123',
-        });
-        const apiService2 = new ApiService({ backendUrl: '' }, {
-            endpoint: '/123',
-        });
-        const apiService3 = new ApiService({ backendUrl: '' }, {
-            endpoint: '123/',
-        });
-        const apiService4 = new ApiService({ backendUrl: '' }, {
-            endpoint: '/123/',
-        });
+        const apiService1 = new ApiService({ backendUrl: '' });
+        const apiService2 = new ApiService({ backendUrl: '' });
+        const apiService3 = new ApiService({ backendUrl: '' });
+        const apiService4 = new ApiService({ backendUrl: '' });
+        apiService1.setData({ endpoint: '123' });
+        apiService2.setData({ endpoint: '/123' });
+        apiService3.setData({ endpoint: '123/' });
+        apiService4.setData({ endpoint: '/123' });
         const result1 = apiService1.buildEndpoint();
         const result2 = apiService1.buildEndpoint('/');
         const result3 = apiService1.buildEndpoint('xxx');
@@ -95,7 +91,7 @@ describe('(Api) Api service', () => {
     });
 
     it('#buildQuery (has predefinedQuery)', () => {
-        const apiService = new ApiService({ backendUrl: '' }, {
+        const apiService = new ApiService({ backendUrl: '' }).setData({
             query: { a: 1 },
         });
 
@@ -128,7 +124,7 @@ describe('(Api) Api service', () => {
     });
 
     it('#buildBody (has predefinedBody)', () => {
-        const apiService = new ApiService({ backendUrl: '' }, {
+        const apiService = new ApiService({ backendUrl: '' }).setData({
             body: { a: 1 },
         });
 
@@ -151,8 +147,9 @@ describe('(Api) Api service', () => {
         expect(result4).to.equal('?e=/xxx&a=1');
     });
 
-    it('#instance', () => {
-        const result = apiService.instance();
+    it('#setData', () => {
+        const apiService = new ApiService({ backendUrl: '' });
+        const result = apiService.setData();
         expect(result instanceof ApiService).to.equal(true);
     });
 

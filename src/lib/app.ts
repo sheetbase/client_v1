@@ -7,6 +7,7 @@ import { MailService } from './mail/mail.service';
 
 export class App {
     private _options: Options;
+
     Api: ApiService;
     Database: DatabaseService;
     Auth: AuthService;

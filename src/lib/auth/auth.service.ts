@@ -24,9 +24,8 @@ export class AuthService {
             authEndpoint: 'auth',
             ... options,
         };
-        this.Api = new ApiService(options, {
-            endpoint: this.options.authEndpoint,
-        });
+        this.Api = new ApiService(options)
+            .setData({ endpoint: this.options.authEndpoint });
         // try sign in from local
         this.signInLocal();
     }

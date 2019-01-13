@@ -1,10 +1,12 @@
 import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
 import ky from 'kyx';
-import { get as cacheGet, set as cacheSet } from 'lscache/lscache.min';
+import { get as cacheGet, set as cacheSet } from 'lscache';
+import * as _md5 from 'md5';
+const md5 = _md5;
 
 import { Options } from '../types';
 
-export interface InstanceOptions {
+export interface InstanceData {
     endpoint?: string;
     query?: {};
     body?: {};
@@ -12,24 +14,20 @@ export interface InstanceOptions {
 
 export class ApiService {
     private options: Options;
-    private baseEndpoint: string;
-    private predefinedQuery: {[key: string]: string};
-    private predefinedBody: {[key: string]: any};
+    private baseEndpoint = '';
+    private predefinedQuery = {};
+    private predefinedBody = {};
 
-    constructor(
-        options: Options,
-        instanceOptions: InstanceOptions = {},
-    ) {
+    constructor(options: Options) {
         this.options = options;
-        // set instance options
-        const { endpoint = '', query = {}, body = {} } = instanceOptions;
-        this.baseEndpoint = endpoint;
-        this.predefinedQuery = query;
-        this.predefinedBody = body;
     }
 
-    instance(instanceOptions: InstanceOptions = {}): ApiService {
-        return new ApiService(this.options, instanceOptions);
+    setData(data: InstanceData = {}): ApiService {
+        const { endpoint, query, body } = data;
+        if (!!endpoint) { this.baseEndpoint = endpoint; }
+        if (!!query) { this.predefinedQuery = query; }
+        if (!!body) { this.predefinedBody = body; }
+        return this;
     }
 
     async request(inputs: {
@@ -54,9 +52,7 @@ export class ApiService {
             this.buildQuery(query),
         );
         // retrieve cache
-        const cacheKey = url
-            .replace('https://script.google.com/macros/s/', '')
-            .replace(/\/|\.|\?|\&/g, '-');
+        const cacheKey = md5(url);
         const cachedData = cacheGet(cacheKey);
         if (cache && !!cachedData) {
             return cachedData;

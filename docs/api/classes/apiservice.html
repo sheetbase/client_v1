@@ -83,19 +83,26 @@
 						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="apiservice.html#baseendpoint" class="tsd-kind-icon">base<wbr>Endpoint</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="apiservice.html#options" class="tsd-kind-icon">options</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="apiservice.html#predefinedbody" class="tsd-kind-icon">predefined<wbr>Body</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="apiservice.html#predefinedquery" class="tsd-kind-icon">predefined<wbr>Query</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="apiservice.html#buildurl" class="tsd-kind-icon">build<wbr>Url</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#buildbody" class="tsd-kind-icon">build<wbr>Body</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#buildendpoint" class="tsd-kind-icon">build<wbr>Endpoint</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#buildquery" class="tsd-kind-icon">build<wbr>Query</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#buildurl" class="tsd-kind-icon">build<wbr>Url</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#delete" class="tsd-kind-icon">delete</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#get" class="tsd-kind-icon">get</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#patch" class="tsd-kind-icon">patch</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#post" class="tsd-kind-icon">post</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#put" class="tsd-kind-icon">put</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#request" class="tsd-kind-icon">request</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="apiservice.html#setdata" class="tsd-kind-icon">set<wbr>Data</a></li>
 							</ul>
 						</section>
 					</div>
@@ -113,7 +120,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/c3fc6cd/src/lib/api/api.service.ts#L8">lib/api/api.service.ts:8</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L19">lib/api/api.service.ts:19</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -130,40 +137,153 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="baseendpoint" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> base<wbr>Endpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">base<wbr>Endpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L17">lib/api/api.service.ts:17</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="options" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> options</h3>
 					<div class="tsd-signature tsd-kind-icon">options<span class="tsd-signature-symbol">:</span> <a href="../interfaces/options.html" class="tsd-signature-type">Options</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/c3fc6cd/src/lib/api/api.service.ts#L8">lib/api/api.service.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L16">lib/api/api.service.ts:16</a></li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="predefinedbody" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> predefined<wbr>Body</h3>
+					<div class="tsd-signature tsd-kind-icon">predefined<wbr>Body<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L19">lib/api/api.service.ts:19</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="predefinedquery" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> predefined<wbr>Query</h3>
+					<div class="tsd-signature tsd-kind-icon">predefined<wbr>Query<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L18">lib/api/api.service.ts:18</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+						</ul>
+					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="buildurl" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> build<wbr>Url</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">build<wbr>Url<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="buildbody" class="tsd-anchor"></a>
+					<h3>build<wbr>Body</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Body<span class="tsd-signature-symbol">(</span>body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/c3fc6cd/src/lib/api/api.service.ts#L74">lib/api/api.service.ts:74</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L122">lib/api/api.service.ts:122</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> endpoint: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> params: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> body: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
 									<ul class="tsd-parameters">
 									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<ul class="tsd-parameters">
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="buildendpoint" class="tsd-anchor"></a>
+					<h3>build<wbr>Endpoint</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Endpoint<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L100">lib/api/api.service.ts:100</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> endpoint: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;&quot;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="buildquery" class="tsd-anchor"></a>
+					<h3>build<wbr>Query</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Query<span class="tsd-signature-symbol">(</span>query<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L107">lib/api/api.service.ts:107</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> query: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="buildurl" class="tsd-anchor"></a>
+					<h3>build<wbr>Url</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Url<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, query<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L126">lib/api/api.service.ts:126</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> endpoint: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;&quot;</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> query: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;&quot;</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -174,13 +294,13 @@
 					<a name="delete" class="tsd-anchor"></a>
 					<h3>delete</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">delete<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">delete<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, query<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/c3fc6cd/src/lib/api/api.service.ts#L70">lib/api/api.service.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L96">lib/api/api.service.ts:96</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -189,7 +309,7 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> endpoint: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> params: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> query: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
 									<ul class="tsd-parameters">
 									</ul>
 								</li>
@@ -207,13 +327,13 @@
 					<a name="get" class="tsd-anchor"></a>
 					<h3>get</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, cache<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, query<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, cache<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/c3fc6cd/src/lib/api/api.service.ts#L30">lib/api/api.service.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L50">lib/api/api.service.ts:50</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -222,7 +342,7 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> endpoint: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> params: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> query: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
 									<ul class="tsd-parameters">
 									</ul>
 								</li>
@@ -238,13 +358,13 @@
 					<a name="patch" class="tsd-anchor"></a>
 					<h3>patch</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">patch<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">patch<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, query<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/c3fc6cd/src/lib/api/api.service.ts#L66">lib/api/api.service.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L92">lib/api/api.service.ts:92</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -253,7 +373,7 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> endpoint: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> params: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> query: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
 									<ul class="tsd-parameters">
 									</ul>
 								</li>
@@ -271,13 +391,13 @@
 					<a name="post" class="tsd-anchor"></a>
 					<h3>post</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">post<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">post<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, query<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/c3fc6cd/src/lib/api/api.service.ts#L52">lib/api/api.service.ts:52</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L73">lib/api/api.service.ts:73</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -286,7 +406,7 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> endpoint: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> params: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> query: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
 									<ul class="tsd-parameters">
 									</ul>
 								</li>
@@ -304,13 +424,13 @@
 					<a name="put" class="tsd-anchor"></a>
 					<h3>put</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">put<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">put<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, query<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span>, body<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/c3fc6cd/src/lib/api/api.service.ts#L62">lib/api/api.service.ts:62</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L88">lib/api/api.service.ts:88</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -319,7 +439,7 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> endpoint: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> params: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> query: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
 									<ul class="tsd-parameters">
 									</ul>
 								</li>
@@ -343,7 +463,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/c3fc6cd/src/lib/api/api.service.ts#L14">lib/api/api.service.ts:14</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L34">lib/api/api.service.ts:34</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -355,6 +475,29 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setdata" class="tsd-anchor"></a>
+					<h3>set<wbr>Data</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Data<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">?: </span><a href="../interfaces/instancedata.html" class="tsd-signature-type">InstanceData</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="apiservice.html" class="tsd-signature-type">ApiService</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/5725521/src/lib/api/api.service.ts#L25">lib/api/api.service.ts:25</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> data: <a href="../interfaces/instancedata.html" class="tsd-signature-type">InstanceData</a><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="apiservice.html" class="tsd-signature-type">ApiService</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -379,9 +522,27 @@
 								<a href="apiservice.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="apiservice.html#baseendpoint" class="tsd-kind-icon">base<wbr>Endpoint</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="apiservice.html#options" class="tsd-kind-icon">options</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="apiservice.html#predefinedbody" class="tsd-kind-icon">predefined<wbr>Body</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="apiservice.html#predefinedquery" class="tsd-kind-icon">predefined<wbr>Query</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="apiservice.html#buildbody" class="tsd-kind-icon">build<wbr>Body</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="apiservice.html#buildendpoint" class="tsd-kind-icon">build<wbr>Endpoint</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="apiservice.html#buildquery" class="tsd-kind-icon">build<wbr>Query</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="apiservice.html#buildurl" class="tsd-kind-icon">build<wbr>Url</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -401,6 +562,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="apiservice.html#request" class="tsd-kind-icon">request</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="apiservice.html#setdata" class="tsd-kind-icon">set<wbr>Data</a>
 							</li>
 						</ul>
 					</li>
@@ -424,6 +588,9 @@
 					<li class=" tsd-kind-class">
 						<a href="storageservice.html" class="tsd-kind-icon">Storage<wbr>Service</a>
 					</li>
+					<li class=" tsd-kind-class">
+						<a href="user.html" class="tsd-kind-icon">User</a>
+					</li>
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/apioptions.html" class="tsd-kind-icon">Api<wbr>Options</a>
 					</li>
@@ -434,10 +601,16 @@
 						<a href="../interfaces/databaseoptions.html" class="tsd-kind-icon">Database<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="../interfaces/instancedata.html" class="tsd-kind-icon">Instance<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="../interfaces/mailoptions.html" class="tsd-kind-icon">Mail<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/options.html" class="tsd-kind-icon">Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/signindata.html" class="tsd-kind-icon">Sign<wbr>InData</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/storageoptions.html" class="tsd-kind-icon">Storage<wbr>Options</a>
@@ -453,6 +626,9 @@
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="../index.html#database" class="tsd-kind-icon">database</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="../index.html#decodejwtpayload" class="tsd-kind-icon">decodeJWTPayload</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="../index.html#initializeapp" class="tsd-kind-icon">initialize<wbr>App</a>
