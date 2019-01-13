@@ -30,35 +30,54 @@ describe('(Api) Api service', () => {
 
     beforeEach(() => {
         buildStubs();
-        apiGetStub.callsFake(async (endpoint, params) => {
-            return { method: 'GET', endpoint, params };
+        apiGetStub.callsFake(async (endpoint, query) => {
+            return { method: 'GET', endpoint, query };
         });
-        apiPostStub.callsFake(async (endpoint, params, body) => {
-            return { method: 'POST', endpoint, params, body };
+        apiPostStub.callsFake(async (endpoint, query, body) => {
+            return { method: 'POST', endpoint, query, body };
         });
     });
+
     afterEach(() => restoreStubs());
 
-    it('#buildUrl should work', async () => {
-        const result1 = await apiService.buildUrl();
-        const result2 = await apiService.buildUrl('/');
-        const result3 = await apiService.buildUrl(null, { x: 1 });
-        const result4 = await apiService.buildUrl('/', { x: 1 });
-        const result5 = await apiService.buildUrl('/x', { a: 1, b: 2 });
+    it('#buildQuery', () => {
+        const result1 = apiService.buildQuery();
+        const result2 = apiService.buildQuery({ x: 1 });
+        const result3 = apiService.buildQuery({ a: 1, b: 2 });
+        expect(result1).to.equal('');
+        expect(result2).to.equal('x=1');
+        expect(result3).to.equal('a=1&b=2');
+    });
+
+    it('#buildQuery (has apiKey)', () => {
+        const apiService = new ApiService({
+            backendUrl: '',
+            apiKey: 'xxx',
+        });
+        const result = apiService.buildQuery();
+        expect(result).to.equal('apiKey=xxx');
+    });
+
+    it('#buildBody', () => {
+
+    });
+
+    it('#buildUrl', () => {
+        const result1 = apiService.buildUrl();
+        const result2 = apiService.buildUrl('/');
         expect(result1).to.equal('');
         expect(result2).to.equal('?e=/');
-        expect(result3).to.equal('?x=1');
-        expect(result4).to.equal('?e=/&x=1');
-        expect(result5).to.equal('?e=/x&a=1&b=2');
     });
 
-    it('#buildUrl should work (has apiKey)', async () => {
-        const apiService = new ApiService({ backendUrl: '', apiKey: 'xxx' });
-        const result = await apiService.buildUrl();
-        expect(result).to.equal('?apiKey=xxx');
+    it('#buildUrl (has baseEndpoint)', () => {
+
     });
 
-    it('#request should work ', async () => {
+    it('#instance', () => {
+
+    });
+
+    it('#request ', async () => {
         const result1 = await apiService.request();
         const result2 = await apiService.request({
             method: 'GET',
@@ -67,23 +86,23 @@ describe('(Api) Api service', () => {
             method: 'POST',
         });
         const result4 = await apiService.request({
-            method: 'PUT', endpoint: '/xxx', params: { a: 1 }, body: { b: 2 },
+            method: 'PUT', endpoint: '/xxx', query: { a: 1 }, body: { b: 2 },
         });
         expect(result1).to.eql({
-            method: 'GET', endpoint: '/', params: {},
+            method: 'GET', endpoint: '/', query: {},
         });
         expect(result2).to.eql({
-            method: 'GET', endpoint: '/', params: {},
+            method: 'GET', endpoint: '/', query: {},
         });
         expect(result3).to.eql({
-            method: 'POST', endpoint: '/', params: {}, body: {},
+            method: 'POST', endpoint: '/', query: {}, body: {},
         });
         expect(result4).to.eql({
-            method: 'POST', endpoint: '/xxx', params: { method: 'PUT', a: 1 }, body: { b: 2 },
+            method: 'POST', endpoint: '/xxx', query: { method: 'PUT', a: 1 }, body: { b: 2 },
         });
     });
 
-    it('#get should work ', async () => {
+    it('#get ', async () => {
         kyGetStub.onFirstCall().returns({
             json: async () => ({ data: true }),
         });
@@ -93,7 +112,7 @@ describe('(Api) Api service', () => {
         expect(result).to.equal(true);
     });
 
-    it('#post should work ', async () => {
+    it('#post ', async () => {
         kyPostStub.onFirstCall().returns({
             json: async () => ({ data: true }),
         });
@@ -103,32 +122,32 @@ describe('(Api) Api service', () => {
         expect(result).to.equal(true);
     });
 
-    it('#put should work ', async () => {
+    it('#put ', async () => {
         const result = await apiService.put('/');
         expect(result).to.eql({
             method: 'POST',
             endpoint: '/',
-            params: { method: 'PUT' },
+            query: { method: 'PUT' },
             body: {},
         });
     });
 
-    it('#patch should work ', async () => {
+    it('#patch ', async () => {
         const result = await apiService.patch('/', { a: 1 });
         expect(result).to.eql({
             method: 'POST',
             endpoint: '/',
-            params: { method: 'PATCH', a: 1 },
+            query: { method: 'PATCH', a: 1 },
             body: {},
         });
     });
 
-    it('#delete should work ', async () => {
+    it('#delete ', async () => {
         const result = await apiService.delete('/', {}, { b: 2 });
         expect(result).to.eql({
             method: 'POST',
             endpoint: '/',
-            params: { method: 'DELETE' },
+            query: { method: 'DELETE' },
             body: { b: 2 },
         });
     });
