@@ -12,9 +12,9 @@ let apiPostStub: sinon.SinonStub;
 
 function buildStubs() {
     // @ts-ignore
-    apiGetStub = sinon.stub(storageService.apiService, 'get');
+    apiGetStub = sinon.stub(storageService.Api, 'get');
     // @ts-ignore
-    apiPostStub = sinon.stub(storageService.apiService, 'post');
+    apiPostStub = sinon.stub(storageService.Api, 'post');
 }
 
 function restoreStubs() {
@@ -49,21 +49,16 @@ describe('(Storage) Storage service', () => {
         expect(storageService.options.storageEndpoint).to.equal('xxx');
     });
 
-    it('.apiService should be initiated', () => {
+    it('.Api should be initiated', () => {
         // @ts-ignore
-        expect(storageService.apiService instanceof ApiService).to.equal(true);
-    });
-
-    it('#endpoint should work', () => {
-        const result = storageService.endpoint();
-        expect(result).to.equal('/storage');
+        expect(storageService.Api instanceof ApiService).to.equal(true);
     });
 
     it('#info should work', async () => {
         const result = await storageService.info('xxx');
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/storage',
+            endpoint: '/',
             params: { id: 'xxx' },
         });
     });
@@ -76,7 +71,7 @@ describe('(Storage) Storage service', () => {
         }, 'me', 'filex');
         expect(result).to.eql({
             method: 'POST',
-            endpoint: '/storage',
+            endpoint: '/',
             params: {},
             body: {
                 fileResource: {

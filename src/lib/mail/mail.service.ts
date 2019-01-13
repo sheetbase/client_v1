@@ -5,26 +5,24 @@ import { ApiService } from '../api/api.service';
 
 export class MailService {
     private options: Options;
-    private apiService: ApiService;
+    private Api: ApiService;
 
     constructor(options: Options) {
         this.options = {
             mailEndpoint: 'mail',
             ... options,
         };
-        this.apiService = new ApiService(options);
-    }
-
-    endpoint(paths?: string | string[]) {
-        return this.apiService.buildEndpoint(this.options.mailEndpoint, paths);
+        this.Api = new ApiService(options, {
+            endpoint: this.options.mailEndpoint,
+        });
     }
 
     async quota() {
-        return await this.apiService.get(this.endpoint('quota'), {});
+        return await this.Api.get('/quota', {});
     }
 
     async send(mailingData: MailingData, transporter = 'gmail') {
-        return await this.apiService.post(this.endpoint(), {}, { mailingData, transporter });
+        return await this.Api.post('/', {}, { mailingData, transporter });
     }
 
 }

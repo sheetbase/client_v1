@@ -12,9 +12,9 @@ let apiPostStub: sinon.SinonStub;
 
 function buildStubs() {
     // @ts-ignore
-    apiGetStub = sinon.stub(mailService.apiService, 'get');
+    apiGetStub = sinon.stub(mailService.Api, 'get');
     // @ts-ignore
-    apiPostStub = sinon.stub(mailService.apiService, 'post');
+    apiPostStub = sinon.stub(mailService.Api, 'post');
 }
 
 function restoreStubs() {
@@ -49,21 +49,16 @@ describe('(Mail) Mail service', () => {
         expect(mailService.options.mailEndpoint).to.equal('xxx');
     });
 
-    it('.apiService should be initiated', () => {
+    it('.Api should be initiated', () => {
         // @ts-ignore
-        expect(mailService.apiService instanceof ApiService).to.equal(true);
-    });
-
-    it('#endpoint should work', () => {
-        const result = mailService.endpoint();
-        expect(result).to.equal('/mail');
+        expect(mailService.Api instanceof ApiService).to.equal(true);
     });
 
     it('#quota should work', async () => {
         const result = await mailService.quota();
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/mail/quota',
+            endpoint: '/quota',
             params: {},
         });
     });
@@ -74,7 +69,7 @@ describe('(Mail) Mail service', () => {
         }, 'mail');
         expect(result).to.eql({
             method: 'POST',
-            endpoint: '/mail',
+            endpoint: '/',
             params: {},
             body: {
                 mailingData: {

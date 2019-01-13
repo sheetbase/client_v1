@@ -5,22 +5,20 @@ import { ApiService } from '../api/api.service';
 
 export class StorageService {
     private options: Options;
-    private apiService: ApiService;
+    private Api: ApiService;
 
     constructor(options: Options) {
         this.options = {
             storageEndpoint: 'storage',
             ... options,
         };
-        this.apiService = new ApiService(options);
-    }
-
-    endpoint(paths?: string | string[]) {
-        return this.apiService.buildEndpoint(this.options.storageEndpoint, paths);
+        this.Api = new ApiService(options, {
+            endpoint: this.options.storageEndpoint,
+        });
     }
 
     async info(fileId: string) {
-        return await this.apiService.get(this.endpoint(), { id: fileId });
+        return await this.Api.get('/', { id: fileId });
     }
 
     async upload(
@@ -35,7 +33,7 @@ export class StorageService {
         const body: any = { fileResource };
         if (customFolder) { body.customFolder = customFolder; }
         if (rename) { body.rename = rename; }
-        return await this.apiService.post(this.endpoint(), {}, body);
+        return await this.Api.post('/', {}, body);
     }
 
     async load(file: File) {

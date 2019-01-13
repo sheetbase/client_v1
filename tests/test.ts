@@ -1,6 +1,8 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
+import * as sinon from 'sinon';
 
+import * as localforage from 'localforage';
 import { initializeApp, app, api, database, auth, storage, mail } from '../src/sheetbase';
 
 import { AppsService } from '../src/lib/app';
@@ -9,6 +11,8 @@ import { DatabaseService } from '../src/lib/database/database.service';
 import { AuthService } from '../src/lib/auth/auth.service';
 import { StorageService } from '../src/lib/storage/storage.service';
 import { MailService } from '../src/lib/mail/mail.service';
+
+sinon.stub(localforage);
 
 describe('#initializeApp', () => {
 

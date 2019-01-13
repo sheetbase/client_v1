@@ -13,11 +13,11 @@ let apiDeleteStub: sinon.SinonStub;
 
 function buildStubs() {
     // @ts-ignore
-    apiGetStub = sinon.stub(databaseService.apiService, 'get');
+    apiGetStub = sinon.stub(databaseService.Api, 'get');
     // @ts-ignore
-    apiPostStub = sinon.stub(databaseService.apiService, 'post');
+    apiPostStub = sinon.stub(databaseService.Api, 'post');
     // @ts-ignore
-    apiDeleteStub = sinon.stub(databaseService.apiService, 'delete');
+    apiDeleteStub = sinon.stub(databaseService.Api, 'delete');
 }
 
 function restoreStubs() {
@@ -30,14 +30,14 @@ describe('(Database) Database service', () => {
 
     beforeEach(() => {
         buildStubs();
-        apiGetStub.callsFake(async (endpoint, params) => {
-            return { method: 'GET', endpoint, params };
+        apiGetStub.callsFake(async (endpoint, query) => {
+            return { method: 'GET', endpoint, query };
         });
-        apiPostStub.callsFake(async (endpoint, params, body) => {
-            return { method: 'POST', endpoint, params, body };
+        apiPostStub.callsFake(async (endpoint, query, body) => {
+            return { method: 'POST', endpoint, query, body };
         });
-        apiDeleteStub.callsFake(async (endpoint, params, body) => {
-            return { method: 'DELETE', endpoint, params, body };
+        apiDeleteStub.callsFake(async (endpoint, query, body) => {
+            return { method: 'DELETE', endpoint, query, body };
         });
     });
     afterEach(() => restoreStubs());
@@ -56,14 +56,9 @@ describe('(Database) Database service', () => {
         expect(databaseService.options.databaseEndpoint).to.equal('xxx');
     });
 
-    it('.apiService should be initiated', () => {
+    it('.Api should be initiated', () => {
         // @ts-ignore
-        expect(databaseService.apiService instanceof ApiService).to.equal(true);
-    });
-
-    it('#endpoint should work', () => {
-        const result = databaseService.endpoint();
-        expect(result).to.equal('/database');
+        expect(databaseService.Api instanceof ApiService).to.equal(true);
     });
 
     it('#parseIdOrDocOrCondition should work', () => {
@@ -82,8 +77,8 @@ describe('(Database) Database service', () => {
         const result = await databaseService.all('foo');
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/database',
-            params: { table: 'foo' },
+            endpoint: '/',
+            query: { table: 'foo' },
         });
     });
 
@@ -92,13 +87,13 @@ describe('(Database) Database service', () => {
         const result2 = await databaseService.item('foo', { name: 'xxx' });
         expect(result1).to.eql({
             method: 'GET',
-            endpoint: '/database',
-            params: { table: 'foo', id: 1 },
+            endpoint: '/',
+            query: { table: 'foo', id: 1 },
         });
         expect(result2).to.eql({
             method: 'GET',
-            endpoint: '/database',
-            params: { table: 'foo', where: 'name', equal: 'xxx' },
+            endpoint: '/',
+            query: { table: 'foo', where: 'name', equal: 'xxx' },
         });
     });
 
@@ -107,14 +102,14 @@ describe('(Database) Database service', () => {
         const result2 = await databaseService.delete('foo', { name: 'xxx' });
         expect(result1).to.eql({
             method: 'DELETE',
-            endpoint: '/database',
-            params: {},
+            endpoint: '/',
+            query: {},
             body: { table: 'foo', id: 1 },
         });
         expect(result2).to.eql({
             method: 'DELETE',
-            endpoint: '/database',
-            params: {},
+            endpoint: '/',
+            query: {},
             body: { table: 'foo', where: 'name', equal: 'xxx' },
         });
     });
@@ -124,13 +119,13 @@ describe('(Database) Database service', () => {
         const result2 = await databaseService.collection('foo', true);
         expect(result1).to.eql({
             method: 'GET',
-            endpoint: '/database',
-            params: { collection: 'foo', type: 'list' },
+            endpoint: '/',
+            query: { collection: 'foo', type: 'list' },
         });
         expect(result2).to.eql({
             method: 'GET',
-            endpoint: '/database',
-            params: { collection: 'foo', type: 'object' },
+            endpoint: '/',
+            query: { collection: 'foo', type: 'object' },
         });
     });
 
@@ -138,8 +133,8 @@ describe('(Database) Database service', () => {
         const result = await databaseService.doc('foo', 'foo-1');
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/database',
-            params: { collection: 'foo', doc: 'foo-1' },
+            endpoint: '/',
+            query: { collection: 'foo', doc: 'foo-1' },
         });
     });
 
@@ -147,8 +142,8 @@ describe('(Database) Database service', () => {
         const result = await databaseService.object('/foo/foo-1');
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/database',
-            params: { path: '/foo/foo-1', type: 'object' },
+            endpoint: '/',
+            query: { path: '/foo/foo-1', type: 'object' },
         });
     });
 
@@ -156,8 +151,8 @@ describe('(Database) Database service', () => {
         const result = await databaseService.list('/foo/foo-1');
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/database',
-            params: { path: '/foo/foo-1', type: 'list' },
+            endpoint: '/',
+            query: { path: '/foo/foo-1', type: 'list' },
         });
     });
 
@@ -165,8 +160,8 @@ describe('(Database) Database service', () => {
         const result = await databaseService.query('foo', { limit: 10 });
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/database/query',
-            params: { table: 'foo', limit: 10 },
+            endpoint: '/query',
+            query: { table: 'foo', limit: 10 },
         });
     });
 
@@ -174,8 +169,8 @@ describe('(Database) Database service', () => {
         const result = await databaseService.deepQuery('foo', { limitToFirst: 10 });
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/database/query',
-            params: { collection: 'foo', limitToFirst: 10 },
+            endpoint: '/query',
+            query: { collection: 'foo', limitToFirst: 10 },
         });
     });
 
@@ -183,8 +178,8 @@ describe('(Database) Database service', () => {
         const result = await databaseService.search('foo', 'xxx');
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/database/search',
-            params: { table: 'foo', collection: 'foo', s: 'xxx' },
+            endpoint: '/search',
+            query: { table: 'foo', collection: 'foo', s: 'xxx' },
         });
     });
 
@@ -194,20 +189,20 @@ describe('(Database) Database service', () => {
         const result3 = await databaseService.updateDoc('foo', { a: 1 }, { name: 'xxx' });
         expect(result1).to.eql({
             method: 'POST',
-            endpoint: '/database',
-            params: {},
+            endpoint: '/',
+            query: {},
             body: { collection: 'foo', data: { a: 1 }, id: 1 },
         });
         expect(result2).to.eql({
             method: 'POST',
-            endpoint: '/database',
-            params: {},
+            endpoint: '/',
+            query: {},
             body: { collection: 'foo', data: { a: 1 }, doc: 'xxx' },
         });
         expect(result3).to.eql({
             method: 'POST',
-            endpoint: '/database',
-            params: {},
+            endpoint: '/',
+            query: {},
             body: { collection: 'foo', data: { a: 1 }, where: 'name', equal: 'xxx' },
         });
     });
@@ -217,14 +212,14 @@ describe('(Database) Database service', () => {
         const result2 = await databaseService.update('foo', { a: 1 }, { name: 'xxx' });
         expect(result1).to.eql({
             method: 'POST',
-            endpoint: '/database',
-            params: {},
+            endpoint: '/',
+            query: {},
             body: { table: 'foo', data: { a: 1 }, id: 1 },
         });
         expect(result2).to.eql({
             method: 'POST',
-            endpoint: '/database',
-            params: {},
+            endpoint: '/',
+            query: {},
             body: { table: 'foo', data: { a: 1 }, where: 'name', equal: 'xxx' },
         });
     });
@@ -233,8 +228,8 @@ describe('(Database) Database service', () => {
         const result1 = await databaseService.updates({ '/foo/foo-1': null });
         expect(result1).to.eql({
             method: 'POST',
-            endpoint: '/database',
-            params: {},
+            endpoint: '/',
+            query: {},
             body: { updates: { '/foo/foo-1': null } },
         });
     });

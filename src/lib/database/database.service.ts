@@ -5,18 +5,16 @@ import { ApiService } from '../api/api.service';
 
 export class DatabaseService {
     private options: Options;
-    private apiService: ApiService;
+    private Api: ApiService;
 
     constructor(options: Options) {
         this.options = {
             databaseEndpoint: 'database',
             ... options,
         };
-        this.apiService = new ApiService(options);
-    }
-
-    endpoint(paths?: string | string[]) {
-        return this.apiService.buildEndpoint(this.options.databaseEndpoint, paths);
+        this.Api = new ApiService(options, {
+            endpoint: this.options.databaseEndpoint,
+        });
     }
 
     private parseIdOrDocOrCondition(input: number | string | {[field: string]: string}) {
@@ -36,7 +34,7 @@ export class DatabaseService {
     }
 
     async all(table: string, cache = true) {
-        return await this.apiService.get(this.endpoint(), { table }, cache);
+        return await this.Api.get('/', { table }, cache);
     }
 
     async item(
@@ -44,7 +42,7 @@ export class DatabaseService {
         idOrCondition: number | {[field: string]: string},
         cache = true,
     ) {
-        return await this.apiService.get(this.endpoint(), {
+        return await this.Api.get('/', {
             ... this.parseIdOrDocOrCondition(idOrCondition), table,
         }, cache);
     }
@@ -53,49 +51,49 @@ export class DatabaseService {
         table: string,
         idOrCondition: number | string | {[field: string]: string},
     ) {
-        return await this.apiService.delete(this.endpoint(), {}, {
+        return await this.Api.delete('/', {}, {
             ... this.parseIdOrDocOrCondition(idOrCondition), table,
         });
     }
 
     async collection(collection: string, returnObject = false, cache = true) {
-        return await this.apiService.get(this.endpoint(), {
+        return await this.Api.get('/', {
             collection, type: returnObject ? 'object' : 'list',
         }, cache);
     }
 
     async doc(collection: string, doc: string, cache = true) {
-        return await this.apiService.get(this.endpoint(), { collection, doc }, cache);
+        return await this.Api.get('/', { collection, doc }, cache);
     }
 
     async object(path: string, cache = true) {
-        return await this.apiService.get(this.endpoint(), {
+        return await this.Api.get('/', {
             path, type: 'object',
         }, cache);
     }
 
     async list(path: string, cache = true) {
-        return await this.apiService.get(this.endpoint(), {
+        return await this.Api.get('/', {
             path, type: 'list',
         }, cache);
     }
 
     async query(table: string, query: SQLQuery = {}, cache = true) {
-        return await this.apiService.get(this.endpoint('query'), {
+        return await this.Api.get('/query', {
             ... query,
             table,
         }, cache);
     }
 
     async deepQuery(collection: string, query: NoSQLQuery = {}, cache = true) {
-        return await this.apiService.get(this.endpoint('query'), {
+        return await this.Api.get('/query', {
             ... query,
             collection,
         }, cache);
     }
 
     async search(tableOrCollection: string, s: string, cache = true) {
-        return await this.apiService.get(this.endpoint('search'), {
+        return await this.Api.get('/search', {
             table: tableOrCollection,
             collection: tableOrCollection,
             s,
@@ -107,7 +105,7 @@ export class DatabaseService {
         data: {},
         idOrDocOrCondition?: number | string | {[field: string]: string},
     ) {
-        return await this.apiService.post(this.endpoint(), {}, {
+        return await this.Api.post('/', {}, {
             ... this.parseIdOrDocOrCondition(idOrDocOrCondition), collection, data,
         });
     }
@@ -122,13 +120,13 @@ export class DatabaseService {
             table,
             data,
         };
-        return await this.apiService.post(this.endpoint(), {}, body);
+        return await this.Api.post('/', {}, body);
     }
 
     async updates(
         updates: {[path: string]: any},
     ) {
-        return await this.apiService.post(this.endpoint(), {}, { updates });
+        return await this.Api.post('/', {}, { updates });
     }
 
 }

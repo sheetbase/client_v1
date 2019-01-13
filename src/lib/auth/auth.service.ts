@@ -24,13 +24,11 @@ export class AuthService {
             authEndpoint: 'auth',
             ... options,
         };
-        this.Api = new ApiService(options);
+        this.Api = new ApiService(options, {
+            endpoint: this.options.authEndpoint,
+        });
         // try sign in from local
         this.signInLocal();
-    }
-
-    endpoint(paths?: string | string[]) {
-        return this.Api.buildEndpoint(this.options.authEndpoint, paths);
     }
 
     onAuthStateChanged(next: {(user: User)}) {
@@ -38,11 +36,11 @@ export class AuthService {
     }
 
     async checkActionCode(code: string) {
-        return await this.Api.get(this.endpoint('oob'), { oobCode: code });
+        return await this.Api.get('/oob', { oobCode: code });
     }
 
     async createUserWithEmailAndPassword(email: string, password: string) {
-        const { info, idToken, refreshToken } = await this.Api.put(this.endpoint(), {}, {
+        const { info, idToken, refreshToken } = await this.Api.put('/', {}, {
             email, password, offlineAccess: true,
         }) as SignInData;
         const user = this.signIn(info, idToken, refreshToken);
@@ -50,7 +48,7 @@ export class AuthService {
     }
 
     async signInWithEmailAndPassword(email: string, password: string) {
-        const { info, idToken, refreshToken } = await this.Api.post(this.endpoint(), {}, {
+        const { info, idToken, refreshToken } = await this.Api.post('/', {}, {
             email, password, offlineAccess: true,
         });
         const user = this.signIn(info, idToken, refreshToken);
@@ -58,7 +56,7 @@ export class AuthService {
     }
 
     async signInWithCustomToken(token: string) {
-        const { info, idToken, refreshToken } = await this.Api.post(this.endpoint(), {}, {
+        const { info, idToken, refreshToken } = await this.Api.post('/', {}, {
             customToken: token, offlineAccess: true,
         });
         const user = this.signIn(info, idToken, refreshToken);
@@ -66,15 +64,15 @@ export class AuthService {
     }
 
     async sendPasswordResetEmail(email: string) {
-        await this.Api.put(this.endpoint('oob'), {}, { mode: 'resetPassword', email });
+        await this.Api.put('/oob', {}, { mode: 'resetPassword', email });
     }
 
     async verifyPasswordResetCode(code: string) {
-        return await this.Api.get(this.endpoint('oob'), { oobCode: code, mode: 'resetPassword' });
+        return await this.Api.get('/oob', { oobCode: code, mode: 'resetPassword' });
     }
 
     async confirmPasswordReset(code: string, newPassword: string) {
-        await this.Api.post(this.endpoint('oob'), {}, {
+        await this.Api.post('/oob', {}, {
             oobCode: code,
             mode: 'resetPassword',
             password: newPassword,
@@ -102,17 +100,17 @@ export class AuthService {
             const refreshToken = getCookie(REFRESH_TOKEN_COOKIE);
             // renew idToken if expired
             if ((new Date()).getTime() >= decodeJWTPayload(idToken)['exp']) {
-                const expiredUser = new User(this, this.Api, info, idToken, refreshToken);
+                const expiredUser = new User(this.Api, info, idToken, refreshToken);
                 idToken = await expiredUser.getIdToken();
             }
             // fetch new info
-            info = await this.Api.get(this.endpoint(), { idToken });
+            info = await this.Api.get('/', { idToken });
             this.signIn(info, idToken, refreshToken);
         }
     }
 
     private signIn(info: UserInfo, idToken: string, refreshToken: string) {
-        this.currentUser = new User(this, this.Api, info, idToken, refreshToken);
+        this.currentUser = new User(this.Api, info, idToken, refreshToken);
         // notify user change
         publish(AUTH_USER, this.currentUser);
         // save user info & id token & refresh token to local

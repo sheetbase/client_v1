@@ -28,7 +28,6 @@ export class ApiService {
         this.predefinedBody = body;
     }
 
-    // make a new instance
     instance(instanceOptions: InstanceOptions = {}): ApiService {
         return new ApiService(this.options, instanceOptions);
     }
@@ -50,7 +49,10 @@ export class ApiService {
     }
 
     async get(endpoint?: string, query = {}, cache = false) {
-        const url = this.buildUrl(endpoint, query);
+        const url = this.buildUrl(
+            this.buildEndpoint(endpoint),
+            this.buildQuery(query),
+        );
         // retrieve cache
         const cacheKey = url
             .replace('https://script.google.com/macros/s/', '')
@@ -72,7 +74,10 @@ export class ApiService {
     }
 
     async post(endpoint?: string, query = {}, body = {}) {
-        const url = this.buildUrl(endpoint, query);
+        const url = this.buildUrl(
+            this.buildEndpoint(endpoint),
+            this.buildQuery(query),
+        );
         // send request
         const response: ResponseSuccess & ResponseError = await ky.post(url, {
             json: this.buildBody(body),
@@ -95,6 +100,13 @@ export class ApiService {
         return await this.post(endpoint, { ... query, method: 'DELETE' }, body);
     }
 
+    buildEndpoint(endpoint = '') {
+        endpoint = '/' + this.baseEndpoint + '/' + endpoint; // add base
+        endpoint = endpoint.replace(/\/+$/, ''); // remove trailing slash
+        endpoint = endpoint.replace(/\/+/g, '/'); // remove repeated slashs
+        return !!endpoint ? endpoint : '/';
+    }
+
     buildQuery(query = {}) {
         let queryStr = '';
         query = { ... this.predefinedQuery, ... query };
@@ -105,37 +117,19 @@ export class ApiService {
         }
         // make the string
         for (const key of Object.keys(query)) {
-            queryStr += '&' + key + '=' + query[key];
+            queryStr = queryStr + '&' + key + '=' + query[key];
         }
-        return queryStr;
+        return queryStr.replace(/^&/, '');
     }
 
     buildBody(body = {}) {
         return { ... this.predefinedBody, ... body };
     }
 
-    buildUrl(endpoint?: string, query = {}) {
-        const { backendUrl } = this.options;
-        let url = backendUrl;
-        const baseEndpoint = (!!this.baseEndpoint ? '/' + this.baseEndpoint + '/' : '');
-        if (!!endpoint) {
-          url += '?e=' + baseEndpoint + endpoint;
-        } else if (Object.keys(query).length > 0) {
-          url += '?';
-        }
-        return (url + this.buildQuery(query)).replace('?&', '?');
-    }
-
-    buildEndpoint(base: string, paths?: string | string[]) {
-        let child = '';
-        if (!!paths) {
-            if (paths instanceof Array) {
-                child = '/' + paths.join('/');
-            } else {
-                child += ('/' + paths).replace('//', '/');
-            }
-        }
-        return '/' + base + child;
+    buildUrl(endpoint = '', query = '') {
+        let { backendUrl: url } = this.options;
+        url += !!endpoint ? ('?e=' + endpoint) : (!!query ? '?' : '');
+        return (!!query ? (url + '&' + query) : url).replace('?&', '?');
     }
 
 }

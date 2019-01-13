@@ -5,7 +5,6 @@ import { AuthService } from './auth.service';
 import { decodeJWTPayload } from '../utils';
 
 export class User {
-    private Auth: AuthService;
     private Api: ApiService;
 
     private idToken: string;
@@ -27,13 +26,11 @@ export class User {
     claims: {[claim: string]: any};
 
     constructor(
-        Auth: AuthService,
         Api: ApiService,
         info: UserInfo,
         idToken: string,
         refreshToken: string,
     ) {
-        this.Auth = Auth;
         this.Api = Api;
         this.idToken = idToken;
         this.refreshToken = refreshToken;
@@ -66,7 +63,7 @@ export class User {
         const assumeValid = (new Date()).getTime() < decodeJWTPayload(this.idToken)['exp'];
         // renew
         if (!assumeValid || forceRefresh) {
-            const { idToken } = await this.Api.get(this.Auth.endpoint('token'), {
+            const { idToken } = await this.Api.get('/token', {
                 refreshToken: this.refreshToken,
             });
             this.idToken = idToken;
@@ -81,7 +78,7 @@ export class User {
     }
 
     async sendEmailVerification() {
-        await this.Api.put(this.Auth.endpoint('action'), {}, {
+        await this.Api.put('/action', {}, {
             mode: 'verifyEmail',
             email: this.email,
         });
@@ -95,12 +92,12 @@ export class User {
 
     async updateProfile(profile: UserProfile) {
         this.setInfo(
-            await this.Api.post(this.Auth.endpoint(), {}, { profile }),
+            await this.Api.post('/', {}, { profile }),
         );
     }
 
     async delete() {
-        await this.Api.delete(this.Auth.endpoint('cancel'), {}, {
+        await this.Api.delete('/cancel', {}, {
             refreshToken: this.refreshToken,
         });
     }
