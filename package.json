@@ -53,7 +53,7 @@
     "@sheetbase/drive-server": "0.0.8",
     "@sheetbase/gmail-server": "0.0.6",
     "@sheetbase/sheets-server": "0.0.4",
-    "@sheetbase/user-server": "file:../../server/sheetbase-user-server-0.0.4.tgz",
+    "@sheetbase/user-server": "0.0.4",
     "@types/chai": "^4.1.7",
     "@types/js-cookie": "^2.2.0",
     "@types/lscache": "^1.0.29",

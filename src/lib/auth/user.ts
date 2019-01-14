@@ -51,6 +51,7 @@ export class User {
         this.phoneNumber = this.info.phoneNumber;
         this.photoURL = this.info.photoURL;
         this.claims = this.info.claims;
+        return this.info;
     }
 
     toJSON() {
@@ -71,13 +72,11 @@ export class User {
     }
 
     async getIdTokenResult(forceRefresh = false) {
-        return decodeJWTPayload(
-            await this.getIdToken(forceRefresh),
-        );
+        return decodeJWTPayload(await this.getIdToken(forceRefresh));
     }
 
     async sendEmailVerification() {
-        await this.Api.put('/action', {}, {
+        return await this.Api.put('/action', {}, {
             mode: 'verifyEmail',
             email: this.email,
         });
@@ -90,13 +89,13 @@ export class User {
     // TODO: async updatePhoneNumber(phoneCredential: any) {}
 
     async updateProfile(profile: UserProfile) {
-        this.setInfo(
+        return this.setInfo(
             await this.Api.post('/', {}, { profile }),
         );
     }
 
     async delete() {
-        await this.Api.delete('/cancel', {}, {
+        return await this.Api.delete('/cancel', {}, {
             refreshToken: this.refreshToken,
         });
     }
