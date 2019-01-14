@@ -54,7 +54,7 @@ describe('(Storage) Storage service', () => {
         expect(storageService.Api instanceof ApiService).to.equal(true);
     });
 
-    it('#info should work', async () => {
+    it('#info', async () => {
         const result = await storageService.info('xxx');
         expect(result).to.eql({
             method: 'GET',
@@ -63,7 +63,7 @@ describe('(Storage) Storage service', () => {
         });
     });
 
-    it('#upload should work', async () => {
+    it('#upload', async () => {
         const result = await storageService.upload({
             name: 'file1.txt',
             size: 1000,

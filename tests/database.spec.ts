@@ -61,7 +61,7 @@ describe('(Database) Database service', () => {
         expect(databaseService.Api instanceof ApiService).to.equal(true);
     });
 
-    it('#parseIdOrDocOrCondition should work', () => {
+    it('#parseIdOrDocOrCondition', () => {
         // @ts-ignore
         const result1 = databaseService.parseIdOrDocOrCondition(1);
         // @ts-ignore
@@ -73,7 +73,7 @@ describe('(Database) Database service', () => {
         expect(result3).to.eql({ where: 'a', equal: 'xxx' });
     });
 
-    it('#all should work', async () => {
+    it('#all', async () => {
         const result = await databaseService.all('foo');
         expect(result).to.eql({
             method: 'GET',
@@ -82,7 +82,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#item should work', async () => {
+    it('#item', async () => {
         const result1 = await databaseService.item('foo', 1);
         const result2 = await databaseService.item('foo', { name: 'xxx' });
         expect(result1).to.eql({
@@ -97,7 +97,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#delete should work', async () => {
+    it('#delete', async () => {
         const result1 = await databaseService.delete('foo', 1);
         const result2 = await databaseService.delete('foo', { name: 'xxx' });
         expect(result1).to.eql({
@@ -114,7 +114,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#collection should work', async () => {
+    it('#collection', async () => {
         const result1 = await databaseService.collection('foo');
         const result2 = await databaseService.collection('foo', true);
         expect(result1).to.eql({
@@ -129,7 +129,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#doc should work', async () => {
+    it('#doc', async () => {
         const result = await databaseService.doc('foo', 'foo-1');
         expect(result).to.eql({
             method: 'GET',
@@ -138,7 +138,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#object should work', async () => {
+    it('#object', async () => {
         const result = await databaseService.object('/foo/foo-1');
         expect(result).to.eql({
             method: 'GET',
@@ -147,7 +147,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#list should work', async () => {
+    it('#list', async () => {
         const result = await databaseService.list('/foo/foo-1');
         expect(result).to.eql({
             method: 'GET',
@@ -156,7 +156,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#query should work', async () => {
+    it('#query', async () => {
         const result = await databaseService.query('foo', { limit: 10 });
         expect(result).to.eql({
             method: 'GET',
@@ -165,7 +165,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#deepQuery should work', async () => {
+    it('#deepQuery', async () => {
         const result = await databaseService.deepQuery('foo', { limitToFirst: 10 });
         expect(result).to.eql({
             method: 'GET',
@@ -174,7 +174,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#search should work', async () => {
+    it('#search', async () => {
         const result = await databaseService.search('foo', 'xxx');
         expect(result).to.eql({
             method: 'GET',
@@ -183,7 +183,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#updateDoc should work', async () => {
+    it('#updateDoc', async () => {
         const result1 = await databaseService.updateDoc('foo', { a: 1 }, 1);
         const result2 = await databaseService.updateDoc('foo', { a: 1 }, 'xxx');
         const result3 = await databaseService.updateDoc('foo', { a: 1 }, { name: 'xxx' });
@@ -207,7 +207,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#update should work', async () => {
+    it('#update', async () => {
         const result1 = await databaseService.update('foo', { a: 1 }, 1);
         const result2 = await databaseService.update('foo', { a: 1 }, { name: 'xxx' });
         expect(result1).to.eql({
@@ -224,7 +224,7 @@ describe('(Database) Database service', () => {
         });
     });
 
-    it('#updates should work', async () => {
+    it('#updates', async () => {
         const result1 = await databaseService.updates({ '/foo/foo-1': null });
         expect(result1).to.eql({
             method: 'POST',

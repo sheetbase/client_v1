@@ -1,7 +1,6 @@
 import { UserInfo, UserProfile } from '@sheetbase/user-server';
 
 import { ApiService } from '../api/api.service';
-import { AuthService } from './auth.service';
 import { decodeJWTPayload } from '../utils';
 
 export class User {

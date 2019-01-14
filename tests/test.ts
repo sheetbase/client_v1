@@ -11,8 +11,11 @@ import { DatabaseService } from '../src/lib/database/database.service';
 import { AuthService } from '../src/lib/auth/auth.service';
 import { StorageService } from '../src/lib/storage/storage.service';
 import { MailService } from '../src/lib/mail/mail.service';
+import { decodeJWTPayload } from '../src/lib/utils';
 
-sinon.stub(localforage);
+export const localforageStub = sinon.stub(localforage);
+
+global['atob'] = (b64: string) => Buffer.from(b64, 'base64').toString();
 
 describe('#initializeApp', () => {
 
@@ -139,6 +142,20 @@ describe('member direct methods', () => {
 
     it('#mail should return the instance', () => {
         expect(mail() instanceof MailService).to.equal(true);
+    });
+
+});
+
+describe('utils', () => {
+
+    it('#decodeJWTPayload', () => {
+        // tslint:disable-next-line:max-line-length
+        const result = decodeJWTPayload('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c');
+        expect(result).to.eql({
+            sub: '1234567890',
+            name: 'John Doe',
+            iat: 1516239022,
+        });
     });
 
 });

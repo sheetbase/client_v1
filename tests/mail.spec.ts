@@ -54,7 +54,7 @@ describe('(Mail) Mail service', () => {
         expect(mailService.Api instanceof ApiService).to.equal(true);
     });
 
-    it('#quota should work', async () => {
+    it('#quota', async () => {
         const result = await mailService.quota();
         expect(result).to.eql({
             method: 'GET',
@@ -63,7 +63,7 @@ describe('(Mail) Mail service', () => {
         });
     });
 
-    it('#send should work', async () => {
+    it('#send', async () => {
         const result = await mailService.send({
             recipient: 'xxx@xxx.xxx',
         }, 'mail');

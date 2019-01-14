@@ -1,6 +1,6 @@
 import { publish, subscribe } from 'pubsub-js';
 import { getItem, setItem, removeItem } from 'localforage';
-import { get as getCookie, set as setCookie, remove as removeCookie } from 'js-cookie';
+import { getJSON as getCookie, set as setCookie, remove as removeCookie } from 'js-cookie';
 import { UserInfo } from '@sheetbase/user-server';
 
 import { Options } from '../types';
@@ -10,8 +10,7 @@ import { SignInData } from './types';
 import { decodeJWTPayload } from '../utils';
 
 const AUTH_USER = 'AUTH_USER';
-const ID_TOKEN_COOKIE = 'auth_id_token';
-const REFRESH_TOKEN_COOKIE = 'auth_refresh_token';
+const AUTH_CREDS = 'AUTH_CREDS';
 
 export class AuthService {
     private options: Options;
@@ -26,8 +25,6 @@ export class AuthService {
         };
         this.Api = new ApiService(options)
             .setData({ endpoint: this.options.authEndpoint });
-        // try sign in from local
-        this.signInLocal();
     }
 
     onAuthStateChanged(next: {(user: User)}) {
@@ -63,7 +60,7 @@ export class AuthService {
     }
 
     async sendPasswordResetEmail(email: string) {
-        await this.Api.put('/oob', {}, { mode: 'resetPassword', email });
+        return await this.Api.put('/oob', {}, { mode: 'resetPassword', email });
     }
 
     async verifyPasswordResetCode(code: string) {
@@ -71,33 +68,19 @@ export class AuthService {
     }
 
     async confirmPasswordReset(code: string, newPassword: string) {
-        await this.Api.post('/oob', {}, {
+        return await this.Api.post('/oob', {}, {
             oobCode: code,
             mode: 'resetPassword',
             password: newPassword,
         });
     }
 
-    async updateCurrentUser(user: User) {
-        this.currentUser = user;
-    }
-
-    async signOut() {
-        this.currentUser = null;
-        // notify user change
-        publish(AUTH_USER, null);
-        // remove user info & id token & refresh token from local
-        removeItem(AUTH_USER);
-        removeCookie(ID_TOKEN_COOKIE);
-        removeCookie(REFRESH_TOKEN_COOKIE);
-    }
-
-    private async signInLocal() {
+    async signInLocal() {
         let info: UserInfo = await getItem(AUTH_USER); // retrieve user info
         if (!!info) {
-            let idToken = getCookie(ID_TOKEN_COOKIE);
-            const refreshToken = getCookie(REFRESH_TOKEN_COOKIE);
+            const { idToken: localIdToken, refreshToken } = getCookie(AUTH_CREDS);
             // renew idToken if expired
+            let idToken = localIdToken;
             if ((new Date()).getTime() >= decodeJWTPayload(idToken)['exp']) {
                 const expiredUser = new User(this.Api, info, idToken, refreshToken);
                 idToken = await expiredUser.getIdToken();
@@ -114,9 +97,17 @@ export class AuthService {
         publish(AUTH_USER, this.currentUser);
         // save user info & id token & refresh token to local
         setItem(AUTH_USER, info);
-        setCookie(ID_TOKEN_COOKIE, idToken);
-        setCookie(REFRESH_TOKEN_COOKIE, refreshToken);
+        setCookie(AUTH_CREDS, { idToken, refreshToken });
         return this.currentUser;
+    }
+
+    async signOut() {
+        this.currentUser = null;
+        // notify user change
+        publish(AUTH_USER, null);
+        // remove user info & id token & refresh token from local
+        removeItem(AUTH_USER);
+        removeCookie(AUTH_CREDS);
     }
 
 }
