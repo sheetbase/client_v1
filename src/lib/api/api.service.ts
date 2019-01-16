@@ -1,16 +1,9 @@
 import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
-import ky from 'kyx';
 import { get as cacheGet, set as cacheSet } from 'lscache';
 import * as _md5 from 'md5';
 const md5 = _md5;
 
-import { Options } from '../types';
-
-export interface InstanceData {
-    endpoint?: string;
-    query?: {};
-    body?: {};
-}
+import { Options, ApiInstanceData } from '../types';
 
 export class ApiService {
     private options: Options;
@@ -22,12 +15,20 @@ export class ApiService {
         this.options = options;
     }
 
-    setData(data: InstanceData = {}): ApiService {
+    setData(data: ApiInstanceData = {}): ApiService {
         const { endpoint, query, body } = data;
         if (!!endpoint) { this.baseEndpoint = endpoint; }
         if (!!query) { this.predefinedQuery = query; }
         if (!!body) { this.predefinedBody = body; }
         return this;
+    }
+
+    async fetch(input: RequestInfo, init?: RequestInit) {
+        const response = await fetch(input, init);
+        if (!response.ok) {
+            throw new Error('API fetch failed.');
+        }
+        return await response.json();
     }
 
     async request(inputs: {
@@ -58,7 +59,7 @@ export class ApiService {
             return cachedData;
         }
         // send request
-        const response: ResponseSuccess & ResponseError = await ky.get(url).json() as any;
+        const response: ResponseSuccess & ResponseError = await this.fetch(url, { method: 'GET' });
         if (response.error) {
             throw new Error(response.code);
         }
@@ -75,9 +76,15 @@ export class ApiService {
             this.buildQuery(query),
         );
         // send request
-        const response: ResponseSuccess & ResponseError = await ky.post(url, {
-            json: this.buildBody(body),
-        }).json() as any;
+        const response: ResponseSuccess & ResponseError = await this.fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(
+                this.buildBody(body),
+            ),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        });
         if (response.error) {
             throw new Error(response.code);
         }
