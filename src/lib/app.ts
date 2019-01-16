@@ -17,8 +17,8 @@ export class App {
     constructor(options: Options) {
         this._options = { ... options };
         this.Api = new ApiService(options);
-        this.Database = new DatabaseService(options);
         this.Auth = new AuthService(options);
+        this.Database = new DatabaseService(options);
         this.Storage = new StorageService(options);
         this.Mail = new MailService(options);
     }

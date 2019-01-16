@@ -13,7 +13,7 @@ export class MailService {
             ... options,
         };
         this.Api = new ApiService(options)
-            .setData({ endpoint: this.options.mailEndpoint });
+            .setEndpoint(this.options.mailEndpoint);
     }
 
     async quota() {

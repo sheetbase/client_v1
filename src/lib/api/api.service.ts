@@ -23,6 +23,27 @@ export class ApiService {
         return this;
     }
 
+    setEndpoint(endpoint: string): ApiService {
+        this.baseEndpoint = endpoint;
+        return this;
+    }
+
+    setQuery(query = {}): ApiService {
+        this.predefinedQuery = {
+            ... this.predefinedQuery,
+            ... query,
+        };
+        return this;
+    }
+
+    setBody(body = {}): ApiService {
+        this.predefinedBody = {
+            ... this.predefinedBody,
+            ... body,
+        };
+        return this;
+    }
+
     async fetch(input: RequestInfo, init?: RequestInit) {
         const response = await fetch(input, init);
         if (!response.ok) {

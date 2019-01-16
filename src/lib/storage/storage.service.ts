@@ -13,7 +13,7 @@ export class StorageService {
             ... options,
         };
         this.Api = new ApiService(options)
-            .setData({ endpoint: this.options.storageEndpoint });
+            .setEndpoint(this.options.storageEndpoint);
     }
 
     async info(fileId: string) {

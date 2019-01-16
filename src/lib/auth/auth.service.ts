@@ -3,10 +3,9 @@ import { getItem, setItem, removeItem } from 'localforage';
 import { getJSON as getCookie, set as setCookie, remove as removeCookie } from 'js-cookie';
 import { UserInfo } from '@sheetbase/user-server';
 
-import { Options } from '../types';
+import { Options, SignInData } from '../types';
 import { ApiService } from '../api/api.service';
 import { User } from './user';
-import { SignInData } from './types';
 import { decodeJWTPayload } from '../utils';
 
 const AUTH_USER = 'AUTH_USER';
@@ -24,7 +23,7 @@ export class AuthService {
             ... options,
         };
         this.Api = new ApiService(options)
-            .setData({ endpoint: this.options.authEndpoint });
+            .setEndpoint(this.options.authEndpoint);
     }
 
     onAuthStateChanged(next: {(user: User)}) {
@@ -39,7 +38,7 @@ export class AuthService {
         const { info, idToken, refreshToken } = await this.Api.put('/', {}, {
             email, password, offlineAccess: true,
         }) as SignInData;
-        const user = this.signIn(info, idToken, refreshToken);
+        const user = await this.signIn(info, idToken, refreshToken);
         return { user };
     }
 
@@ -47,7 +46,7 @@ export class AuthService {
         const { info, idToken, refreshToken } = await this.Api.post('/', {}, {
             email, password, offlineAccess: true,
         });
-        const user = this.signIn(info, idToken, refreshToken);
+        const user = await this.signIn(info, idToken, refreshToken);
         return { user };
     }
 
@@ -55,7 +54,7 @@ export class AuthService {
         const { info, idToken, refreshToken } = await this.Api.post('/', {}, {
             customToken: token, offlineAccess: true,
         });
-        const user = this.signIn(info, idToken, refreshToken);
+        const user = await this.signIn(info, idToken, refreshToken);
         return { user };
     }
 
@@ -71,7 +70,7 @@ export class AuthService {
         return await this.Api.post('/oob', {}, {
             oobCode: code,
             mode: 'resetPassword',
-            password: newPassword,
+            newPassword,
         });
     }
 
@@ -87,16 +86,16 @@ export class AuthService {
             }
             // fetch new info
             info = await this.Api.get('/', { idToken });
-            this.signIn(info, idToken, refreshToken);
+            await this.signIn(info, idToken, refreshToken);
         }
     }
 
-    private signIn(info: UserInfo, idToken: string, refreshToken: string) {
+    private async signIn(info: UserInfo, idToken: string, refreshToken: string) {
         this.currentUser = new User(this.Api, info, idToken, refreshToken);
         // notify user change
         publish(AUTH_USER, this.currentUser);
         // save user info & id token & refresh token to local
-        setItem(AUTH_USER, info);
+        await setItem(AUTH_USER, info);
         setCookie(AUTH_CREDS, { idToken, refreshToken });
         return this.currentUser;
     }
@@ -106,7 +105,7 @@ export class AuthService {
         // notify user change
         publish(AUTH_USER, null);
         // remove user info & id token & refresh token from local
-        removeItem(AUTH_USER);
+        await removeItem(AUTH_USER);
         removeCookie(AUTH_CREDS);
     }
 

@@ -1,27 +1,23 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
-import ky from 'kyx';
 
 import { ApiService } from '../src/lib/api/api.service';
 
 const apiService = new ApiService({ backendUrl: '' });
 
-let kyGetStub: sinon.SinonStub;
-let kyPostStub: sinon.SinonStub;
+let apiFetchStub: sinon.SinonStub;
 let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
 
 function buildStubs() {
-    kyGetStub = sinon.stub(ky, 'get');
-    kyPostStub = sinon.stub(ky, 'post');
+    apiFetchStub = sinon.stub(apiService, 'fetch');
     apiGetStub = sinon.stub(apiService, 'get');
     apiPostStub = sinon.stub(apiService, 'post');
 }
 
 function restoreStubs() {
-    kyGetStub.restore();
-    kyPostStub.restore();
+    apiFetchStub.restore();
     apiGetStub.restore();
     apiPostStub.restore();
 }
@@ -153,7 +149,11 @@ describe('(Api) Api service', () => {
         expect(result instanceof ApiService).to.equal(true);
     });
 
-    it('#request ', async () => {
+    it('#fetch', async () => {
+
+    });
+
+    it('#request', async () => {
         const result1 = await apiService.request();
         const result2 = await apiService.request({
             method: 'GET',
@@ -178,27 +178,51 @@ describe('(Api) Api service', () => {
         });
     });
 
-    it('#get ', async () => {
-        kyGetStub.onFirstCall().returns({
-            json: async () => ({ data: true }),
-        });
+    it('#get (error)', async () => {
+        apiFetchStub.onFirstCall().returns({ error: true, code: 'xxx' });
+        apiGetStub.restore();
+
+        let error: any;
+        try {
+            await apiService.get();
+        } catch (err) {
+            error = err;
+        }
+
+        expect(error instanceof Error).to.equal(true);
+    });
+
+    it('#get', async () => {
+        apiFetchStub.onFirstCall().returns({ data: {} });
         apiGetStub.restore();
 
         const result = await apiService.get();
-        expect(result).to.equal(true);
+        expect(result).to.eql({});
     });
 
-    it('#post ', async () => {
-        kyPostStub.onFirstCall().returns({
-            json: async () => ({ data: true }),
-        });
+    it('#post (error)', async () => {
+        apiFetchStub.onFirstCall().returns({ error: true, code: 'xxx' });
+        apiPostStub.restore();
+
+        let error: any;
+        try {
+            await apiService.post();
+        } catch (err) {
+            error = err;
+        }
+
+        expect(error instanceof Error).to.equal(true);
+    });
+
+    it('#post', async () => {
+        apiFetchStub.onFirstCall().returns({ data: {} });
         apiPostStub.restore();
 
         const result = await apiService.post();
-        expect(result).to.equal(true);
+        expect(result).to.eql({});
     });
 
-    it('#put ', async () => {
+    it('#put', async () => {
         const result = await apiService.put('/');
         expect(result).to.eql({
             method: 'POST',
@@ -208,7 +232,7 @@ describe('(Api) Api service', () => {
         });
     });
 
-    it('#patch ', async () => {
+    it('#patch', async () => {
         const result = await apiService.patch('/', { a: 1 });
         expect(result).to.eql({
             method: 'POST',
@@ -218,7 +242,7 @@ describe('(Api) Api service', () => {
         });
     });
 
-    it('#delete ', async () => {
+    it('#delete', async () => {
         const result = await apiService.delete('/', {}, { b: 2 });
         expect(result).to.eql({
             method: 'POST',

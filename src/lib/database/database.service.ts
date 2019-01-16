@@ -13,7 +13,7 @@ export class DatabaseService {
             ... options,
         };
         this.Api = new ApiService(options)
-            .setData({ endpoint: this.options.databaseEndpoint });
+            .setEndpoint(this.options.databaseEndpoint);
     }
 
     private parseIdOrDocOrCondition(input: number | string | {[field: string]: string}) {

@@ -1,3 +1,5 @@
+import { UserInfo } from '@sheetbase/user-server';
+
 export interface Options extends ApiOptions, DatabaseOptions, AuthOptions, StorageOptions, MailOptions {}
 
 export interface ApiOptions {
@@ -19,4 +21,16 @@ export interface StorageOptions {
 
 export interface MailOptions {
     mailEndpoint?: string;
+}
+
+export interface ApiInstanceData {
+    endpoint?: string;
+    query?: {};
+    body?: {};
+}
+
+export interface SignInData {
+    info: UserInfo;
+    idToken: string;
+    refreshToken?: string;
 }

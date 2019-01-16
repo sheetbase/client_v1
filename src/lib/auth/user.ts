@@ -6,11 +6,11 @@ import { decodeJWTPayload } from '../utils';
 export class User {
     private Api: ApiService;
 
-    private idToken: string;
+    // user secret
+    idToken: string;
     refreshToken: string;
 
     // user info
-    private info: UserInfo;
     uid: string;
     providerId: string;
     providerData: any;
@@ -19,10 +19,12 @@ export class User {
     createdAt: number;
     lastLogin: number;
     username: string;
-    displayName: string;
     phoneNumber: string;
+    displayName: string;
     photoURL: string;
     claims: {[claim: string]: any};
+    isAnonymous: boolean;
+    isNewUser: boolean;
 
     constructor(
         Api: ApiService,
@@ -37,25 +39,50 @@ export class User {
     }
 
     private setInfo(info: UserInfo) {
-        this.info = info;
-        // user info
-        this.uid = this.info.uid;
-        this.providerId = this.info.providerId;
-        this.providerData = this.info.providerData;
-        this.email = this.info.email;
-        this.emailVerified = this.info.emailVerified;
-        this.createdAt = this.info.createdAt;
-        this.lastLogin = this.info.lastLogin;
-        this.username = this.info.username;
-        this.displayName = this.info.displayName;
-        this.phoneNumber = this.info.phoneNumber;
-        this.photoURL = this.info.photoURL;
-        this.claims = this.info.claims;
-        return this.info;
+        const {
+            uid, providerId, providerData,
+            email, emailVerified, createdAt, lastLogin,
+            username, phoneNumber, displayName, photoURL, claims,
+            isAnonymous, isNewUser,
+        } = info;
+        this.uid = uid;
+        this.providerId = providerId;
+        this.providerData = providerData;
+        this.email = email;
+        this.emailVerified = emailVerified;
+        this.createdAt = createdAt;
+        this.lastLogin = lastLogin;
+        this.username = username;
+        this.displayName = displayName;
+        this.phoneNumber = phoneNumber;
+        this.photoURL = photoURL;
+        this.claims = claims;
+        this.isAnonymous = isAnonymous;
+        this.isNewUser = isNewUser;
+        return info;
     }
 
     toJSON() {
-        return { ... this.info };
+        const uid = this.uid;
+        const providerId = this.providerId;
+        const providerData = this.providerData;
+        const email = this.email;
+        const emailVerified = this.emailVerified;
+        const createdAt = this.createdAt;
+        const lastLogin = this.lastLogin;
+        const username = this.username;
+        const phoneNumber = this.phoneNumber;
+        const displayName = this.displayName;
+        const photoURL = this.photoURL;
+        const claims = this.claims;
+        const isAnonymous = this.isAnonymous;
+        const isNewUser = this.isNewUser;
+        return {
+            uid, providerId, providerData,
+            email, emailVerified, createdAt, lastLogin,
+            username, phoneNumber, displayName, photoURL, claims,
+            isAnonymous, isNewUser,
+        };
     }
 
     async getIdToken(forceRefresh = false) {
@@ -82,20 +109,37 @@ export class User {
         });
     }
 
+    async updateProfile(profile: UserProfile) {
+        const newInfo = await this.Api.post('/user', {}, {
+            idToken: this.idToken,
+            profile,
+        });
+        return this.setInfo(newInfo);
+    }
+
+    async setUsername(username: string) {
+        const newInfo = await this.Api.post('/user/username', {}, {
+            idToken: this.idToken,
+            username,
+        });
+        return this.setInfo(newInfo);
+    }
+
     // TODO: async updateEmail(newEmail: string) {}
 
     // TODO: async updatePassword(newPassword: string) {}
 
     // TODO: async updatePhoneNumber(phoneCredential: any) {}
 
-    async updateProfile(profile: UserProfile) {
-        return this.setInfo(
-            await this.Api.post('/', {}, { profile }),
-        );
+    async logout() {
+        return await this.Api.delete('/', {}, {
+            idToken: this.idToken,
+        });
     }
 
     async delete() {
         return await this.Api.delete('/cancel', {}, {
+            idToken: this.idToken,
             refreshToken: this.refreshToken,
         });
     }
