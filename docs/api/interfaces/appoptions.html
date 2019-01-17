@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ApiInstanceData | @sheetbase/client</title>
+	<title>AppOptions | @sheetbase/client</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../index.html">Globals</a>
 				</li>
 				<li>
-					<a href="apiinstancedata.html">ApiInstanceData</a>
+					<a href="appoptions.html">AppOptions</a>
 				</li>
 			</ul>
-			<h1>Interface ApiInstanceData</h1>
+			<h1>Interface AppOptions</h1>
 		</div>
 	</div>
 </header>
@@ -66,10 +66,22 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="actiondata.html" class="tsd-signature-type">ActionData</a>
+						<a href="apioptions.html" class="tsd-signature-type">ApiOptions</a>
+					</li>
+					<li>
+						<a href="authoptions.html" class="tsd-signature-type">AuthOptions</a>
+					</li>
+					<li>
+						<a href="databaseoptions.html" class="tsd-signature-type">DatabaseOptions</a>
+					</li>
+					<li>
+						<a href="storageoptions.html" class="tsd-signature-type">StorageOptions</a>
+					</li>
+					<li>
+						<a href="mailoptions.html" class="tsd-signature-type">MailOptions</a>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">ApiInstanceData</span>
+								<span class="target">AppOptions</span>
 							</li>
 						</ul>
 					</li>
@@ -79,60 +91,85 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="apiinstancedata.html#beforehooks" class="tsd-kind-icon">before<wbr>Hooks</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="apiinstancedata.html#body" class="tsd-kind-icon">body</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="apiinstancedata.html#endpoint" class="tsd-kind-icon">endpoint</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="apiinstancedata.html#query" class="tsd-kind-icon">query</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="appoptions.html#apikey" class="tsd-kind-icon">api<wbr>Key</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="appoptions.html#authendpoint" class="tsd-kind-icon">auth<wbr>Endpoint</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="appoptions.html#backendurl" class="tsd-kind-icon">backend<wbr>Url</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="appoptions.html#databaseendpoint" class="tsd-kind-icon">database<wbr>Endpoint</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="appoptions.html#mailendpoint" class="tsd-kind-icon">mail<wbr>Endpoint</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="appoptions.html#storageendpoint" class="tsd-kind-icon">storage<wbr>Endpoint</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="beforehooks" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> before<wbr>Hooks</h3>
-					<div class="tsd-signature tsd-kind-icon">before<wbr>Hooks<span class="tsd-signature-symbol">:</span> <a href="beforerequesthook.html" class="tsd-signature-type">BeforeRequestHook</a><span class="tsd-signature-symbol">[]</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="apikey" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> api<wbr>Key</h3>
+					<div class="tsd-signature tsd-kind-icon">api<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="apioptions.html">ApiOptions</a>.<a href="apioptions.html#apikey">apiKey</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/api/types.ts#L17">lib/api/types.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/api/types.ts#L3">lib/api/types.ts:3</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="body" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> body</h3>
-					<div class="tsd-signature tsd-kind-icon">body<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">__type</span></div>
+					<a name="authendpoint" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> auth<wbr>Endpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">auth<wbr>Endpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="actiondata.html">ActionData</a>.<a href="actiondata.html#body">body</a></p>
+						<p>Inherited from <a href="authoptions.html">AuthOptions</a>.<a href="authoptions.html#authendpoint">authEndpoint</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/api/types.ts#L9">lib/api/types.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/auth/types.ts#L4">lib/auth/types.ts:4</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="endpoint" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> endpoint</h3>
-					<div class="tsd-signature tsd-kind-icon">endpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="backendurl" class="tsd-anchor"></a>
+					<h3>backend<wbr>Url</h3>
+					<div class="tsd-signature tsd-kind-icon">backend<wbr>Url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="actiondata.html">ActionData</a>.<a href="actiondata.html#endpoint">endpoint</a></p>
+						<p>Inherited from <a href="apioptions.html">ApiOptions</a>.<a href="apioptions.html#backendurl">backendUrl</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/api/types.ts#L7">lib/api/types.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/api/types.ts#L2">lib/api/types.ts:2</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="query" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> query</h3>
-					<div class="tsd-signature tsd-kind-icon">query<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">__type</span></div>
+					<a name="databaseendpoint" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> database<wbr>Endpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">database<wbr>Endpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="actiondata.html">ActionData</a>.<a href="actiondata.html#query">query</a></p>
+						<p>Inherited from <a href="databaseoptions.html">DatabaseOptions</a>.<a href="databaseoptions.html#databaseendpoint">databaseEndpoint</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/api/types.ts#L8">lib/api/types.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/database/types.ts#L2">lib/database/types.ts:2</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="mailendpoint" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> mail<wbr>Endpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">mail<wbr>Endpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="mailoptions.html">MailOptions</a>.<a href="mailoptions.html#mailendpoint">mailEndpoint</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/mail/types.ts#L2">lib/mail/types.ts:2</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="storageendpoint" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> storage<wbr>Endpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">storage<wbr>Endpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="storageoptions.html">StorageOptions</a>.<a href="storageoptions.html#storageendpoint">storageEndpoint</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/6a040e4/src/lib/storage/types.ts#L2">lib/storage/types.ts:2</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -169,33 +206,39 @@
 					<li class=" tsd-kind-interface">
 						<a href="actiondata.html" class="tsd-kind-icon">Action<wbr>Data</a>
 					</li>
+					<li class=" tsd-kind-interface">
+						<a href="apiinstancedata.html" class="tsd-kind-icon">Api<wbr>Instance<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="apioptions.html" class="tsd-kind-icon">Api<wbr>Options</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="apiinstancedata.html" class="tsd-kind-icon">Api<wbr>Instance<wbr>Data</a>
+						<a href="appoptions.html" class="tsd-kind-icon">App<wbr>Options</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="apiinstancedata.html#beforehooks" class="tsd-kind-icon">before<wbr>Hooks</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="appoptions.html#apikey" class="tsd-kind-icon">api<wbr>Key</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="apiinstancedata.html#body" class="tsd-kind-icon">body</a>
+								<a href="appoptions.html#authendpoint" class="tsd-kind-icon">auth<wbr>Endpoint</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="apiinstancedata.html#endpoint" class="tsd-kind-icon">endpoint</a>
+								<a href="appoptions.html#backendurl" class="tsd-kind-icon">backend<wbr>Url</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="apiinstancedata.html#query" class="tsd-kind-icon">query</a>
+								<a href="appoptions.html#databaseendpoint" class="tsd-kind-icon">database<wbr>Endpoint</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="appoptions.html#mailendpoint" class="tsd-kind-icon">mail<wbr>Endpoint</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="appoptions.html#storageendpoint" class="tsd-kind-icon">storage<wbr>Endpoint</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-interface">
-						<a href="apioptions.html" class="tsd-kind-icon">Api<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="appoptions.html" class="tsd-kind-icon">App<wbr>Options</a>
-					</li>
 					<li class=" tsd-kind-interface">
 						<a href="authoptions.html" class="tsd-kind-icon">Auth<wbr>Options</a>
 					</li>
