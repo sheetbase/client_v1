@@ -11,6 +11,12 @@ const version = require('../../package.json').version;
 
     console.log('+ Clean dist folder.');
     removeSync('dist');
+    removeSync('app');
+    removeSync('api');
+    removeSync('auth');
+    removeSync('database');
+    removeSync('storage');
+    removeSync('mail');
 
     console.log('+ Build: module');
     execSync(tsc('sheetbase.json'));
@@ -24,17 +30,17 @@ const version = require('../../package.json').version;
     execSync(rollup('sheetbase-app.es5.js'));
     execSync(rollup('sheetbase-app.es2015.js'));
     execSync(minify('dist/sheetbase-app.js'));
-    outputJSONSync('./dist/app/package.json', {
+    outputJSONSync('./app/package.json', {
         name: '@sheetbase/client-app',
         version,
-        main: '../sheetbase-app.js',
-        module: '../fesm5/sheetbase-app.js',
-        es2015: '../fesm2015/sheetbase-app.js',
-        esm5: '../esm5/lib/app/index.js',
-        esm2015: '../esm2015/lib/app/index.js',
-        fesm5: '../fesm5/sheetbase-app.js',
-        fesm2015: '../fesm2015/sheetbase-app.js',
-        typings: '../sheetbase.d.ts',
+        main: '../dist/sheetbase-app.js',
+        module: '../dist/fesm5/sheetbase-app.js',
+        es2015: '../dist/fesm2015/sheetbase-app.js',
+        esm5: '../dist/esm5/lib/app/index.js',
+        esm2015: '../dist/esm2015/lib/app/index.js',
+        fesm5: '../dist/fesm5/sheetbase-app.js',
+        fesm2015: '../dist/fesm2015/sheetbase-app.js',
+        typings: '../dist/sheetbase.d.ts',
     }, { spaces: 2 });
 
     console.log('+ Build: api');
@@ -42,17 +48,17 @@ const version = require('../../package.json').version;
     execSync(rollup('sheetbase-api.es5.js'));
     execSync(rollup('sheetbase-api.es2015.js'));
     execSync(minify('dist/sheetbase-api.js'));
-    outputJSONSync('./dist/api/package.json', {
+    outputJSONSync('./api/package.json', {
         name: '@sheetbase/client-api',
         version,
-        main: '../sheetbase-api.js',
-        module: '../fesm5/sheetbase-api.js',
-        es2015: '../fesm2015/sheetbase-api.js',
-        esm5: '../esm5/lib/api/index.js',
-        esm2015: '../esm2015/lib/api/index.js',
-        fesm5: '../fesm5/sheetbase-api.js',
-        fesm2015: '../fesm2015/sheetbase-api.js',
-        typings: '../lib/api/index.d.ts',
+        main: '../dist/sheetbase-api.js',
+        module: '../dist/fesm5/sheetbase-api.js',
+        es2015: '../dist/fesm2015/sheetbase-api.js',
+        esm5: '../dist/esm5/lib/api/index.js',
+        esm2015: '../dist/esm2015/lib/api/index.js',
+        fesm5: '../dist/fesm5/sheetbase-api.js',
+        fesm2015: '../dist/fesm2015/sheetbase-api.js',
+        typings: '../dist/lib/api/index.d.ts',
     }, { spaces: 2 });
 
     console.log('+ Build: auth');
@@ -60,17 +66,17 @@ const version = require('../../package.json').version;
     execSync(rollup('sheetbase-auth.es5.js'));
     execSync(rollup('sheetbase-auth.es2015.js'));
     execSync(minify('dist/sheetbase-auth.js'));
-    outputJSONSync('./dist/auth/package.json', {
+    outputJSONSync('./auth/package.json', {
         name: '@sheetbase/client-auth',
         version,
-        main: '../sheetbase-auth.js',
-        module: '../fesm5/sheetbase-auth.js',
-        es2015: '../fesm2015/sheetbase-auth.js',
-        esm5: '../esm5/lib/auth/index.js',
-        esm2015: '../esm2015/lib/auth/index.js',
-        fesm5: '../fesm5/sheetbase-auth.js',
-        fesm2015: '../fesm2015/sheetbase-auth.js',
-        typings: '../lib/auth/index.d.ts',
+        main: '../dist/sheetbase-auth.js',
+        module: '../dist/fesm5/sheetbase-auth.js',
+        es2015: '../dist/fesm2015/sheetbase-auth.js',
+        esm5: '../dist/esm5/lib/auth/index.js',
+        esm2015: '../dist/esm2015/lib/auth/index.js',
+        fesm5: '../dist/fesm5/sheetbase-auth.js',
+        fesm2015: '../dist/fesm2015/sheetbase-auth.js',
+        typings: '../dist/lib/auth/index.d.ts',
     }, { spaces: 2 });
 
     console.log('+ Build: database');
@@ -78,17 +84,17 @@ const version = require('../../package.json').version;
     execSync(rollup('sheetbase-database.es5.js'));
     execSync(rollup('sheetbase-database.es2015.js'));
     execSync(minify('dist/sheetbase-database.js'));
-    outputJSONSync('./dist/database/package.json', {
+    outputJSONSync('./database/package.json', {
         name: '@sheetbase/client-database',
         version,
-        main: '../sheetbase-database.js',
-        module: '../fesm5/sheetbase-database.js',
-        es2015: '../fesm2015/sheetbase-database.js',
-        esm5: '../esm5/lib/database/index.js',
-        esm2015: '../esm2015/lib/database/index.js',
-        fesm5: '../fesm5/sheetbase-database.js',
-        fesm2015: '../fesm2015/sheetbase-database.js',
-        typings: '../lib/database/index.d.ts',
+        main: '../dist/sheetbase-database.js',
+        module: '../dist/fesm5/sheetbase-database.js',
+        es2015: '../dist/fesm2015/sheetbase-database.js',
+        esm5: '../dist/esm5/lib/database/index.js',
+        esm2015: '../dist/esm2015/lib/database/index.js',
+        fesm5: '../dist/fesm5/sheetbase-database.js',
+        fesm2015: '../dist/fesm2015/sheetbase-database.js',
+        typings: '../dist/lib/database/index.d.ts',
     }, { spaces: 2 });
 
     console.log('+ Build: storage');
@@ -96,17 +102,17 @@ const version = require('../../package.json').version;
     execSync(rollup('sheetbase-storage.es5.js'));
     execSync(rollup('sheetbase-storage.es2015.js'));
     execSync(minify('dist/sheetbase-storage.js'));
-    outputJSONSync('./dist/storage/package.json', {
+    outputJSONSync('./storage/package.json', {
         name: '@sheetbase/client-storage',
         version,
-        main: '../sheetbase-storage.js',
-        module: '../fesm5/sheetbase-storage.js',
-        es2015: '../fesm2015/sheetbase-storage.js',
-        esm5: '../esm5/lib/storage/index.js',
-        esm2015: '../esm2015/lib/storage/index.js',
-        fesm5: '../fesm5/sheetbase-storage.js',
-        fesm2015: '../fesm2015/sheetbase-storage.js',
-        typings: '../lib/storage/index.d.ts',
+        main: '../dist/sheetbase-storage.js',
+        module: '../dist/fesm5/sheetbase-storage.js',
+        es2015: '../dist/fesm2015/sheetbase-storage.js',
+        esm5: '../dist/esm5/lib/storage/index.js',
+        esm2015: '../dist/esm2015/lib/storage/index.js',
+        fesm5: '../dist/fesm5/sheetbase-storage.js',
+        fesm2015: '../dist/fesm2015/sheetbase-storage.js',
+        typings: '../dist/lib/storage/index.d.ts',
     }, { spaces: 2 });
 
     console.log('+ Build: mail');
@@ -114,17 +120,17 @@ const version = require('../../package.json').version;
     execSync(rollup('sheetbase-mail.es5.js'));
     execSync(rollup('sheetbase-mail.es2015.js'));
     execSync(minify('dist/sheetbase-mail.js'));
-    outputJSONSync('./dist/mail/package.json', {
+    outputJSONSync('./mail/package.json', {
         name: '@sheetbase/client-mail',
         version,
-        main: '../sheetbase-mail.js',
-        module: '../fesm5/sheetbase-mail.js',
-        es2015: '../fesm2015/sheetbase-mail.js',
-        esm5: '../esm5/lib/mail/index.js',
-        esm2015: '../esm2015/lib/mail/index.js',
-        fesm5: '../fesm5/sheetbase-mail.js',
-        fesm2015: '../fesm2015/sheetbase-mail.js',
-        typings: '../lib/mail/index.d.ts',
+        main: '../dist/sheetbase-mail.js',
+        module: '../dist/fesm5/sheetbase-mail.js',
+        es2015: '../dist/fesm2015/sheetbase-mail.js',
+        esm5: '../dist/esm5/lib/mail/index.js',
+        esm2015: '../dist/esm2015/lib/mail/index.js',
+        fesm5: '../dist/fesm5/sheetbase-mail.js',
+        fesm2015: '../dist/fesm2015/sheetbase-mail.js',
+        typings: '../dist/lib/mail/index.d.ts',
     }, { spaces: 2 });
 
 })();

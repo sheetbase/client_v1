@@ -14,7 +14,13 @@
   "fesm2015": "dist/fesm2015/sheetbase.js",
   "typings": "dist/sheetbase.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "app",
+    "api",
+    "auth",
+    "database",
+    "storage",
+    "mail"
   ],
   "scripts": {
     "docs": "typedoc src --out \"docs/api\" --mode file --readme none --excludeExternals --excludeNotExported --ignoreCompilerErrors",

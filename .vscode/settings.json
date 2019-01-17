@@ -6,6 +6,13 @@
         "**/build": true,
         "**/docs": true,
 
+        "app": true,
+        "api": true,
+        "auth": true,
+        "database": true,
+        "storage": true,
+        "mail": true,
+
         "**/.nyc_output": true,
         "**/coverage": true
     }

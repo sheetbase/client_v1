@@ -4,6 +4,13 @@ node_modules/
 dist/
 build/
 
+app/
+api/
+auth/
+database/
+storage/
+mail/
+
 # test
 .nyc_output/
 coverage/
