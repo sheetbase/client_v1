@@ -5,6 +5,29 @@ import { AuthService } from './auth/auth.service';
 import { StorageService } from './storage/storage.service';
 import { MailService } from './mail/mail.service';
 
+export class AppsService {
+    private apps: { [name: string]: App } = {};
+
+    constructor() {}
+
+    createApp(options: Options, name = 'DEFAULT') {
+        if (!!this.apps[name]) {
+            throw new Error(`An app exists with the name "${name}".`);
+        }
+        this.apps[name] = new App(options);
+        return this.apps[name];
+    }
+
+    getApp(name = 'DEFAULT') {
+        const app = this.apps[name];
+        if (!app) {
+            throw new Error(`No app exists with the name "${name}". Please run initializeApp() first.`);
+        }
+        return app;
+    }
+
+}
+
 export class App {
     private _options: Options;
 
@@ -18,7 +41,7 @@ export class App {
         this._options = { ... options };
         this.Api = new ApiService(options);
         this.Auth = new AuthService(options);
-        this.Database = new DatabaseService(options);
+        this.Database = new DatabaseService(options, this.Auth);
         this.Storage = new StorageService(options);
         this.Mail = new MailService(options);
     }
@@ -41,29 +64,6 @@ export class App {
     }
     mail() {
         return this.Mail;
-    }
-
-}
-
-export class AppsService {
-    private apps: { [name: string]: App } = {};
-
-    constructor() {}
-
-    createApp(options: Options, name = 'DEFAULT') {
-        if (!!this.apps[name]) {
-            throw new Error(`An app exists with the name "${name}".`);
-        }
-        this.apps[name] = new App(options);
-        return this.apps[name];
-    }
-
-    getApp(name = 'DEFAULT') {
-        const app = this.apps[name];
-        if (!app) {
-            throw new Error(`No app exists with the name "${name}". Please run initializeApp() first.`);
-        }
-        return app;
     }
 
 }
