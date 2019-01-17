@@ -1,11 +1,8 @@
-// tslint:disable:no-default-export
 import { AppService } from '../app/app.service';
-import { MailService } from './mail.service';
-
-declare function app(): AppService;
+declare function app(): AppService; // get the default app
 
 function mail(sheetbaseApp?: AppService) {
-    return new MailService(sheetbaseApp || app());
+    return (sheetbaseApp || app()).Mail;
 }
 
 export default mail;

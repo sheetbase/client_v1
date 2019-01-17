@@ -7,12 +7,12 @@ import { App } from '../app/index';
 import { BeforeRequest, ApiInstanceData } from './types';
 
 export class ApiService {
-    app: App;
-
     private baseEndpoint: string;
     private predefinedQuery: {};
     private predefinedBody: {};
     private beforeRequest: BeforeRequest;
+
+    app: App;
 
     constructor(app: App) {
         this.app = app;

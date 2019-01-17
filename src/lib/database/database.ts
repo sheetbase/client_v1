@@ -1,11 +1,8 @@
-// tslint:disable:no-default-export
 import { AppService } from '../app/app.service';
-import { DatabaseService } from './database.service';
-
-declare function app(): AppService;
+declare function app(): AppService; // get the default app
 
 function database(sheetbaseApp?: AppService) {
-    return new DatabaseService(sheetbaseApp || app());
+    return (sheetbaseApp || app()).Database;
 }
 
 export default database;

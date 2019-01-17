@@ -1,11 +1,8 @@
-// tslint:disable:no-default-export
 import { AppService } from '../app/app.service';
-import { StorageService } from './storage.service';
-
-declare function app(): AppService;
+declare function app(): AppService; // get the default app
 
 function storage(sheetbaseApp?: AppService) {
-    return new StorageService(sheetbaseApp || app());
+    return (sheetbaseApp || app()).Storage;
 }
 
 export default storage;

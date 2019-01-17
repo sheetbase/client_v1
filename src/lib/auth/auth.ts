@@ -1,11 +1,8 @@
-// tslint:disable:no-default-export
 import { AppService } from '../app/app.service';
-import { AuthService } from './auth.service';
-
-declare function app(): AppService;
+declare function app(): AppService; // get the default app
 
 function auth(sheetbaseApp?: AppService) {
-    return new AuthService(sheetbaseApp || app());
+    return (sheetbaseApp || app()).Auth;
 }
 
 export default auth;

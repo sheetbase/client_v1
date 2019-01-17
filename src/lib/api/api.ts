@@ -1,11 +1,8 @@
-// tslint:disable:no-default-export
 import { AppService } from '../app/app.service';
-import { ApiService } from './api.service';
-
-declare function app(): AppService;
+declare function app(): AppService; // get the default app
 
 function api(sheetbaseApp?: AppService) {
-    return new ApiService(sheetbaseApp || app());
+    return (sheetbaseApp || app()).Api;
 }
 
 export default api;
