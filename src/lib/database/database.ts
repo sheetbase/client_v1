@@ -2,8 +2,10 @@
 import { AppService } from '../app/app.service';
 import { DatabaseService } from './database.service';
 
-function database(app?: AppService) {
-    return new DatabaseService(app);
+declare function app(): AppService;
+
+function database(sheetbaseApp?: AppService) {
+    return new DatabaseService(sheetbaseApp || app());
 }
 
 export default database;

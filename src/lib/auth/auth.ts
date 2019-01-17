@@ -2,8 +2,10 @@
 import { AppService } from '../app/app.service';
 import { AuthService } from './auth.service';
 
-function auth(app?: AppService) {
-    return new AuthService(app);
+declare function app(): AppService;
+
+function auth(sheetbaseApp?: AppService) {
+    return new AuthService(sheetbaseApp || app());
 }
 
 export default auth;

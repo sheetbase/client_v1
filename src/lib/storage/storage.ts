@@ -2,8 +2,10 @@
 import { AppService } from '../app/app.service';
 import { StorageService } from './storage.service';
 
-function storage(app?: AppService) {
-    return new StorageService(app);
+declare function app(): AppService;
+
+function storage(sheetbaseApp?: AppService) {
+    return new StorageService(sheetbaseApp || app());
 }
 
 export default storage;

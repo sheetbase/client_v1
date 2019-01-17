@@ -2,8 +2,10 @@
 import { AppService } from '../app/app.service';
 import { MailService } from './mail.service';
 
-function mail(app?: AppService) {
-    return new MailService(app);
+declare function app(): AppService;
+
+function mail(sheetbaseApp?: AppService) {
+    return new MailService(sheetbaseApp || app());
 }
 
 export default mail;
