@@ -2,34 +2,48 @@ import { SQLQuery, NoSQLQuery } from '@sheetbase/sheets-server';
 
 import { Options } from '../types';
 import { ApiService } from '../api/api.service';
+import { AuthService } from '../auth/auth.service';
 
 export class DatabaseService {
     private options: Options;
     private Api: ApiService;
+    private Auth: AuthService;
 
-    constructor(options: Options) {
+    constructor(options: Options, Auth?: AuthService) {
         this.options = {
             databaseEndpoint: 'database',
             ... options,
         };
+        this.Auth = Auth;
         this.Api = new ApiService(options)
-            .setEndpoint(this.options.databaseEndpoint);
+            .setEndpoint(this.options.databaseEndpoint)
+            .setHookBefore(async Api => {
+                if (!!this.Auth && this.Auth.currentUser) {
+                    const idToken = this.Auth.currentUser.getIdToken();
+                    Api.setQuery({ idToken }); // register user id token
+                }
+            });
     }
 
-    private parseIdOrDocOrCondition(input: number | string | {[field: string]: string}) {
+    private convertFinder(finder: number | string | {[field: string]: string}) {
         let result = {};
-        if (typeof input === 'number') {
-            result = { id: input };
-        } else if (typeof input === 'string') {
-            result = { doc: input };
+        if (typeof finder === 'number') {
+            result = { id: finder };
+        } else if (typeof finder === 'string') {
+            result = { doc: finder };
         } else {
-            const [ where ] = Object.keys(input);
+            const [ where ] = Object.keys(finder);
             result = {
                 where,
-                equal: input[where],
+                equal: finder[where],
             };
         }
         return result;
+    }
+
+    setAuth(Auth: AuthService): DatabaseService {
+        this.Auth = Auth;
+        return this;
     }
 
     async all(table: string, cache = true) {
@@ -42,7 +56,7 @@ export class DatabaseService {
         cache = true,
     ) {
         return await this.Api.get('/', {
-            ... this.parseIdOrDocOrCondition(idOrCondition), table,
+            ... this.convertFinder(idOrCondition), table,
         }, cache);
     }
 
@@ -51,7 +65,7 @@ export class DatabaseService {
         idOrCondition: number | string | {[field: string]: string},
     ) {
         return await this.Api.delete('/', {}, {
-            ... this.parseIdOrDocOrCondition(idOrCondition), table,
+            ... this.convertFinder(idOrCondition), table,
         });
     }
 
@@ -105,7 +119,7 @@ export class DatabaseService {
         idOrDocOrCondition?: number | string | {[field: string]: string},
     ) {
         return await this.Api.post('/', {}, {
-            ... this.parseIdOrDocOrCondition(idOrDocOrCondition), collection, data,
+            ... this.convertFinder(idOrDocOrCondition), collection, data,
         });
     }
 
@@ -115,7 +129,7 @@ export class DatabaseService {
         idOrCondition?: number | {[field: string]: string},
     ) {
         const body = {
-            ... this.parseIdOrDocOrCondition(idOrCondition),
+            ... this.convertFinder(idOrCondition),
             table,
             data,
         };
