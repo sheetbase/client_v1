@@ -1,6 +1,6 @@
 import { AppOptions } from './types';
 
-export class AppsService {
+class AppsService {
 
     private apps: { [name: string]: AppService } = {};
 
@@ -24,7 +24,7 @@ export class AppsService {
 
 }
 
-export class AppService {
+class AppService {
 
     options: AppOptions;
 
@@ -37,3 +37,5 @@ export class AppService {
     }
 
 }
+
+export { AppsService, AppService };

@@ -1,15 +1,14 @@
 import { SQLQuery, NoSQLQuery } from '@sheetbase/sheets-server';
 
-import { Options } from '../types';
 import { ApiService } from '../api/api.service';
 import { AuthService } from '../auth/auth.service';
 
 export class DatabaseService {
-    private options: Options;
+    private options: any;
     private Api: ApiService;
     private Auth: AuthService;
 
-    constructor(options: Options, Auth?: AuthService) {
+    constructor(options: any, Auth?: AuthService) {
         this.options = {
             databaseEndpoint: 'database',
             ... options,

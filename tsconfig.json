@@ -13,7 +13,8 @@
     "declaration": false
   },
   "files": [
-    "./src/sheetbase.ts",
+    "./src/index.ts",
+    "./src/lib/app/index.ts",
     "./src/lib/api/index.ts",
     "./src/lib/database/index.ts",
     "./src/lib/auth/index.ts",

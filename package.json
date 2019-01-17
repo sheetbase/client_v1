@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "docs": "typedoc src --out \"docs/api\" --mode file --readme none --excludeExternals --excludeNotExported --ignoreCompilerErrors",
-    "build": "tsc -p scripts/tsconfig.scripts.json && node build/scripts/build.js && npm run docs",
+    "build": "tsc -t ES5 -m commonjs --outDir ./build/scripts ./scripts/build.ts && node build/scripts/build.js && npm run docs",
     "lint": "tslint --project tslint.json && echo 'All files pass linting.'",
     "test": "tsc -p tests/tsconfig.test.json && nyc --cache false mocha --timeout 100000 -- build/tests/*.js",
     "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"

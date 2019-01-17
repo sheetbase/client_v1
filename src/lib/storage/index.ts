@@ -1,6 +1,3 @@
-import { Options } from '../types';
-import { StorageService } from './storage.service';
-
-export function storage(options: Options) {
-    return new StorageService(options);
-}
+export * from './types';
+export { StorageService as Storage } from './storage.service';
+export { default as storage } from './storage';

@@ -1,6 +1,4 @@
-import { Options } from '../types';
-import { AuthService } from './auth.service';
-
-export function auth(options: Options) {
-    return new AuthService(options);
-}
+export * from './types';
+export { User } from './user';
+export { AuthService as Auth } from './auth.service';
+export { default as auth } from './auth';

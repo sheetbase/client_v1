@@ -3,7 +3,7 @@ import { getItem, setItem, removeItem } from 'localforage';
 import { getJSON as getCookie, set as setCookie, remove as removeCookie } from 'js-cookie';
 import { UserInfo } from '@sheetbase/user-server';
 
-import { Options, SignInData } from '../types';
+import { SignInData } from './types';
 import { ApiService } from '../api/api.service';
 import { User } from './user';
 import { decodeJWTPayload } from '../utils';
@@ -12,12 +12,12 @@ const AUTH_USER = 'AUTH_USER';
 const AUTH_CREDS = 'AUTH_CREDS';
 
 export class AuthService {
-    private options: Options;
+    private options: any;
     private Api: ApiService;
 
     currentUser: User = null;
 
-    constructor(options: Options) {
+    constructor(options: any) {
         this.options = {
             authEndpoint: 'auth',
             ... options,

@@ -1,51 +1,53 @@
+// tslint:disable:max-line-length
 import { execSync } from 'child_process';
 import { removeSync } from 'fs-extra';
 
 (() => {
 
-    const tsPath = (file: string) => 'scripts/tsconfigs/' + file;
-    const rollupPath = (file: string) => 'scripts/rollup/' + file;
+    const tsPath = file => 'scripts/tsc/' + file;
+    const rollupPath = file => 'scripts/rollup/' + file;
 
     const tsc = 'tsc -p';
     const rollup = 'rollup --silent -c';
-    const minify = (file: string) => {
-        // tslint:disable-next-line:max-line-length
-        return `uglifyjs ${file} --compress --mangle --comments --source-map -o ${file.replace('.js', '.min.js')}`;
-    };
+    const minify = file => `uglifyjs ${file} --compress --mangle --comments --source-map -o ${file.replace('.js', '.min.js')}`;
 
     // clean
+    console.log('+ Clean dist folder.');
     removeSync('dist');
-    console.log('[OK] Clean dist folder.');
 
     // transpile
+    console.log('+ Transpile code.');
     execSync(tsc + ' tsconfig.json'); // ES5
     execSync(tsc + ' ' + tsPath('tsconfig.es2015.json')); // ES2015
-    console.log('[OK] Transpile code.');
 
     // bundle & minify
+    console.log('+ Build: module');
     execSync(rollup + ' ' + rollupPath('sheetbase.js'));
     execSync(rollup + ' ' + rollupPath('sheetbase.es2015.js'));
     execSync(minify('dist/sheetbase.js'));
-    console.log('[OK] Bundle & minify app.');
 
+    console.log('+ Build: app');
+    execSync(rollup + ' ' + rollupPath('app.js'));
+    execSync(minify('dist/sheetbase-app.js'));
+
+    console.log('+ Build: api');
     execSync(rollup + ' ' + rollupPath('api.js'));
     execSync(minify('dist/sheetbase-api.js'));
-    console.log('[OK] Bundle & minify api.');
 
+    console.log('+ Build: database');
     execSync(rollup + ' ' + rollupPath('database.js'));
     execSync(minify('dist/sheetbase-database.js'));
-    console.log('[OK] Bundle & minify database.');
 
+    console.log('+ Build: auth');
     execSync(rollup + ' ' + rollupPath('auth.js'));
     execSync(minify('dist/sheetbase-auth.js'));
-    console.log('[OK] Bundle & minify auth.');
 
+    console.log('+ Build: storage');
     execSync(rollup + ' ' + rollupPath('storage.js'));
     execSync(minify('dist/sheetbase-storage.js'));
-    console.log('[OK] Bundle & minify storage.');
 
+    console.log('+ Build: mail');
     execSync(rollup + ' ' + rollupPath('mail.js'));
     execSync(minify('dist/sheetbase-mail.js'));
-    console.log('[OK] Bundle & minify mail.');
 
 })();

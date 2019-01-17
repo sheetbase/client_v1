@@ -1,13 +1,12 @@
 import { MailingData } from '@sheetbase/gmail-server';
 
-import { Options } from '../types';
 import { ApiService } from '../api/api.service';
 
 export class MailService {
-    private options: Options;
+    private options: any;
     private Api: ApiService;
 
-    constructor(options: Options) {
+    constructor(options: any) {
         this.options = {
             mailEndpoint: 'mail',
             ... options,

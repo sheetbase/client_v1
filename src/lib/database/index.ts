@@ -1,6 +1,3 @@
-import { Options } from '../types';
-import { DatabaseService } from './database.service';
-
-export function database(options: Options) {
-    return new DatabaseService(options);
-}
+export * from './types';
+export { DatabaseService as Database } from './database.service';
+export { default as database } from './database';
