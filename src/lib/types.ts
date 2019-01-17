@@ -1,4 +1,5 @@
 import { UserInfo } from '@sheetbase/user-server';
+import { ApiService } from './api/api.service';
 
 export interface Options extends ApiOptions, DatabaseOptions, AuthOptions, StorageOptions, MailOptions {}
 
@@ -23,10 +24,15 @@ export interface MailOptions {
     mailEndpoint?: string;
 }
 
+export interface BeforeRequest {
+    (Api: ApiService): Promise<void>;
+}
+
 export interface ApiInstanceData {
     endpoint?: string;
     query?: {};
     body?: {};
+    before?: BeforeRequest;
 }
 
 export interface SignInData {

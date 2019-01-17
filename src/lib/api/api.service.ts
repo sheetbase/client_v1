@@ -3,23 +3,29 @@ import { get as cacheGet, set as cacheSet } from 'lscache';
 import * as _md5 from 'md5';
 const md5 = _md5;
 
-import { Options, ApiInstanceData } from '../types';
+import { Options, BeforeRequest, ApiInstanceData } from '../types';
 
 export class ApiService {
     private options: Options;
-    private baseEndpoint = '';
-    private predefinedQuery = {};
-    private predefinedBody = {};
+    private baseEndpoint: string;
+    private predefinedQuery: {};
+    private predefinedBody: {};
+    private beforeRequest: BeforeRequest;
 
     constructor(options: Options) {
         this.options = options;
+        this.baseEndpoint = '';
+        this.predefinedQuery = {};
+        this.predefinedBody = {};
+        this.beforeRequest = async Api => {};
     }
 
     setData(data: ApiInstanceData = {}): ApiService {
-        const { endpoint, query, body } = data;
+        const { endpoint, query, body, before } = data;
         if (!!endpoint) { this.baseEndpoint = endpoint; }
         if (!!query) { this.predefinedQuery = query; }
         if (!!body) { this.predefinedBody = body; }
+        if (!!before) { this.beforeRequest = before; }
         return this;
     }
 
@@ -28,7 +34,7 @@ export class ApiService {
         return this;
     }
 
-    setQuery(query = {}): ApiService {
+    setQuery(query: {}): ApiService {
         this.predefinedQuery = {
             ... this.predefinedQuery,
             ... query,
@@ -36,7 +42,7 @@ export class ApiService {
         return this;
     }
 
-    setBody(body = {}): ApiService {
+    setBody(body: {}): ApiService {
         this.predefinedBody = {
             ... this.predefinedBody,
             ... body,
@@ -44,7 +50,12 @@ export class ApiService {
         return this;
     }
 
-    async fetch(input: RequestInfo, init?: RequestInit) {
+    setHookBefore(before: BeforeRequest): ApiService {
+        this.beforeRequest = before;
+        return this;
+    }
+
+    private async fetch(input: RequestInfo, init?: RequestInit) {
         const response = await fetch(input, init);
         if (!response.ok) {
             throw new Error('API fetch failed.');
@@ -69,6 +80,8 @@ export class ApiService {
     }
 
     async get(endpoint?: string, query = {}, cache = false) {
+        await this.beforeRequest(this);
+        // build url
         const url = this.buildUrl(
             this.buildEndpoint(endpoint),
             this.buildQuery(query),
@@ -92,6 +105,8 @@ export class ApiService {
     }
 
     async post(endpoint?: string, query = {}, body = {}) {
+        await this.beforeRequest(this);
+        // build url
         const url = this.buildUrl(
             this.buildEndpoint(endpoint),
             this.buildQuery(query),
