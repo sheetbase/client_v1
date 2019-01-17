@@ -87,9 +87,9 @@ export class User {
 
     async getIdToken(forceRefresh = false) {
         // check expiration
-        const assumeValid = (new Date()).getTime() < decodeJWTPayload(this.idToken)['exp'];
+        const mayValid = (new Date()).getTime() < decodeJWTPayload(this.idToken)['exp'];
         // renew
-        if (!assumeValid || forceRefresh) {
+        if (!mayValid || forceRefresh) {
             const { idToken } = await this.Api.get('/token', {
                 refreshToken: this.refreshToken,
             });
@@ -111,7 +111,7 @@ export class User {
 
     async updateProfile(profile: UserProfile) {
         const newInfo = await this.Api.post('/user', {}, {
-            idToken: this.idToken,
+            idToken: this.getIdToken(),
             profile,
         });
         return this.setInfo(newInfo);
@@ -119,10 +119,18 @@ export class User {
 
     async setUsername(username: string) {
         const newInfo = await this.Api.post('/user/username', {}, {
-            idToken: this.idToken,
+            idToken: this.getIdToken(),
             username,
         });
         return this.setInfo(newInfo);
+    }
+
+    async changePassword(currentPassword: string, newPassword: string) {
+        return await this.Api.post('/user/password', {}, {
+            idToken: this.getIdToken(),
+            currentPassword,
+            newPassword,
+        });
     }
 
     // TODO: async updateEmail(newEmail: string) {}
@@ -133,13 +141,13 @@ export class User {
 
     async logout() {
         return await this.Api.delete('/', {}, {
-            idToken: this.idToken,
+            idToken: this.getIdToken(),
         });
     }
 
     async delete() {
         return await this.Api.delete('/cancel', {}, {
-            idToken: this.idToken,
+            idToken: this.getIdToken(),
             refreshToken: this.refreshToken,
         });
     }
