@@ -1,8 +1,15 @@
 import { AppService } from '../app/app.service';
-declare function app(): AppService; // get the default app
+import { MailService } from './mail.service';
 
-function mail(sheetbaseApp?: AppService) {
-    return (sheetbaseApp || app()).Mail;
+declare const sheetbase: any;
+
+function mail(app?: AppService) {
+    app = app || sheetbase.defaultApp();
+    if (!!app.Mail) {
+        return app.Mail;
+    } else {
+        return new MailService(app);
+    }
 }
 
 export default mail;

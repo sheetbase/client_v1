@@ -1,8 +1,15 @@
 import { AppService } from '../app/app.service';
-declare function app(): AppService; // get the default app
+import { ApiService } from './api.service';
 
-function api(sheetbaseApp?: AppService) {
-    return (sheetbaseApp || app()).Api;
+declare const sheetbase: any;
+
+function api(app?: AppService) {
+    app = app || sheetbase.defaultApp();
+    if (!!app.Api) {
+        return app.Api;
+    } else {
+        return new ApiService(app);
+    }
 }
 
 export default api;

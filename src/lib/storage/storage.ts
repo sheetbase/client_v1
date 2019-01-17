@@ -1,8 +1,15 @@
 import { AppService } from '../app/app.service';
-declare function app(): AppService; // get the default app
+import { StorageService } from './storage.service';
 
-function storage(sheetbaseApp?: AppService) {
-    return (sheetbaseApp || app()).Storage;
+declare const sheetbase: any;
+
+function storage(app?: AppService) {
+    app = app || sheetbase.defaultApp();
+    if (!!app.Storage) {
+        return app.Storage;
+    } else {
+        return new StorageService(app);
+    }
 }
 
 export default storage;

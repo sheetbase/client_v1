@@ -3,32 +3,45 @@ import { get as cacheGet, set as cacheSet } from 'lscache';
 import * as _md5 from 'md5';
 const md5 = _md5;
 
-import { App } from '../app/index';
-import { BeforeRequest, ApiInstanceData } from './types';
+import { AppService } from '../app/app.service';
+import { BeforeRequestHook, ApiInstanceData, ActionData } from './types';
 
 export class ApiService {
+
     private baseEndpoint: string;
     private predefinedQuery: {};
     private predefinedBody: {};
-    private beforeRequest: BeforeRequest;
+    private beforeRequestHooks: BeforeRequestHook[];
 
-    app: App;
+    app: AppService;
 
-    constructor(app: App) {
+    constructor(app: AppService, instanceData: ApiInstanceData = {}) {
         this.app = app;
 
+        // dafault instance data
         this.baseEndpoint = '';
         this.predefinedQuery = {};
         this.predefinedBody = {};
-        this.beforeRequest = async Api => {};
+        this.beforeRequestHooks = [];
+        // set data
+        this.setData(instanceData);
     }
 
-    setData(data: ApiInstanceData = {}): ApiService {
-        const { endpoint, query, body, before } = data;
+    extend() {
+        return new ApiService(this.app, {
+            endpoint: this.baseEndpoint,
+            query: this.predefinedQuery,
+            body: this.predefinedBody,
+            beforeHooks: this.beforeRequestHooks,
+        });
+    }
+
+    setData(data: ApiInstanceData): ApiService {
+        const { endpoint, query, body, beforeHooks } = data;
         if (!!endpoint) { this.baseEndpoint = endpoint; }
         if (!!query) { this.predefinedQuery = query; }
         if (!!body) { this.predefinedBody = body; }
-        if (!!before) { this.beforeRequest = before; }
+        if (!!beforeHooks) { this.beforeRequestHooks = beforeHooks; }
         return this;
     }
 
@@ -37,7 +50,7 @@ export class ApiService {
         return this;
     }
 
-    setQuery(query: {}): ApiService {
+    addQuery(query: {}): ApiService {
         this.predefinedQuery = {
             ... this.predefinedQuery,
             ... query,
@@ -45,7 +58,7 @@ export class ApiService {
         return this;
     }
 
-    setBody(body: {}): ApiService {
+    addBody(body: {}): ApiService {
         this.predefinedBody = {
             ... this.predefinedBody,
             ... body,
@@ -53,8 +66,11 @@ export class ApiService {
         return this;
     }
 
-    setHookBefore(before: BeforeRequest): ApiService {
-        this.beforeRequest = before;
+    addBeforeHooks(hooks: BeforeRequestHook[]): ApiService {
+        this.beforeRequestHooks = [
+            ... this.beforeRequestHooks,
+            ... hooks,
+        ];
         return this;
     }
 
@@ -64,6 +80,13 @@ export class ApiService {
             throw new Error('API fetch failed.');
         }
         return await response.json();
+    }
+
+    private async runBeforeHooks(data: ActionData) {
+        for (let i = 0; i < this.beforeRequestHooks.length; i++) {
+            data = await this.beforeRequestHooks[i](data);
+        }
+        return data;
     }
 
     async request(inputs: {
@@ -83,7 +106,6 @@ export class ApiService {
     }
 
     async get(endpoint?: string, query = {}, cache = false) {
-        await this.beforeRequest(this);
         // build url
         const url = this.buildUrl(
             this.buildEndpoint(endpoint),
@@ -108,7 +130,6 @@ export class ApiService {
     }
 
     async post(endpoint?: string, query = {}, body = {}) {
-        await this.beforeRequest(this);
         // build url
         const url = this.buildUrl(
             this.buildEndpoint(endpoint),

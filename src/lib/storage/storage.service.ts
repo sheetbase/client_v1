@@ -1,18 +1,19 @@
 import { FileResource } from '@sheetbase/drive-server';
 
+import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
 
 export class StorageService {
-    private options: any;
+
     private Api: ApiService;
 
-    constructor(options: any) {
-        this.options = {
-            storageEndpoint: 'storage',
-            ... options,
-        };
-        this.Api = new ApiService(options)
-            .setEndpoint(this.options.storageEndpoint);
+    app: AppService;
+
+    constructor(app: AppService) {
+        this.app = app;
+        this.Api = this.app.Api
+            .extend()
+            .setEndpoint(this.app.options.authEndpoint || 'storage');
     }
 
     async info(fileId: string) {

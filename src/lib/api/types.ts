@@ -1,17 +1,18 @@
-import { ApiService } from './api.service';
-
 export interface ApiOptions {
     backendUrl: string;
     apiKey?: string;
 }
 
-export interface BeforeRequest {
-    (Api: ApiService): Promise<void>;
-}
-
-export interface ApiInstanceData {
+export interface ActionData {
     endpoint?: string;
     query?: {};
     body?: {};
-    before?: BeforeRequest;
+}
+
+export interface BeforeRequestHook {
+    (data: ActionData): Promise<ActionData>;
+}
+
+export interface ApiInstanceData extends ActionData {
+    beforeHooks?: BeforeRequestHook[];
 }

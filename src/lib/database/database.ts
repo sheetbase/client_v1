@@ -1,8 +1,15 @@
 import { AppService } from '../app/app.service';
-declare function app(): AppService; // get the default app
+import { DatabaseService } from './database.service';
 
-function database(sheetbaseApp?: AppService) {
-    return (sheetbaseApp || app()).Database;
+declare const sheetbase: any;
+
+function database(app?: AppService) {
+    app = app || sheetbase.defaultApp();
+    if (!!app.Database) {
+        return app.Database;
+    } else {
+        return new DatabaseService(app);
+    }
 }
 
 export default database;

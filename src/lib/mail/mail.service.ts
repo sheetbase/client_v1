@@ -1,18 +1,19 @@
 import { MailingData } from '@sheetbase/gmail-server';
 
+import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
 
 export class MailService {
-    private options: any;
+
     private Api: ApiService;
 
-    constructor(options: any) {
-        this.options = {
-            mailEndpoint: 'mail',
-            ... options,
-        };
-        this.Api = new ApiService(options)
-            .setEndpoint(this.options.mailEndpoint);
+    app: AppService;
+
+    constructor(app: AppService) {
+        this.app = app;
+        this.Api = this.app.Api
+            .extend()
+            .setEndpoint(this.app.options.authEndpoint || 'mail');
     }
 
     async quota() {

@@ -1,27 +1,19 @@
 import { SQLQuery, NoSQLQuery } from '@sheetbase/sheets-server';
 
+import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
-import { AuthService } from '../auth/auth.service';
 
 export class DatabaseService {
-    private options: any;
-    private Api: ApiService;
-    private Auth: AuthService;
 
-    constructor(options: any, Auth?: AuthService) {
-        this.options = {
-            databaseEndpoint: 'database',
-            ... options,
-        };
-        this.Auth = Auth;
-        this.Api = new ApiService(options)
-            .setEndpoint(this.options.databaseEndpoint)
-            .setHookBefore(async Api => {
-                if (!!this.Auth && this.Auth.currentUser) {
-                    const idToken = this.Auth.currentUser.getIdToken();
-                    Api.setQuery({ idToken }); // register user id token
-                }
-            });
+    private Api: ApiService;
+
+    app: AppService;
+
+    constructor(app: AppService) {
+        this.app = app;
+        this.Api = this.app.Api
+            .extend()
+            .setEndpoint(this.app.options.authEndpoint || 'database');
     }
 
     private convertFinder(finder: number | string | {[field: string]: string}) {
@@ -38,11 +30,6 @@ export class DatabaseService {
             };
         }
         return result;
-    }
-
-    setAuth(Auth: AuthService): DatabaseService {
-        this.Auth = Auth;
-        return this;
     }
 
     async all(table: string, cache = true) {

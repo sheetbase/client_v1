@@ -3,27 +3,34 @@ import { getItem, setItem, removeItem } from 'localforage';
 import { getJSON as getCookie, set as setCookie, remove as removeCookie } from 'js-cookie';
 import { UserInfo } from '@sheetbase/user-server';
 
-import { SignInData } from './types';
+import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
-import { User } from './user';
 import { decodeJWTPayload } from '../utils';
+
+import { SignInData } from './types';
+import { User } from './user';
 
 const AUTH_USER = 'AUTH_USER';
 const AUTH_CREDS = 'AUTH_CREDS';
 
 export class AuthService {
-    private options: any;
+
     private Api: ApiService;
 
+    app: AppService;
     currentUser: User = null;
 
-    constructor(options: any) {
-        this.options = {
-            authEndpoint: 'auth',
-            ... options,
-        };
-        this.Api = new ApiService(options)
-            .setEndpoint(this.options.authEndpoint);
+    constructor(app: AppService) {
+        this.app = app;
+        this.Api = this.app.Api
+            .addBeforeHooks([async (data) => {
+                if (!!this.currentUser) {
+                    data.query['idToken'] = this.currentUser.getIdToken();
+                }
+                return data;
+            }])
+            .extend()
+            .setEndpoint(this.app.options.authEndpoint || 'auth');
     }
 
     onAuthStateChanged(next: {(user: User)}) {

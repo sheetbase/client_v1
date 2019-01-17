@@ -5,13 +5,7 @@ import { DatabaseService } from '../database/database.service';
 import { StorageService } from '../storage/storage.service';
 import { MailService } from '../mail/mail.service';
 
-declare const sheetbase: {
-    api?(app: AppService): ApiService;
-    auth?(app: AppService): AuthService;
-    database?(app: AppService): DatabaseService;
-    storage?(app: AppService): StorageService;
-    mail?(app: AppService): MailService;
-};
+declare const sheetbase: any;
 
 class AppService {
 
@@ -26,41 +20,46 @@ class AppService {
     constructor(options: AppOptions) {
         this.options = options;
 
-        // create instances if available
-        if (!!sheetbase.api && sheetbase.api instanceof Function) {
+        // try initiate members
+        if (!!sheetbase.api) {
             this.Api = sheetbase.api(this);
         }
-        if (!!sheetbase.auth && sheetbase.auth instanceof Function) {
+        if (!!sheetbase.auth) {
             this.Auth = sheetbase.auth(this);
         }
-        if (!!sheetbase.database && sheetbase.database instanceof Function) {
+        if (!!sheetbase.database) {
             this.Database = sheetbase.database(this);
         }
-        if (!!sheetbase.storage && sheetbase.storage instanceof Function) {
+        if (!!sheetbase.storage) {
             this.Storage = sheetbase.storage(this);
         }
-        if (!!sheetbase.mail && sheetbase.mail instanceof Function) {
+        if (!!sheetbase.mail) {
             this.Mail = sheetbase.mail(this);
         }
     }
 
     api() {
+        if (!this.Api) { throw new Error('No api component.'); }
         return this.Api;
     }
 
     auth() {
+        if (!this.Auth) { throw new Error('No auth component.'); }
         return this.Auth;
     }
 
     database() {
+        if (!this.Database) { throw new Error('No database component.'); }
         return this.Database;
     }
 
     storage() {
+        if (!this.Storage) { throw new Error('No storage component.'); }
         return this.Storage;
     }
 
     mail() {
+        if (!this.Mail) { throw new Error('No mail component.'); }
         return this.Mail;
     }
 

@@ -1,8 +1,15 @@
 import { AppService } from '../app/app.service';
-declare function app(): AppService; // get the default app
+import { AuthService } from './auth.service';
 
-function auth(sheetbaseApp?: AppService) {
-    return (sheetbaseApp || app()).Auth;
+declare const sheetbase: any;
+
+function auth(app?: AppService) {
+    app = app || sheetbase.defaultApp();
+    if (!!app.Auth) {
+        return app.Auth;
+    } else {
+        return new AuthService(app);
+    }
 }
 
 export default auth;
