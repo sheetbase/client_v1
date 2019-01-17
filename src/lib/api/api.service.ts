@@ -3,17 +3,20 @@ import { get as cacheGet, set as cacheSet } from 'lscache';
 import * as _md5 from 'md5';
 const md5 = _md5;
 
-import { Options, BeforeRequest, ApiInstanceData } from '../types';
+import { App } from '../app/index';
+import { BeforeRequest, ApiInstanceData } from './types';
 
 export class ApiService {
-    private options: Options;
+    app: App;
+
     private baseEndpoint: string;
     private predefinedQuery: {};
     private predefinedBody: {};
     private beforeRequest: BeforeRequest;
 
-    constructor(options: Options) {
-        this.options = options;
+    constructor(app: App) {
+        this.app = app;
+
         this.baseEndpoint = '';
         this.predefinedQuery = {};
         this.predefinedBody = {};
@@ -150,7 +153,7 @@ export class ApiService {
         let queryStr = '';
         query = { ... this.predefinedQuery, ... query };
         // has api key
-        const { apiKey } = this.options;
+        const { apiKey } = this.app.options;
         if (!!apiKey) {
             query = { apiKey, ... query };
         }
@@ -166,7 +169,7 @@ export class ApiService {
     }
 
     buildUrl(endpoint = '', query = '') {
-        let { backendUrl: url } = this.options;
+        let { backendUrl: url } = this.app.options;
         url += !!endpoint ? ('?e=' + endpoint) : (!!query ? '?' : '');
         return (!!query ? (url + '&' + query) : url).replace('?&', '?');
     }
