@@ -5,6 +5,7 @@ import * as sinon from 'sinon';
 import { AppService } from '../src/lib/app/app.service';
 
 import { ApiService } from '../src/lib/api/api.service';
+import { api } from '../src/lib/api/index';
 
 describe('(Api) Api service', () => {
 
@@ -462,6 +463,34 @@ describe('(Api) Api service', () => {
             query: { method: 'DELETE' },
             body: { b: 2 },
         });
+    });
+
+});
+
+describe('(Api) methods', () => {
+
+    it('#api (no app, no default app)', () => {
+        window['$$$SHEETBASE_APPS'] = null;
+
+        expect(
+            api.bind(null),
+        ).to.throw('No app for api component.');
+    });
+
+    it('#api (no app, default app)', () => {
+        window['$$$SHEETBASE_APPS'] = {
+            getApp: () => ({ Api: 'An Api instance' }),
+        };
+
+        const result = api();
+
+        expect(result).to.equal('An Api instance');
+    });
+
+    it('#api (app has no .Api)', () => {
+        const result = api({ options: {} } as any);
+
+        expect(result instanceof ApiService).to.equal(true);
     });
 
 });
