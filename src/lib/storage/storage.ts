@@ -4,10 +4,10 @@ import { StorageService } from './storage.service';
 function storage(app?: AppService) {
     // get the default app
     if (!app) {
-        if (!window['sheetbase'] || !window['sheetbase'].defaultApp) {
+        if (!window['$$$SHEETBASE_APPS']) {
             throw new Error('No app for storage component.');
         }
-        app = window['sheetbase'].defaultApp();
+        app = window['$$$SHEETBASE_APPS'].getApp();
     }
     // return the instance
     if (!!app.Storage) {
@@ -17,7 +17,6 @@ function storage(app?: AppService) {
     }
 }
 
-window['sheetbase'] = window['sheetbase'] || {};
-window['sheetbase'].storage = storage;
-
 export default storage;
+
+window['$$$SHEETBASE_COMPONENTS'].Storage = StorageService;

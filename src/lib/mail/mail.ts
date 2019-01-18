@@ -4,10 +4,10 @@ import { MailService } from './mail.service';
 function mail(app?: AppService) {
     // get the default app
     if (!app) {
-        if (!window['sheetbase'] || !window['sheetbase'].defaultApp) {
+        if (!window['$$$SHEETBASE_APPS']) {
             throw new Error('No app for mail component.');
         }
-        app = window['sheetbase'].defaultApp();
+        app = window['$$$SHEETBASE_APPS'].getApp();
     }
     // return the instance
     if (!!app.Mail) {
@@ -17,7 +17,6 @@ function mail(app?: AppService) {
     }
 }
 
-window['sheetbase'] = window['sheetbase'] || {};
-window['sheetbase'].mail = mail;
-
 export default mail;
+
+window['$$$SHEETBASE_COMPONENTS'].Mail = MailService;

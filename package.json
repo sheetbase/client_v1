@@ -16,7 +16,6 @@
   "files": [
     "dist",
     "app",
-    "api",
     "auth",
     "database",
     "storage",

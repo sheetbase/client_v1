@@ -4,10 +4,10 @@ import { AuthService } from './auth.service';
 function auth(app?: AppService) {
     // get the default app
     if (!app) {
-        if (!window['sheetbase'] || !window['sheetbase'].defaultApp) {
+        if (!window['$$$SHEETBASE_APPS']) {
             throw new Error('No app for auth component.');
         }
-        app = window['sheetbase'].defaultApp();
+        app = window['$$$SHEETBASE_APPS'].getApp();
     }
     // return the instance
     if (!!app.Auth) {
@@ -17,7 +17,6 @@ function auth(app?: AppService) {
     }
 }
 
-window['sheetbase'] = window['sheetbase'] || {};
-window['sheetbase'].auth = auth;
-
 export default auth;
+
+window['$$$SHEETBASE_COMPONENTS'].Auth = AuthService;

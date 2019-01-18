@@ -4,10 +4,10 @@ import { DatabaseService } from './database.service';
 function database(app?: AppService) {
     // get the default app
     if (!app) {
-        if (!window['sheetbase'] || !window['sheetbase'].defaultApp) {
+        if (!window['$$$SHEETBASE_APPS']) {
             throw new Error('No app for database component.');
         }
-        app = window['sheetbase'].defaultApp();
+        app = window['$$$SHEETBASE_APPS'].getApp();
     }
     // return the instance
     if (!!app.Database) {
@@ -17,7 +17,6 @@ function database(app?: AppService) {
     }
 }
 
-window['sheetbase'] = window['sheetbase'] || {};
-window['sheetbase'].database = database;
-
 export default database;
+
+window['$$$SHEETBASE_COMPONENTS'].Database = DatabaseService;

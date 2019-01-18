@@ -2,12 +2,11 @@
     "files.exclude": {
         "**/.vscode": true,
 
-        "**/dist": true,
-        "**/build": true,
-        "**/docs": true,
+        "dist": true,
+        "build": true,
+        "docs": true,
 
         "app": true,
-        "api": true,
         "auth": true,
         "database": true,
         "storage": true,

@@ -1,15 +1,14 @@
 node_modules/
 
 # build
-dist/
-build/
+/dist/
+/build/
 
-app/
-api/
-auth/
-database/
-storage/
-mail/
+/app/
+/auth/
+/database/
+/storage/
+/mail/
 
 # test
 .nyc_output/
