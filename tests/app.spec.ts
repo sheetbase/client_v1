@@ -15,7 +15,7 @@ import { initializeApp, defaultApp, app } from '../src/lib/app/index';
 
 const OPTIONS = { backendUrl: '' };
 
-describe('App service', () => {
+describe('(App) AppService', () => {
 
     it('should be created', () => {
         const sheetbaseApp = new AppService(OPTIONS);
@@ -49,7 +49,7 @@ describe('App service', () => {
 
 });
 
-describe('Apps service', () => {
+describe('(App) AppsService', () => {
 
     const appsService = new AppsService();
 
@@ -80,7 +80,7 @@ describe('Apps service', () => {
 
 });
 
-describe('app methods', () => {
+describe('(App) methods', () => {
 
     it('#initializeApp', () => {
         const sheetbaseApp = initializeApp(OPTIONS);
