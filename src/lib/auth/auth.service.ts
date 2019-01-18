@@ -23,12 +23,12 @@ export class AuthService {
     constructor(app: AppService) {
         this.app = app;
         this.Api = this.app.Api
-            .addBeforeHooks([async (data) => {
+            .addBeforeHooks(async (data) => {
                 if (!!this.currentUser) {
                     data.query['idToken'] = this.currentUser.getIdToken();
                 }
                 return data;
-            }])
+            })
             .extend()
             .setEndpoint(this.app.options.authEndpoint || 'auth');
     }

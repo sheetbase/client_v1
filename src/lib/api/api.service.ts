@@ -21,11 +21,12 @@ export class ApiService {
         this.app = app;
 
         // dafault instance data
+        const { apiKey } = this.app.options;
         this.baseEndpoint = '';
-        this.predefinedQuery = {};
+        this.predefinedQuery = !!apiKey ? { apiKey } : {};
         this.predefinedBody = {};
         this.beforeRequestHooks = [];
-        // set data
+        // set custom data
         this.setData(instanceData);
     }
 
@@ -68,7 +69,10 @@ export class ApiService {
         return this;
     }
 
-    addBeforeHooks(hooks: BeforeRequestHook[]): ApiService {
+    addBeforeHooks(hooks: BeforeRequestHook | BeforeRequestHook[]): ApiService {
+        if (!(hooks instanceof Array)) {
+            hooks = [hooks];
+        }
         this.beforeRequestHooks = [
             ... this.beforeRequestHooks,
             ... hooks,
@@ -88,9 +92,10 @@ export class ApiService {
         return result.data;
     }
 
-    private async runBeforeHooks(data: ActionData) {
-        for (let i = 0; i < this.beforeRequestHooks.length; i++) {
-            data = await this.beforeRequestHooks[i](data);
+    private async runHooks(hook: 'before' | 'after', data: ActionData) {
+        const hooks = hook === 'before' ? this.beforeRequestHooks : [];
+        for (let i = 0; i < hooks.length; i++) {
+            data = await hooks[i](data);
         }
         return data;
     }
@@ -112,6 +117,11 @@ export class ApiService {
     }
 
     async get(endpoint?: string, query = {}, cache = false) {
+        const beforeHookResult = await this.runHooks('before', {
+            endpoint, query, body: {},
+        });
+        endpoint = beforeHookResult.endpoint;
+        query = beforeHookResult.query;
         // build url
         const url = this.buildUrl(
             this.buildEndpoint(endpoint),
@@ -133,6 +143,12 @@ export class ApiService {
     }
 
     async post(endpoint?: string, query = {}, body = {}) {
+        const beforeHookResult = await this.runHooks('before', {
+            endpoint, query, body,
+        });
+        endpoint = beforeHookResult.endpoint;
+        query = beforeHookResult.query;
+        body = beforeHookResult.body;
         // build url
         const url = this.buildUrl(
             this.buildEndpoint(endpoint),
@@ -170,14 +186,9 @@ export class ApiService {
     }
 
     buildQuery(query = {}) {
-        let queryStr = '';
         query = { ... this.predefinedQuery, ... query };
-        // has api key
-        const { apiKey } = this.app.options;
-        if (!!apiKey) {
-            query = { apiKey, ... query };
-        }
         // make the string
+        let queryStr = '';
         for (const key of Object.keys(query)) {
             queryStr = queryStr + '&' + key + '=' + query[key];
         }
