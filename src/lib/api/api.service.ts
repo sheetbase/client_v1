@@ -4,6 +4,8 @@ import * as _md5 from 'md5';
 const md5 = _md5;
 
 import { AppService } from '../app/app.service';
+import { ApiException } from '../utils';
+
 import { BeforeRequestHook, ApiInstanceData, ActionData } from './types';
 
 export class ApiService {
@@ -79,7 +81,11 @@ export class ApiService {
         if (!response.ok) {
             throw new Error('API fetch failed.');
         }
-        return await response.json();
+        const result: ResponseSuccess & ResponseError = await response.json();
+        if (result.error) {
+            throw new ApiException(result);
+        }
+        return result.data;
     }
 
     private async runBeforeHooks(data: ActionData) {
@@ -118,15 +124,12 @@ export class ApiService {
             return cachedData;
         }
         // send request
-        const response: ResponseSuccess & ResponseError = await this.fetch(url, { method: 'GET' });
-        if (response.error) {
-            throw new Error(response.code);
-        }
+        const data = await this.fetch(url, { method: 'GET' });
         // save cache
         if (cache) {
-            cacheSet(cacheKey, response.data, 60);
+            cacheSet(cacheKey, data, 60);
         }
-        return response.data;
+        return data;
     }
 
     async post(endpoint?: string, query = {}, body = {}) {
@@ -136,7 +139,7 @@ export class ApiService {
             this.buildQuery(query),
         );
         // send request
-        const response: ResponseSuccess & ResponseError = await this.fetch(url, {
+        return await this.fetch(url, {
             method: 'POST',
             body: JSON.stringify(
                 this.buildBody(body),
@@ -145,10 +148,6 @@ export class ApiService {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
         });
-        if (response.error) {
-            throw new Error(response.code);
-        }
-        return response.data;
     }
 
     async put(endpoint?: string, query = {}, body = {}) {
