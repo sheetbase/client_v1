@@ -4,10 +4,10 @@ import { ApiService } from './api.service';
 function api(app?: AppService) {
     // get the default app
     if (!app) {
-        if (!window['sheetbase'] || !window['sheetbase'].defaultApp) {
+        if (!window['$$$SHEETBASE_APPS']) {
             throw new Error('No app for api component.');
         }
-        app = window['sheetbase'].defaultApp();
+        app = window['$$$SHEETBASE_APPS'].getApp();
     }
     // return the instance
     if (!!app.Api) {
@@ -16,8 +16,5 @@ function api(app?: AppService) {
         return new ApiService(app);
     }
 }
-
-window['sheetbase'] = window['sheetbase'] || {};
-window['sheetbase'].api = api;
 
 export default api;

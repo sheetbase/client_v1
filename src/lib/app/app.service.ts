@@ -17,20 +17,15 @@ class AppService {
 
     constructor(options: AppOptions) {
         this.options = options;
-
-        // try initiate members when available
-        const sheetbase = window['sheetbase'];
-        if (!!sheetbase) {
-            this.Api = !!sheetbase.api ? sheetbase.api(this) : null;
-            this.Auth = !!sheetbase.auth ? sheetbase.auth(this) : null;
-            this.Database = !!sheetbase.database ? sheetbase.database(this) : null;
-            this.Storage = !!sheetbase.storage ? sheetbase.storage(this) : null;
-            this.Mail = !!sheetbase.mail ? sheetbase.mail(this) : null;
+        // api instance
+        this.Api = new ApiService(this);
+        // initiate other components when available
+        for (const key of Object.keys(window['$$$SHEETBASE_COMPONENTS'])) {
+            this[key] = new window['$$$SHEETBASE_COMPONENTS'][key](this);
         }
     }
 
     api() {
-        if (!this.Api) { throw new Error('No api component.'); }
         return this.Api;
     }
 

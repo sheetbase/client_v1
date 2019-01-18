@@ -1,5 +1,5 @@
 import { AppOptions } from './types';
-import { AppsService } from './app.service';
+import { AppsService, AppService } from './app.service';
 
 const SHEETBASE_APPS = new AppsService();
 
@@ -15,7 +15,8 @@ function app(name: string) {
     return SHEETBASE_APPS.getApp(name);
 }
 
-window['sheetbase'] = window['sheetbase'] || {};
-window['sheetbase'].defaultApp = defaultApp;
+export { AppService as App, initializeApp, defaultApp, app };
+export * from '../api/index';
 
-export { initializeApp, defaultApp, app };
+window['$$$SHEETBASE_APPS'] = SHEETBASE_APPS;
+window['$$$SHEETBASE_COMPONENTS'] = {};
