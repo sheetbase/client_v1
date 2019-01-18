@@ -2,10 +2,15 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
-import { MailService } from '../src/lib/mail/mail.service';
+import { AppService } from '../src/lib/app/app.service';
 import { ApiService } from '../src/lib/api/api.service';
 
-const mailService = new MailService({ backendUrl: '' });
+import { MailService } from '../src/lib/mail/mail.service';
+import { mail } from '../src/lib/mail/index';
+
+const mailService = new MailService(
+    new AppService({ backendUrl: '' }),
+);
 
 let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
@@ -33,23 +38,11 @@ describe('(Mail) Mail service', () => {
             return { method: 'POST', endpoint, params, body };
         });
     });
+
     afterEach(() => restoreStubs());
 
-    it('.options should have default values', () => {
-        // @ts-ignore
-        expect(mailService.options.mailEndpoint).to.equal('mail');
-    });
-
-    it('.options should have custom values', () => {
-        const mailService = new MailService({
-            backendUrl: '',
-            mailEndpoint: 'xxx',
-        });
-        // @ts-ignore
-        expect(mailService.options.mailEndpoint).to.equal('xxx');
-    });
-
-    it('.Api should be initiated', () => {
+    it('properties', () => {
+        expect(mailService.app instanceof AppService).to.equal(true);
         // @ts-ignore
         expect(mailService.Api instanceof ApiService).to.equal(true);
     });
@@ -78,6 +71,33 @@ describe('(Mail) Mail service', () => {
                 transporter: 'mail',
             },
         });
+    });
+
+});
+
+describe('(Mail) methods', () => {
+
+    it('#mail (no app, no default app)', () => {
+        window['$$$SHEETBASE_APPS'] = null;
+        expect(
+            mail.bind(null),
+        ).to.throw('No app for mail component.');
+    });
+
+    it('#mail (no app, default app)', () => {
+        window['$$$SHEETBASE_APPS'] = {
+            getApp: () => ({ Mail: 'An Mail instance' }),
+        };
+
+        const result = mail();
+
+        expect(result).to.equal('An Mail instance');
+    });
+
+    it('#mail (app has no .Mail)', () => {
+        const result = mail(new AppService({ backendUrl: '' }));
+
+        expect(result instanceof MailService).to.equal(true);
     });
 
 });

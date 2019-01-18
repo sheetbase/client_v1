@@ -2,10 +2,15 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
-import { StorageService } from '../src/lib/storage/storage.service';
+import { AppService } from '../src/lib/app/app.service';
 import { ApiService } from '../src/lib/api/api.service';
 
-const storageService = new StorageService({ backendUrl: '' });
+import { StorageService } from '../src/lib/storage/storage.service';
+import { storage } from '../src/lib/storage/index';
+
+const storageService = new StorageService(
+    new AppService({ backendUrl: '' }),
+);
 
 let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
@@ -35,21 +40,8 @@ describe('(Storage) Storage service', () => {
     });
     afterEach(() => restoreStubs());
 
-    it('.options should have default values', () => {
-        // @ts-ignore
-        expect(storageService.options.storageEndpoint).to.equal('storage');
-    });
-
-    it('.options should have custom values', () => {
-        const storageService = new StorageService({
-            backendUrl: '',
-            storageEndpoint: 'xxx',
-        });
-        // @ts-ignore
-        expect(storageService.options.storageEndpoint).to.equal('xxx');
-    });
-
-    it('.Api should be initiated', () => {
+    it('properties', () => {
+        expect(storageService.app instanceof AppService).to.equal(true);
         // @ts-ignore
         expect(storageService.Api instanceof ApiService).to.equal(true);
     });
@@ -83,6 +75,33 @@ describe('(Storage) Storage service', () => {
                 rename: 'filex',
             },
         });
+    });
+
+});
+
+describe('(Storage) methods', () => {
+
+    it('#storage (no app, no default app)', () => {
+        window['$$$SHEETBASE_APPS'] = null;
+        expect(
+            storage.bind(null),
+        ).to.throw('No app for storage component.');
+    });
+
+    it('#storage (no app, default app)', () => {
+        window['$$$SHEETBASE_APPS'] = {
+            getApp: () => ({ Storage: 'An Storage instance' }),
+        };
+
+        const result = storage();
+
+        expect(result).to.equal('An Storage instance');
+    });
+
+    it('#storage (app has no .Storage)', () => {
+        const result = storage(new AppService({ backendUrl: '' }));
+
+        expect(result instanceof StorageService).to.equal(true);
     });
 
 });

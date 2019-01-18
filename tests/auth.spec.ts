@@ -6,12 +6,18 @@ import * as pubsub from 'pubsub-js';
 import * as localforage from 'localforage';
 import * as cookie from 'js-cookie';
 
-import { AuthService } from '../src/lib/auth/auth.service';
-import { ApiService } from '../src/lib/api/api.service';
-import { User } from '../src/lib/auth/user';
 import { localforageStub } from './test';
 
-const authService = new AuthService({ backendUrl: '' });
+import { AppService } from '../src/lib/app/app.service';
+import { ApiService } from '../src/lib/api/api.service';
+
+import { AuthService } from '../src/lib/auth/auth.service';
+import { auth } from '../src/lib/auth/index';
+import { User } from '../src/lib/auth/user';
+
+const authService = new AuthService(
+    new AppService({ backendUrl: '' }),
+);
 
 localforageStub.getItem.restore();
 localforageStub.setItem.restore();
@@ -88,21 +94,8 @@ describe('Auth service', () => {
 
     afterEach(() => restoreStubs());
 
-    it('.options should have default values', () => {
-        // @ts-ignore
-        expect(authService.options.authEndpoint).to.equal('auth');
-    });
-
-    it('.options should have custom values', () => {
-        const authService = new AuthService({
-            backendUrl: '',
-            authEndpoint: 'xxx',
-        });
-        // @ts-ignore
-        expect(authService.options.authEndpoint).to.equal('xxx');
-    });
-
-    it('.Api should be initiated', () => {
+    it('properties', () => {
+        expect(authService.app instanceof AppService).to.equal(true);
         // @ts-ignore
         expect(authService.Api instanceof ApiService).to.equal(true);
     });
@@ -211,7 +204,7 @@ describe('Auth service', () => {
             method: 'POST',
             endpoint: '/oob',
             query: {},
-            body: { oobCode: 'xxx', mode: 'resetPassword', password: '1234567' },
+            body: { oobCode: 'xxx', mode: 'resetPassword', newPassword: '1234567' },
         });
     });
 
@@ -272,9 +265,38 @@ describe('Auth service', () => {
 describe('User', () => {
 
     beforeEach(() => {
-        buildStubs();
+
     });
 
-    afterEach(() => restoreStubs());
+    afterEach(() => {
+
+    });
+
+});
+
+describe('(Auth) methods', () => {
+
+    it('#auth (no app, no default app)', () => {
+        window['$$$SHEETBASE_APPS'] = null;
+        expect(
+            auth.bind(null),
+        ).to.throw('No app for auth component.');
+    });
+
+    it('#auth (no app, default app)', () => {
+        window['$$$SHEETBASE_APPS'] = {
+            getApp: () => ({ Auth: 'An Auth instance' }),
+        };
+
+        const result = auth();
+
+        expect(result).to.equal('An Auth instance');
+    });
+
+    it('#auth (app has no .Auth)', () => {
+        const result = auth(new AppService({ backendUrl: '' }));
+
+        expect(result instanceof AuthService).to.equal(true);
+    });
 
 });

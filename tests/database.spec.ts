@@ -2,10 +2,15 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
-import { DatabaseService } from '../src/lib/database/database.service';
+import { AppService } from '../src/lib/app/app.service';
 import { ApiService } from '../src/lib/api/api.service';
 
-const databaseService = new DatabaseService({ backendUrl: '' });
+import { DatabaseService } from '../src/lib/database/database.service';
+import { database } from '../src/lib/database/index';
+
+const databaseService = new DatabaseService(
+    new AppService({ backendUrl: '' }),
+);
 
 let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
@@ -42,32 +47,19 @@ describe('(Database) Database service', () => {
     });
     afterEach(() => restoreStubs());
 
-    it('.options should have default values', () => {
-        // @ts-ignore
-        expect(databaseService.options.databaseEndpoint).to.equal('database');
-    });
-
-    it('.options should have custom values', () => {
-        const databaseService = new DatabaseService({
-            backendUrl: '',
-            databaseEndpoint: 'xxx',
-        });
-        // @ts-ignore
-        expect(databaseService.options.databaseEndpoint).to.equal('xxx');
-    });
-
-    it('.Api should be initiated', () => {
+    it('properties', () => {
+        expect(databaseService.app instanceof AppService).to.equal(true);
         // @ts-ignore
         expect(databaseService.Api instanceof ApiService).to.equal(true);
     });
 
-    it('#parseIdOrDocOrCondition', () => {
+    it('#convertFinder', () => {
         // @ts-ignore
-        const result1 = databaseService.parseIdOrDocOrCondition(1);
+        const result1 = databaseService.convertFinder(1);
         // @ts-ignore
-        const result2 = databaseService.parseIdOrDocOrCondition('xxx');
+        const result2 = databaseService.convertFinder('xxx');
         // @ts-ignore
-        const result3 = databaseService.parseIdOrDocOrCondition({ a: 'xxx' });
+        const result3 = databaseService.convertFinder({ a: 'xxx' });
         expect(result1).to.eql({ id: 1 });
         expect(result2).to.eql({ doc: 'xxx' });
         expect(result3).to.eql({ where: 'a', equal: 'xxx' });
@@ -232,6 +224,33 @@ describe('(Database) Database service', () => {
             query: {},
             body: { updates: { '/foo/foo-1': null } },
         });
+    });
+
+});
+
+describe('(Database) methods', () => {
+
+    it('#database (no app, no default app)', () => {
+        window['$$$SHEETBASE_APPS'] = null;
+        expect(
+            database.bind(null),
+        ).to.throw('No app for database component.');
+    });
+
+    it('#database (no app, default app)', () => {
+        window['$$$SHEETBASE_APPS'] = {
+            getApp: () => ({ Database: 'An Database instance' }),
+        };
+
+        const result = database();
+
+        expect(result).to.equal('An Database instance');
+    });
+
+    it('#database (app has no .Database)', () => {
+        const result = database(new AppService({ backendUrl: '' }));
+
+        expect(result instanceof DatabaseService).to.equal(true);
     });
 
 });

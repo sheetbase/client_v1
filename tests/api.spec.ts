@@ -7,26 +7,26 @@ import { AppService } from '../src/lib/app/app.service';
 import { ApiService } from '../src/lib/api/api.service';
 import { api } from '../src/lib/api/index';
 
+let apiService: ApiService;
+
+let apiFetchStub: sinon.SinonStub;
+let apiGetStub: sinon.SinonStub;
+let apiPostStub: sinon.SinonStub;
+
+function buildStubs() {
+    // @ts-ignore
+    apiFetchStub = sinon.stub(apiService, 'fetch');
+    apiGetStub = sinon.stub(apiService, 'get');
+    apiPostStub = sinon.stub(apiService, 'post');
+}
+
+function restoreStubs() {
+    apiFetchStub.restore();
+    apiGetStub.restore();
+    apiPostStub.restore();
+}
+
 describe('(Api) Api service', () => {
-
-    let apiService: ApiService;
-
-    let apiFetchStub: sinon.SinonStub;
-    let apiGetStub: sinon.SinonStub;
-    let apiPostStub: sinon.SinonStub;
-
-    function buildStubs() {
-        // @ts-ignore
-        apiFetchStub = sinon.stub(apiService, 'fetch');
-        apiGetStub = sinon.stub(apiService, 'get');
-        apiPostStub = sinon.stub(apiService, 'post');
-    }
-
-    function restoreStubs() {
-        apiFetchStub.restore();
-        apiGetStub.restore();
-        apiPostStub.restore();
-    }
 
     beforeEach(() => {
         apiService = new ApiService(

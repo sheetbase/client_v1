@@ -18,14 +18,16 @@ const OPTIONS = { backendUrl: '' };
 describe('(App) AppService', () => {
 
     it('should be created', () => {
+        window['$$$SHEETBASE_COMPONENTS'] = {};
+
         const sheetbaseApp = new AppService(OPTIONS);
         expect(sheetbaseApp.options).to.eql(OPTIONS);
         expect(sheetbaseApp.Api instanceof ApiService).to.equal(true, '.Api');
         expect(sheetbaseApp.api() instanceof ApiService).to.equal(true, '#api');
-        expect(sheetbaseApp.auth.bind(sheetbaseApp)).to.throw('No auth component.');
-        expect(sheetbaseApp.database.bind(sheetbaseApp)).to.throw('No database component.');
-        expect(sheetbaseApp.storage.bind(sheetbaseApp)).to.throw('No storage component.');
-        expect(sheetbaseApp.mail.bind(sheetbaseApp)).to.throw('No mail component.');
+        expect(sheetbaseApp.auth.bind(sheetbaseApp)).to.throw('No auth component.', '#auth');
+        expect(sheetbaseApp.database.bind(sheetbaseApp)).to.throw('No database component.', '#database');
+        expect(sheetbaseApp.storage.bind(sheetbaseApp)).to.throw('No storage component.', '#storage');
+        expect(sheetbaseApp.mail.bind(sheetbaseApp)).to.throw('No mail component.', '#mail');
     });
 
     it('should initialize other components', () => {
