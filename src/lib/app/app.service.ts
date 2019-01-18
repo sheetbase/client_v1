@@ -17,7 +17,6 @@ class AppService {
 
     constructor(options: AppOptions) {
         this.options = options;
-        // api instance
         this.Api = new ApiService(this);
         // initiate other components when available
         for (const key of Object.keys(window['$$$SHEETBASE_COMPONENTS'])) {
