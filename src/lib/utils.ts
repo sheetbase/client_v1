@@ -6,7 +6,7 @@ export function decodeJWTPayload(token: string) {
 }
 
 export function ApiException(result: ResponseError) {
-    this.name = 'SheetbaseApiException';
+    this.name = 'AppError';
     this.message = result.message;
     this.error = result;
 }

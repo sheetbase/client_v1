@@ -80,6 +80,41 @@ export class ApiService {
         return this;
     }
 
+    private buildEndpoint(endpoint = '') {
+        endpoint = '/' + this.baseEndpoint + '/' + endpoint; // add base
+        endpoint = endpoint.replace(/\/+$/, ''); // remove trailing slash
+        endpoint = endpoint.replace(/\/+/g, '/'); // remove repeated slashs
+        return !!endpoint ? endpoint : '/';
+    }
+
+    private buildQuery(query = {}) {
+        query = { ... this.predefinedQuery, ... query };
+        // make the string
+        let queryStr = '';
+        for (const key of Object.keys(query)) {
+            queryStr = queryStr + '&' + key + '=' + query[key];
+        }
+        return queryStr.replace(/^&/, '');
+    }
+
+    private buildBody(body = {}) {
+        return { ... this.predefinedBody, ... body };
+    }
+
+    private buildUrl(endpoint = '', query = '') {
+        let { backendUrl: url } = this.app.options;
+        url += !!endpoint ? ('?e=' + endpoint) : (!!query ? '?' : '');
+        return (!!query ? (url + '&' + query) : url).replace('?&', '?');
+    }
+
+    private async runHooks(hook: 'before' | 'after', data: ActionData) {
+        const hooks = hook === 'before' ? this.beforeRequestHooks : [];
+        for (let i = 0; i < hooks.length; i++) {
+            data = await hooks[i](data);
+        }
+        return data;
+    }
+
     private async fetch(input: RequestInfo, init?: RequestInit) {
         const response = await fetch(input, init);
         if (!response.ok) {
@@ -90,14 +125,6 @@ export class ApiService {
             throw new ApiException(result);
         }
         return result.data;
-    }
-
-    private async runHooks(hook: 'before' | 'after', data: ActionData) {
-        const hooks = hook === 'before' ? this.beforeRequestHooks : [];
-        for (let i = 0; i < hooks.length; i++) {
-            data = await hooks[i](data);
-        }
-        return data;
     }
 
     async request(inputs: {
@@ -176,33 +203,6 @@ export class ApiService {
 
     async delete(endpoint?: string, query = {}, body = {}) {
         return await this.post(endpoint, { ... query, method: 'DELETE' }, body);
-    }
-
-    buildEndpoint(endpoint = '') {
-        endpoint = '/' + this.baseEndpoint + '/' + endpoint; // add base
-        endpoint = endpoint.replace(/\/+$/, ''); // remove trailing slash
-        endpoint = endpoint.replace(/\/+/g, '/'); // remove repeated slashs
-        return !!endpoint ? endpoint : '/';
-    }
-
-    buildQuery(query = {}) {
-        query = { ... this.predefinedQuery, ... query };
-        // make the string
-        let queryStr = '';
-        for (const key of Object.keys(query)) {
-            queryStr = queryStr + '&' + key + '=' + query[key];
-        }
-        return queryStr.replace(/^&/, '');
-    }
-
-    buildBody(body = {}) {
-        return { ... this.predefinedBody, ... body };
-    }
-
-    buildUrl(endpoint = '', query = '') {
-        let { backendUrl: url } = this.app.options;
-        url += !!endpoint ? ('?e=' + endpoint) : (!!query ? '?' : '');
-        return (!!query ? (url + '&' + query) : url).replace('?&', '?');
     }
 
 }

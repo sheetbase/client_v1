@@ -20,7 +20,7 @@ describe('utils', () => {
     it('#ApiException', () => {
         const error = { error: true, code: 'xxx', message: 'Route error ...' };
         const result = new ApiException(error);
-        expect(result.name).to.equal('SheetbaseApiException');
+        expect(result.name).to.equal('AppError');
         expect(result.message).to.equal('Route error ...');
         expect(result.error).to.eql(error);
     });
