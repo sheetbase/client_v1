@@ -5,8 +5,6 @@ import { DatabaseService } from '../database/database.service';
 import { StorageService } from '../storage/storage.service';
 import { MailService } from '../mail/mail.service';
 
-declare const sheetbase: any;
-
 class AppService {
 
     options: AppOptions;
@@ -20,21 +18,14 @@ class AppService {
     constructor(options: AppOptions) {
         this.options = options;
 
-        // try initiate members
-        if (!!sheetbase.api) {
-            this.Api = sheetbase.api(this);
-        }
-        if (!!sheetbase.auth) {
-            this.Auth = sheetbase.auth(this);
-        }
-        if (!!sheetbase.database) {
-            this.Database = sheetbase.database(this);
-        }
-        if (!!sheetbase.storage) {
-            this.Storage = sheetbase.storage(this);
-        }
-        if (!!sheetbase.mail) {
-            this.Mail = sheetbase.mail(this);
+        // try initiate members when available
+        const sheetbase = window['sheetbase'];
+        if (!!sheetbase) {
+            this.Api = !!sheetbase.api ? sheetbase.api(this) : null;
+            this.Auth = !!sheetbase.auth ? sheetbase.auth(this) : null;
+            this.Database = !!sheetbase.database ? sheetbase.database(this) : null;
+            this.Storage = !!sheetbase.storage ? sheetbase.storage(this) : null;
+            this.Mail = !!sheetbase.mail ? sheetbase.mail(this) : null;
         }
     }
 

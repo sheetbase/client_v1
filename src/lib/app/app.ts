@@ -15,4 +15,7 @@ function app(name: string) {
     return SHEETBASE_APPS.getApp(name);
 }
 
+window['sheetbase'] = window['sheetbase'] || {};
+window['sheetbase'].defaultApp = defaultApp;
+
 export { initializeApp, defaultApp, app };

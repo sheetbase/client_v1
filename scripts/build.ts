@@ -9,7 +9,7 @@ const version = require('../../package.json').version;
     const rollup = configFile => 'rollup --silent -c scripts/rollup/' + configFile;
     const minify = file => `uglifyjs ${file} --compress --mangle --comments --source-map -o ${file.replace('.js', '.min.js')}`;
 
-    console.log('+ Clean dist folder.');
+    console.log('+ Clean up.');
     removeSync('dist');
     removeSync('app');
     removeSync('api');
@@ -18,7 +18,7 @@ const version = require('../../package.json').version;
     removeSync('storage');
     removeSync('mail');
 
-    console.log('+ Build: module');
+    console.log('+ Build: sheetbase');
     execSync(tsc('sheetbase.json'));
     execSync(tsc('sheetbase.es2015.json'));
     execSync(rollup('sheetbase.js'));
@@ -40,7 +40,7 @@ const version = require('../../package.json').version;
         esm2015: '../dist/esm2015/lib/app/index.js',
         fesm5: '../dist/fesm5/sheetbase-app.js',
         fesm2015: '../dist/fesm2015/sheetbase-app.js',
-        typings: '../dist/sheetbase.d.ts',
+        typings: '../dist/lib/app/index.d.ts',
     }, { spaces: 2 });
 
     console.log('+ Build: api');
