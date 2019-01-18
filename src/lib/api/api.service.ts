@@ -70,7 +70,7 @@ export class ApiService {
     }
 
     addBeforeHooks(hooks: BeforeRequestHook | BeforeRequestHook[]): ApiService {
-        if (!(hooks instanceof Array)) {
+        if (hooks instanceof Function) {
             hooks = [hooks];
         }
         this.beforeRequestHooks = [
