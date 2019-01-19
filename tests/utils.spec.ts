@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import { decodeJWTPayload, ApiError, isExpiredInSeconds } from '../src/lib/utils';
+import { decodeJWTPayload, isExpiredJWT, ApiError, isExpiredInSeconds } from '../src/lib/utils';
 
 global['atob'] = (b64: string) => Buffer.from(b64, 'base64').toString();
 
@@ -15,6 +15,36 @@ describe('utils', () => {
             name: 'John Doe',
             iat: 1516239022,
         });
+    });
+
+    it('#isExpiredJWT', () => {
+        const TOKEN1 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Et9HFtf9R3GEMA0IICOfFMVXY7kkTX1wr4qCyhIf58U';
+        const TOKEN2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
+            Buffer.from(JSON.stringify({
+                exp: Math.ceil(new Date().getTime() / 1000), // expire now
+            }))
+            .toString('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/\=/g, '') +
+            '.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+        const TOKEN3 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
+            Buffer.from(JSON.stringify({
+                exp: Math.ceil(new Date().getTime() / 1000) + 3600, // expire 1 hour from now
+            }))
+            .toString('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/\=/g, '') +
+            '.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+        const result1 = isExpiredJWT(TOKEN1);
+        const result2 = isExpiredJWT(TOKEN2);
+        const result3 = isExpiredJWT(TOKEN3);
+        expect(result1).to.equal(true, 'no exp');
+        expect(result2).to.equal(true, 'expired');
+        expect(result3).to.equal(false, 'not expired');
     });
 
     it('#ApiError', () => {

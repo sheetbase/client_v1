@@ -169,6 +169,92 @@ describe('Auth service', () => {
         expect(result.user).to.eql({ uid: 'xxx' });
     });
 
+    it('#signInWithLocalUser (no local user info)', async () => {
+        getItemStub.onFirstCall().returns(null);
+        let result: any;
+        signInStub.callsFake((info, idToken, refreshToken) => { result = { info, idToken, refreshToken }; });
+
+        await authService.signInWithLocalUser();
+        expect(result).to.equal(undefined);
+    });
+
+    it('#signInWithLocalUser (has info but no creds)', async () => {
+        getItemStub.onFirstCall().returns({ uid: 'xxx' });
+        getItemStub.onSecondCall().returns(null);
+        let result: any;
+        signInStub.callsFake((info, idToken, refreshToken) => { result = { info, idToken, refreshToken }; });
+
+        await authService.signInWithLocalUser();
+        expect(result).to.equal(undefined);
+    });
+
+    it('#signInWithLocalUser (has info, has creds, but token expired)', async () => {
+        getItemStub.onFirstCall().returns({ uid: 'xxx' });
+        getItemStub.onSecondCall().returns({
+            // a always expired token
+            idToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Et9HFtf9R3GEMA0IICOfFMVXY7kkTX1wr4qCyhIf58U',
+            refreshToken: 'xxx',
+        });
+        let result: any;
+        signInStub.callsFake((info, idToken, refreshToken) => { result = { info, idToken, refreshToken }; });
+        // this for renew id token
+        apiGetStub.onFirstCall().returns({ idToken: 'renewed id token' });
+        // this for new info
+        const apiGetResult = [];
+        apiGetStub.callsFake(async (endpoint, query) => {
+            apiGetResult.push({ endpoint, query });
+            return { uid: 'xxx', newInfo: true };
+        });
+
+        await authService.signInWithLocalUser();
+        expect(apiGetResult).to.eql([{
+            endpoint: '/user',
+            query: { idToken: 'renewed id token' },
+        }]);
+        expect(result).to.eql({
+            info: { uid: 'xxx', newInfo: true },
+            idToken: 'renewed id token',
+            refreshToken: 'xxx',
+        });
+    });
+
+    it('#signInWithLocalUser (has info, has creds, token not expired)', async () => {
+        const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
+            Buffer.from(JSON.stringify({
+                exp: Math.ceil(new Date().getTime() / 1000) + 3600, // expire 1 hour from now
+            }))
+            .toString('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/\=/g, '') +
+            '.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+        getItemStub.onFirstCall().returns({ uid: 'xxx' });
+        getItemStub.onSecondCall().returns({
+            idToken: TOKEN, // a not expired token
+            refreshToken: 'xxx',
+        });
+        let result: any;
+        signInStub.callsFake((info, idToken, refreshToken) => { result = { info, idToken, refreshToken }; });
+        // this for new info
+        const apiGetResult = [];
+        apiGetStub.callsFake(async (endpoint, query) => {
+            apiGetResult.push({ endpoint, query });
+            return { uid: 'xxx', newInfo: true };
+        });
+
+        await authService.signInWithLocalUser();
+        expect(apiGetResult).to.eql([{
+            endpoint: '/user',
+            query: { idToken: TOKEN },
+        }]);
+        expect(result).to.eql({
+            info: { uid: 'xxx', newInfo: true },
+            idToken: TOKEN,
+            refreshToken: 'xxx',
+        });
+    });
+
     it('#sendPasswordResetEmail', async () => {
         const result = await authService.sendPasswordResetEmail('xxx@xxx.xxx');
         expect(result).to.eql({
@@ -196,25 +282,6 @@ describe('Auth service', () => {
             query: {},
             body: { oobCode: 'xxx', mode: 'resetPassword', newPassword: '1234567' },
         });
-    });
-
-    it('#signInWithLocalUser (no local user)', async () => {
-        getItemStub.onFirstCall().returns(null);
-        let result: any;
-        signInStub.callsFake((info, idToken, refreshToken) => { result = { info, idToken, refreshToken }; });
-
-        await authService.signInWithLocalUser();
-        expect(result).to.equal(undefined);
-    });
-
-    it.skip('#signInWithLocalUser', async () => {
-        getItemStub.onFirstCall().returns({ uid: 'xxx' });
-        getItemStub.onSecondCall().returns({ idToken: 'xxx', refreshToken: 'xxx' });
-        let result: any;
-        signInStub.callsFake((info, idToken, refreshToken) => { result = { info, idToken, refreshToken }; });
-
-        await authService.signInWithLocalUser();
-        expect(result).to.equal(undefined);
     });
 
     it('#signIn', async () => {
@@ -401,9 +468,100 @@ describe('User', () => {
         expect(result.isNewUser).to.equal(false, '.isNewUser');
     });
 
-    it('#getIdToken', async () => {});
+    it('#getIdToken (not expired)', async () => {
+        getIdTokenStub.restore();
 
-    it('#getIdTokenResult', async () => {});
+        const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
+            Buffer.from(JSON.stringify({
+                exp: Math.ceil(new Date().getTime() / 1000) + 3600, // expire 1 hour from now
+            }))
+            .toString('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/\=/g, '') +
+            '.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+        user.idToken = TOKEN;
+        const result = await user.getIdToken();
+        expect(result).to.equal(TOKEN);
+    });
+
+    it('#getIdToken (forceRefresh)', async () => {
+        getIdTokenStub.restore();
+
+        const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
+            Buffer.from(JSON.stringify({
+                exp: Math.ceil(new Date().getTime() / 1000) + 3600, // expire 1 hour from now
+            }))
+            .toString('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/\=/g, '') +
+            '.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+        let apiGetData: any;
+        apiGetStub.callsFake(async (endpoint, query) => {
+            apiGetData = { endpoint, query };
+            return { idToken: 'xxx' };
+        });
+
+        user.idToken = TOKEN;
+        const result = await user.getIdToken(true);
+        expect(apiGetData).to.eql({
+            endpoint: '/token',
+            query: {
+                refreshToken: 'xxx',
+            },
+        });
+        expect(result).to.equal('xxx');
+    });
+
+    it('#getIdToken (expired)', async () => {
+        getIdTokenStub.restore();
+
+        const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Et9HFtf9R3GEMA0IICOfFMVXY7kkTX1wr4qCyhIf58U';
+
+        let apiGetData: any;
+        apiGetStub.callsFake(async (endpoint, query) => {
+            apiGetData = { endpoint, query };
+            return { idToken: 'xxx' };
+        });
+
+        user.idToken = TOKEN;
+        const result = await user.getIdToken();
+        expect(apiGetData).to.eql({
+            endpoint: '/token',
+            query: {
+                refreshToken: 'xxx',
+            },
+        });
+        expect(result).to.equal('xxx');
+    });
+
+    it('#getIdTokenResult', async () => {
+        // tslint:disable-next-line:max-line-length
+        getIdTokenStub.onFirstCall().returns('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJ4eHgifQ.KPWrIumSzwFLUIEeIPoyDJ50A1AYcjFBoqnDPtB1blA');
+
+        const result = await user.getIdTokenResult();
+        expect(result).eql({
+            uid: 'xxx',
+        });
+    });
+
+    it('#getIdTokenResult (forceRefresh)', async () => {
+        let forceRefresh: boolean;
+        getIdTokenStub.callsFake(async (force) => {
+            forceRefresh = force;
+            // tslint:disable-next-line:max-line-length
+            return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJ4eHgifQ.KPWrIumSzwFLUIEeIPoyDJ50A1AYcjFBoqnDPtB1blA';
+        });
+
+        const result = await user.getIdTokenResult(true);
+        expect(forceRefresh).to.equal(true);
+        expect(result).eql({
+            uid: 'xxx',
+        });
+    });
 
     it('#sendEmailVerification', async () => {
         const result = await user.sendEmailVerification();
