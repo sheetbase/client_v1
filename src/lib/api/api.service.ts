@@ -3,7 +3,7 @@ import { get as cacheGet, set as cacheSet } from 'lscache';
 import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
-import { ApiException } from '../utils';
+import { ApiError } from '../utils';
 
 import { BeforeRequestHook, ApiInstanceData, ActionData } from './types';
 
@@ -121,7 +121,7 @@ export class ApiService {
         }
         const result: ResponseSuccess & ResponseError = await response.json();
         if (result.error) {
-            throw new ApiException(result);
+            throw new ApiError(result);
         }
         return result.data;
     }

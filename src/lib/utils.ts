@@ -5,8 +5,8 @@ export function decodeJWTPayload(token: string) {
     return JSON.parse(atob(payloadStr));
 }
 
-export function ApiException(result: ResponseError) {
-    this.name = 'AppError';
+export function ApiError(result: ResponseError) {
+    this.name = 'ApiError';
     this.message = result.message;
     this.error = result;
 }

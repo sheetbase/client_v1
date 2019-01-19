@@ -378,7 +378,7 @@ describe('(Api) Api service', () => {
             error = err;
         }
 
-        expect(error.name).to.equal('AppError');
+        expect(error.name).to.equal('ApiError');
     });
 
     it('#fetch', async () => {

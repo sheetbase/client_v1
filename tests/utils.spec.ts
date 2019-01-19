@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import { decodeJWTPayload, ApiException } from '../src/lib/utils';
+import { decodeJWTPayload, ApiError } from '../src/lib/utils';
 
 global['atob'] = (b64: string) => Buffer.from(b64, 'base64').toString();
 
@@ -17,10 +17,10 @@ describe('utils', () => {
         });
     });
 
-    it('#ApiException', () => {
+    it('#ApiError', () => {
         const error = { error: true, code: 'xxx', message: 'Route error ...' };
-        const result = new ApiException(error);
-        expect(result.name).to.equal('AppError');
+        const result = new ApiError(error);
+        expect(result.name).to.equal('ApiError');
         expect(result.message).to.equal('Route error ...');
         expect(result.error).to.eql(error);
     });
