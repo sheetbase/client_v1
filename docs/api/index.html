@@ -92,8 +92,10 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function"><a href="index.html#apiexception" class="tsd-kind-icon">Api<wbr>Exception</a></li>
+								<li class="tsd-kind-function"><a href="index.html#apierror" class="tsd-kind-icon">Api<wbr>Error</a></li>
 								<li class="tsd-kind-function"><a href="index.html#decodejwtpayload" class="tsd-kind-icon">decodeJWTPayload</a></li>
+								<li class="tsd-kind-function"><a href="index.html#isexpiredinseconds" class="tsd-kind-icon">is<wbr>Expired<wbr>InSeconds</a></li>
+								<li class="tsd-kind-function"><a href="index.html#isexpiredjwt" class="tsd-kind-icon">is<wbr>ExpiredJWT</a></li>
 							</ul>
 						</section>
 					</div>
@@ -102,16 +104,16 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="apiexception" class="tsd-anchor"></a>
-					<h3>Api<wbr>Exception</h3>
+					<a name="apierror" class="tsd-anchor"></a>
+					<h3>Api<wbr>Error</h3>
 					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">Api<wbr>Exception<span class="tsd-signature-symbol">(</span>result<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ResponseError</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">Api<wbr>Error<span class="tsd-signature-symbol">(</span>result<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ResponseError</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/42e0ebe/src/lib/utils.ts#L8">lib/utils.ts:8</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/1de7042/src/lib/utils.ts#L13">lib/utils.ts:13</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -134,7 +136,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/42e0ebe/src/lib/utils.ts#L3">lib/utils.ts:3</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/1de7042/src/lib/utils.ts#L3">lib/utils.ts:3</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -144,6 +146,55 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="isexpiredinseconds" class="tsd-anchor"></a>
+					<h3>is<wbr>Expired<wbr>InSeconds</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Expired<wbr>InSeconds<span class="tsd-signature-symbol">(</span>expiredTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, costMore<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/1de7042/src/lib/utils.ts#L19">lib/utils.ts:19</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>expiredTime: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> costMore: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="isexpiredjwt" class="tsd-anchor"></a>
+					<h3>is<wbr>ExpiredJWT</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>ExpiredJWT<span class="tsd-signature-symbol">(</span>token<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/1de7042/src/lib/utils.ts#L8">lib/utils.ts:8</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>token: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -208,10 +259,16 @@
 						<a href="interfaces/storageoptions.html" class="tsd-kind-icon">Storage<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="index.html#apiexception" class="tsd-kind-icon">Api<wbr>Exception</a>
+						<a href="index.html#apierror" class="tsd-kind-icon">Api<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="index.html#decodejwtpayload" class="tsd-kind-icon">decodeJWTPayload</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="index.html#isexpiredinseconds" class="tsd-kind-icon">is<wbr>Expired<wbr>InSeconds</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="index.html#isexpiredjwt" class="tsd-kind-icon">is<wbr>ExpiredJWT</a>
 					</li>
 				</ul>
 			</nav>
