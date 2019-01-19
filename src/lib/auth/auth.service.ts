@@ -1,6 +1,5 @@
 import { publish, subscribe } from 'pubsub-js';
 import { getItem, setItem, removeItem } from 'localforage';
-import { getJSON as getCookie, set as setCookie, remove as removeCookie } from 'js-cookie';
 import { UserInfo } from '@sheetbase/user-server';
 
 import { AppService } from '../app/app.service';
@@ -10,8 +9,9 @@ import { decodeJWTPayload } from '../utils';
 import { SignInData } from './types';
 import { User } from './user';
 
-const AUTH_USER = 'AUTH_USER';
-const AUTH_CREDS = 'AUTH_CREDS';
+const SHEETBASE_USER_CHANGED = 'SHEETBASE_USER_CHANGED';
+const SHEETBASE_USER_INFO = 'SHEETBASE_USER_INFO';
+const SHEETBASE_USER_CREDS = 'SHEETBASE_USER_CREDS';
 
 export class AuthService {
 
@@ -34,7 +34,7 @@ export class AuthService {
     }
 
     onAuthStateChanged(next: {(user: User)}) {
-        subscribe(AUTH_USER, (msg: any, user: User) => next(user));
+        subscribe(SHEETBASE_USER_CHANGED, (msg: any, user: User) => next(user));
     }
 
     async checkActionCode(code: string) {
@@ -65,6 +65,30 @@ export class AuthService {
         return { user };
     }
 
+    async signInWithLocalUser() {
+        let user: User = null;
+        let info: UserInfo = await getItem(SHEETBASE_USER_INFO); // retrieve user info
+        if (!!info) {
+            const { uid } = info;
+            const {
+                idToken: localIdToken,
+                refreshToken,
+            } = await getItem(SHEETBASE_USER_CREDS + '_' + uid) || {} as any;
+            if (!!localIdToken && !!refreshToken) {
+                // renew idToken if expired
+                let idToken = localIdToken;
+                if ((new Date()).getTime() >= decodeJWTPayload(idToken)['exp']) {
+                    const expiredUser = new User(this.Api, info, idToken, refreshToken);
+                    idToken = await expiredUser.getIdToken();
+                }
+                // fetch new info
+                info = await this.Api.get('/user', { idToken });
+                user = await this.signIn(info, idToken, refreshToken);
+            }
+        }
+        return { user };
+    }
+
     async sendPasswordResetEmail(email: string) {
         return await this.Api.put('/oob', {}, { mode: 'resetPassword', email });
     }
@@ -81,39 +105,27 @@ export class AuthService {
         });
     }
 
-    async signInLocal() {
-        let info: UserInfo = await getItem(AUTH_USER); // retrieve user info
-        if (!!info) {
-            const { idToken: localIdToken, refreshToken } = getCookie(AUTH_CREDS);
-            // renew idToken if expired
-            let idToken = localIdToken;
-            if ((new Date()).getTime() >= decodeJWTPayload(idToken)['exp']) {
-                const expiredUser = new User(this.Api, info, idToken, refreshToken);
-                idToken = await expiredUser.getIdToken();
-            }
-            // fetch new info
-            info = await this.Api.get('/', { idToken });
-            await this.signIn(info, idToken, refreshToken);
-        }
-    }
-
     private async signIn(info: UserInfo, idToken: string, refreshToken: string) {
+        const { uid } = info;
         this.currentUser = new User(this.Api, info, idToken, refreshToken);
         // notify user change
-        publish(AUTH_USER, this.currentUser);
+        publish(SHEETBASE_USER_CHANGED, this.currentUser);
         // save user info & id token & refresh token to local
-        await setItem(AUTH_USER, info);
-        setCookie(AUTH_CREDS, { idToken, refreshToken });
+        await setItem(SHEETBASE_USER_INFO, info);
+        await setItem(SHEETBASE_USER_CREDS + '_' + uid, { idToken, refreshToken });
         return this.currentUser;
     }
 
     async signOut() {
-        this.currentUser = null;
-        // notify user change
-        publish(AUTH_USER, null);
-        // remove user info & id token & refresh token from local
-        await removeItem(AUTH_USER);
-        removeCookie(AUTH_CREDS);
+        if (!!this.currentUser) {
+            const { uid } = this.currentUser;
+            this.currentUser = null;
+            // notify user change
+            publish(SHEETBASE_USER_CHANGED, null);
+            // remove user info & id token & refresh token from local
+            await removeItem(SHEETBASE_USER_INFO);
+            await removeItem(SHEETBASE_USER_CREDS + '_' + uid);
+        }
     }
 
 }

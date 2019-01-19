@@ -4,7 +4,6 @@ import * as sinon from 'sinon';
 
 import * as pubsub from 'pubsub-js';
 import * as localforage from 'localforage';
-import * as cookie from 'js-cookie';
 
 import { localforageStub } from './test';
 
@@ -15,22 +14,19 @@ import { AuthService } from '../src/lib/auth/auth.service';
 import { auth } from '../src/lib/auth/index';
 import { User } from '../src/lib/auth/user';
 
-const authService = new AuthService(
-    new AppService({ backendUrl: '' }),
-);
-
 localforageStub.getItem.restore();
 localforageStub.setItem.restore();
 localforageStub.removeItem.restore();
+
+const authService = new AuthService(
+    new AppService({ backendUrl: '' }),
+);
 
 let publishStub: sinon.SinonStub;
 let subscribeStub: sinon.SinonStub;
 let getItemStub: sinon.SinonStub;
 let setItemStub: sinon.SinonStub;
 let removeItemStub: sinon.SinonStub;
-let getCookieStub: sinon.SinonStub;
-let setCookieStub: sinon.SinonStub;
-let removeCookieStub: sinon.SinonStub;
 let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
 let apiPutStub: sinon.SinonStub;
@@ -43,9 +39,6 @@ function buildStubs() {
     getItemStub = sinon.stub(localforage, 'getItem');
     setItemStub = sinon.stub(localforage, 'setItem');
     removeItemStub = sinon.stub(localforage, 'removeItem');
-    getCookieStub = sinon.stub(cookie, 'getJSON');
-    setCookieStub = sinon.stub(cookie, 'set');
-    removeCookieStub = sinon.stub(cookie, 'remove');
     // @ts-ignore
     apiGetStub = sinon.stub(authService.Api, 'get');
     // @ts-ignore
@@ -64,9 +57,6 @@ function restoreStubs() {
     getItemStub.restore();
     setItemStub.restore();
     removeItemStub.restore();
-    getCookieStub.restore();
-    setCookieStub.restore();
-    removeCookieStub.restore();
     apiGetStub.restore();
     apiPostStub.restore();
     apiPutStub.restore();
@@ -208,22 +198,22 @@ describe('Auth service', () => {
         });
     });
 
-    it('#signInLocal (no local user)', async () => {
+    it('#signInWithLocalUser (no local user)', async () => {
         getItemStub.onFirstCall().returns(null);
         let result: any;
         signInStub.callsFake((info, idToken, refreshToken) => { result = { info, idToken, refreshToken }; });
 
-        await authService.signInLocal();
+        await authService.signInWithLocalUser();
         expect(result).to.equal(undefined);
     });
 
-    it.skip('#signInLocal', async () => {
+    it.skip('#signInWithLocalUser', async () => {
         getItemStub.onFirstCall().returns({ uid: 'xxx' });
-        getCookieStub.onFirstCall().returns({ idToken: 'xxx', refreshToken: 'xxx' });
+        getItemStub.onSecondCall().returns({ idToken: 'xxx', refreshToken: 'xxx' });
         let result: any;
         signInStub.callsFake((info, idToken, refreshToken) => { result = { info, idToken, refreshToken }; });
 
-        await authService.signInLocal();
+        await authService.signInWithLocalUser();
         expect(result).to.equal(undefined);
     });
 
@@ -232,32 +222,44 @@ describe('Auth service', () => {
 
         let publishResult: any;
         publishStub.callsFake((event, user) => { publishResult = { event, user }; });
-        let setItemResult: any;
-        setItemStub.callsFake((key, value) => { setItemResult = { key, value }; });
-        let setCookieResult: any;
-        setCookieStub.callsFake((key, value) => { setCookieResult = { key, value }; });
+        const setItemResult: any = [];
+        setItemStub.callsFake(async (key, value) => { setItemResult.push({ key, value }); });
 
         // @ts-ignore
         const result = await authService.signIn({ uid: 'xxx' }, 'xxx', 'xxx');
-        expect(publishResult.event).to.equal('AUTH_USER');
+        expect(publishResult.event).to.equal('SHEETBASE_USER_CHANGED');
         expect(publishResult.user instanceof User).to.equal(true, 'publish user');
-        expect(setItemResult).to.eql({ key: 'AUTH_USER', value: { uid: 'xxx' } });
-        expect(setCookieResult).to.eql({ key: 'AUTH_CREDS', value: { idToken: 'xxx', refreshToken: 'xxx' } });
+        expect(setItemResult).to.eql([
+            { key: 'SHEETBASE_USER_INFO', value: { uid: 'xxx' } },
+            { key: 'SHEETBASE_USER_CREDS_xxx', value: { idToken: 'xxx', refreshToken: 'xxx' } },
+        ]);
         expect(result instanceof User).to.equal(true, 'final result');
     });
 
     it('#signOut', async () => {
         let publishResult: any;
         publishStub.callsFake((event, user) => { publishResult = { event, user }; });
-        let removeItemResult: any;
-        removeItemStub.callsFake(key => { removeItemResult = key; });
-        let removeCookieResult: any;
-        removeCookieStub.callsFake(key => { removeCookieResult = key; });
+        const removeItemResult: any = [];
+        removeItemStub.callsFake(async key => { removeItemResult.push(key); });
 
         await authService.signOut();
-        expect(publishResult).to.eql({ event: 'AUTH_USER', user: null });
-        expect(removeItemResult).to.equal('AUTH_USER');
-        expect(removeCookieResult).to.equal('AUTH_CREDS');
+        expect(publishResult).to.eql({ event: 'SHEETBASE_USER_CHANGED', user: null });
+        expect(removeItemResult).to.eql([
+            'SHEETBASE_USER_INFO',
+            'SHEETBASE_USER_CREDS_xxx',
+        ]);
+    });
+
+    it('#signOut (no currentUser)', async () => {
+        let publishResult: any;
+        publishStub.callsFake((event, user) => { publishResult = { event, user }; });
+        const removeItemResult: any = [];
+        removeItemStub.callsFake(async key => { removeItemResult.push(key); });
+
+        authService.currentUser = null;
+        await authService.signOut();
+        expect(publishResult).to.equal(undefined);
+        expect(removeItemResult).to.eql([]);
     });
 
 });
