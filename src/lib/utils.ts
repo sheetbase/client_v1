@@ -5,13 +5,18 @@ export function decodeJWTPayload(token: string) {
     return JSON.parse(atob(payloadStr));
 }
 
+export function isExpiredJWT(token: string) {
+    const { exp } = decodeJWTPayload(token);
+    return isExpiredInSeconds(exp || 0, 60); // exp or always, and 1 minute earlier
+}
+
 export function ApiError(result: ResponseError) {
     this.name = 'ApiError';
     this.message = result.message;
     this.error = result;
 }
 
-export function isExpiredInSeconds(expiredTimeSecs: number, costMore = 0) {
-    const timeSecs = Math.ceil(new Date().getTime() / 1000) + costMore;
-    return timeSecs >= expiredTimeSecs;
+export function isExpiredInSeconds(expiredTime: number, costMore = 0) {
+    const time = Math.ceil(new Date().getTime() / 1000) + costMore;
+    return time >= expiredTime;
 }

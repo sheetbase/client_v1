@@ -1,7 +1,7 @@
 import { UserInfo, UserProfile } from '@sheetbase/user-server';
 
 import { ApiService } from '../api/api.service';
-import { decodeJWTPayload } from '../utils';
+import { decodeJWTPayload, isExpiredJWT } from '../utils';
 
 export class User {
     private Api: ApiService;
@@ -86,10 +86,8 @@ export class User {
     }
 
     async getIdToken(forceRefresh = false) {
-        // check expiration
-        const mayValid = (new Date()).getTime() < decodeJWTPayload(this.idToken)['exp'];
         // renew
-        if (!mayValid || forceRefresh) {
+        if (isExpiredJWT(this.idToken) || forceRefresh) {
             const { idToken } = await this.Api.get('/token', {
                 refreshToken: this.refreshToken,
             });
@@ -99,14 +97,17 @@ export class User {
     }
 
     async getIdTokenResult(forceRefresh = false) {
-        return decodeJWTPayload(await this.getIdToken(forceRefresh));
+        const idToken = await this.getIdToken(forceRefresh);
+        return decodeJWTPayload(idToken);
     }
 
     async sendEmailVerification() {
-        return await this.Api.put('/action', {}, {
-            mode: 'verifyEmail',
-            email: this.email,
-        });
+        if (!this.emailVerified) {
+            return await this.Api.put('/action', {}, {
+                mode: 'verifyEmail',
+                email: this.email,
+            });
+        }
     }
 
     async updateProfile(profile: UserProfile) {
@@ -134,8 +135,6 @@ export class User {
     }
 
     // TODO: async updateEmail(newEmail: string) {}
-
-    // TODO: async updatePassword(newPassword: string) {}
 
     // TODO: async updatePhoneNumber(phoneCredential: any) {}
 

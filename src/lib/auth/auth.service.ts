@@ -4,7 +4,7 @@ import { UserInfo } from '@sheetbase/user-server';
 
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
-import { decodeJWTPayload } from '../utils';
+import { decodeJWTPayload, isExpiredJWT } from '../utils';
 
 import { SignInData } from './types';
 import { User } from './user';
@@ -66,7 +66,6 @@ export class AuthService {
     }
 
     async signInWithLocalUser() {
-        let user: User = null;
         let info: UserInfo = await getItem(SHEETBASE_USER_INFO); // retrieve user info
         if (!!info) {
             const { uid } = info;
@@ -75,18 +74,18 @@ export class AuthService {
                 refreshToken,
             } = await getItem(SHEETBASE_USER_CREDS + '_' + uid) || {} as any;
             if (!!localIdToken && !!refreshToken) {
-                // renew idToken if expired
                 let idToken = localIdToken;
-                if ((new Date()).getTime() >= decodeJWTPayload(idToken)['exp']) {
+                // renew idToken if expired
+                if (isExpiredJWT(idToken)) {
                     const expiredUser = new User(this.Api, info, idToken, refreshToken);
                     idToken = await expiredUser.getIdToken();
                 }
                 // fetch new info
                 info = await this.Api.get('/user', { idToken });
-                user = await this.signIn(info, idToken, refreshToken);
+                // sign user in
+                this.signIn(info, idToken, refreshToken);
             }
         }
-        return { user };
     }
 
     async sendPasswordResetEmail(email: string) {

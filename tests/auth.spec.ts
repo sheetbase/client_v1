@@ -18,53 +18,53 @@ localforageStub.getItem.restore();
 localforageStub.setItem.restore();
 localforageStub.removeItem.restore();
 
-const authService = new AuthService(
-    new AppService({ backendUrl: '' }),
-);
-
-let publishStub: sinon.SinonStub;
-let subscribeStub: sinon.SinonStub;
-let getItemStub: sinon.SinonStub;
-let setItemStub: sinon.SinonStub;
-let removeItemStub: sinon.SinonStub;
-let apiGetStub: sinon.SinonStub;
-let apiPostStub: sinon.SinonStub;
-let apiPutStub: sinon.SinonStub;
-let apiDeleteStub: sinon.SinonStub;
-let signInStub: sinon.SinonStub;
-
-function buildStubs() {
-    publishStub = sinon.stub(pubsub, 'publish');
-    subscribeStub = sinon.stub(pubsub, 'subscribe');
-    getItemStub = sinon.stub(localforage, 'getItem');
-    setItemStub = sinon.stub(localforage, 'setItem');
-    removeItemStub = sinon.stub(localforage, 'removeItem');
-    // @ts-ignore
-    apiGetStub = sinon.stub(authService.Api, 'get');
-    // @ts-ignore
-    apiPostStub = sinon.stub(authService.Api, 'post');
-    // @ts-ignore
-    apiPutStub = sinon.stub(authService.Api, 'put');
-    // @ts-ignore
-    apiDeleteStub = sinon.stub(authService.Api, 'delete');
-    // @ts-ignore
-    signInStub = sinon.stub(authService, 'signIn');
-}
-
-function restoreStubs() {
-    publishStub.restore();
-    subscribeStub.restore();
-    getItemStub.restore();
-    setItemStub.restore();
-    removeItemStub.restore();
-    apiGetStub.restore();
-    apiPostStub.restore();
-    apiPutStub.restore();
-    apiDeleteStub.restore();
-    signInStub.restore();
-}
-
 describe('Auth service', () => {
+
+    const authService = new AuthService(
+        new AppService({ backendUrl: '' }),
+    );
+
+    let publishStub: sinon.SinonStub;
+    let subscribeStub: sinon.SinonStub;
+    let getItemStub: sinon.SinonStub;
+    let setItemStub: sinon.SinonStub;
+    let removeItemStub: sinon.SinonStub;
+    let apiGetStub: sinon.SinonStub;
+    let apiPostStub: sinon.SinonStub;
+    let apiPutStub: sinon.SinonStub;
+    let apiDeleteStub: sinon.SinonStub;
+    let signInStub: sinon.SinonStub;
+
+    function buildStubs() {
+        publishStub = sinon.stub(pubsub, 'publish');
+        subscribeStub = sinon.stub(pubsub, 'subscribe');
+        getItemStub = sinon.stub(localforage, 'getItem');
+        setItemStub = sinon.stub(localforage, 'setItem');
+        removeItemStub = sinon.stub(localforage, 'removeItem');
+        // @ts-ignore
+        apiGetStub = sinon.stub(authService.Api, 'get');
+        // @ts-ignore
+        apiPostStub = sinon.stub(authService.Api, 'post');
+        // @ts-ignore
+        apiPutStub = sinon.stub(authService.Api, 'put');
+        // @ts-ignore
+        apiDeleteStub = sinon.stub(authService.Api, 'delete');
+        // @ts-ignore
+        signInStub = sinon.stub(authService, 'signIn');
+    }
+
+    function restoreStubs() {
+        publishStub.restore();
+        subscribeStub.restore();
+        getItemStub.restore();
+        setItemStub.restore();
+        removeItemStub.restore();
+        apiGetStub.restore();
+        apiPostStub.restore();
+        apiPutStub.restore();
+        apiDeleteStub.restore();
+        signInStub.restore();
+    }
 
     beforeEach(() => {
         buildStubs();
@@ -266,12 +266,239 @@ describe('Auth service', () => {
 
 describe('User', () => {
 
-    beforeEach(() => {
+    const APP = new AppService({ backendUrl: '' });
+    const INFO = {
+        uid: 'xxx',
+        providerId: 'password',
+        providerData: null,
+        email: 'xxx@xxx.xxx',
+        emailVerified: false,
+        createdAt: 1234567890,
+        lastLogin: 1234567890,
+        username: '',
+        phoneNumber: '',
+        displayName: '',
+        photoURL: '',
+        claims: {},
+        isAnonymous: false,
+        isNewUser: false,
+    };
 
+    const user = new User(APP.Api, INFO as any, 'xxx', 'xxx');
+
+    let apiGetStub: sinon.SinonStub;
+    let apiPostStub: sinon.SinonStub;
+    let apiPutStub: sinon.SinonStub;
+    let apiDeleteStub: sinon.SinonStub;
+    let getIdTokenStub: sinon.SinonStub;
+    let setInfoStub: sinon.SinonStub;
+
+    function buildStubs() {
+        // @ts-ignore
+        apiGetStub = sinon.stub(user.Api, 'get');
+        // @ts-ignore
+        apiPostStub = sinon.stub(user.Api, 'post');
+        // @ts-ignore
+        apiPutStub = sinon.stub(user.Api, 'put');
+        // @ts-ignore
+        apiDeleteStub = sinon.stub(user.Api, 'delete');
+        getIdTokenStub = sinon.stub(user, 'getIdToken');
+        // @ts-ignore
+        setInfoStub = sinon.stub(user, 'setInfo');
+    }
+
+    function restoreStubs() {
+        apiGetStub.restore();
+        apiPostStub.restore();
+        apiPutStub.restore();
+        apiDeleteStub.restore();
+        getIdTokenStub.restore();
+        setInfoStub.restore();
+    }
+
+    beforeEach(() => {
+        buildStubs();
+        apiGetStub.callsFake(async (endpoint, query) => {
+            return { method: 'GET', endpoint, query };
+        });
+        apiPostStub.callsFake(async (endpoint, query, body) => {
+            return { method: 'POST', endpoint, query, body };
+        });
+        apiPutStub.callsFake(async (endpoint, query, body) => {
+            return { method: 'PUT', endpoint, query, body };
+        });
+        apiDeleteStub.callsFake(async (endpoint, query, body) => {
+            return { method: 'DELETE', endpoint, query, body };
+        });
     });
 
-    afterEach(() => {
+    afterEach(() => restoreStubs());
 
+    it('properties', () => {
+        // @ts-ignore
+        expect(user.Api instanceof ApiService).to.equal(true, '.Api');
+
+        expect(user.idToken).to.equal('xxx', '.idToken');
+        expect(user.refreshToken).to.equal('xxx', '.refreshToken');
+    });
+
+    it('#setInfo', () => {
+        const user = new User(APP.Api, {}, 'xxx', 'xxx');
+        setInfoStub.restore();
+
+        // before
+        expect(user.uid).to.equal(undefined, '.uid');
+        expect(user.providerId).to.equal(undefined, '.providerId');
+        expect(user.providerData).to.equal(undefined, '.providerData');
+        expect(user.email).to.equal(undefined, '.email');
+        expect(user.emailVerified).to.equal(undefined, '.emailVerified');
+        expect(user.createdAt).to.equal(undefined, '.createdAt');
+        expect(user.lastLogin).to.equal(undefined, '.lastLogin');
+        expect(user.username).to.equal(undefined, '.username');
+        expect(user.phoneNumber).to.equal(undefined, '.phoneNumber');
+        expect(user.displayName).to.equal(undefined, '.displayName');
+        expect(user.photoURL).to.equal(undefined, '.photoURL');
+        expect(user.claims).to.equal(undefined, '.claims');
+        expect(user.isAnonymous).to.equal(undefined, '.isAnonymous');
+        expect(user.isNewUser).to.equal(undefined, '.isNewUser');
+
+        // @ts-ignore
+        user.setInfo(INFO as any);
+
+        // after
+        expect(user.uid).to.equal('xxx', '.uid');
+        expect(user.providerId).to.equal('password', '.providerId');
+        expect(user.providerData).to.equal(null, '.providerData');
+        expect(user.email).to.equal('xxx@xxx.xxx', '.email');
+        expect(user.emailVerified).to.equal(false, '.emailVerified');
+        expect(user.createdAt).to.equal(1234567890, '.createdAt');
+        expect(user.lastLogin).to.equal(1234567890, '.lastLogin');
+        expect(user.username).to.equal('', '.username');
+        expect(user.phoneNumber).to.equal('', '.phoneNumber');
+        expect(user.displayName).to.equal('', '.displayName');
+        expect(user.photoURL).to.equal('', '.photoURL');
+        expect(user.claims).to.eql({}, '.claims');
+        expect(user.isAnonymous).to.equal(false, '.isAnonymous');
+        expect(user.isNewUser).to.equal(false, '.isNewUser');
+    });
+
+    it('#toJSON', () => {
+        const result = user.toJSON();
+
+        expect(result.uid).to.equal('xxx', '.uid');
+        expect(result.providerId).to.equal('password', '.providerId');
+        expect(result.providerData).to.equal(null, '.providerData');
+        expect(result.email).to.equal('xxx@xxx.xxx', '.email');
+        expect(result.emailVerified).to.equal(false, '.emailVerified');
+        expect(result.createdAt).to.equal(1234567890, '.createdAt');
+        expect(result.lastLogin).to.equal(1234567890, '.lastLogin');
+        expect(result.username).to.equal('', '.username');
+        expect(result.phoneNumber).to.equal('', '.phoneNumber');
+        expect(result.displayName).to.equal('', '.displayName');
+        expect(result.photoURL).to.equal('', '.photoURL');
+        expect(result.claims).to.eql({}, '.claims');
+        expect(result.isAnonymous).to.equal(false, '.isAnonymous');
+        expect(result.isNewUser).to.equal(false, '.isNewUser');
+    });
+
+    it('#getIdToken', async () => {});
+
+    it('#getIdTokenResult', async () => {});
+
+    it('#sendEmailVerification', async () => {
+        const result = await user.sendEmailVerification();
+        expect(result).to.eql({
+            method: 'PUT',
+            endpoint: '/action',
+            query: {},
+            body: {
+                mode: 'verifyEmail',
+                email: 'xxx@xxx.xxx',
+            },
+        });
+    });
+
+    it('#updateProfile', async () => {
+        setInfoStub.callsFake(info => info); // forward api response
+        getIdTokenStub.onFirstCall().returns('xxx');
+
+        const result = await user.updateProfile({
+            displayName: 'xxx',
+            photoURL: 'xxx',
+        });
+        expect(result).to.eql({
+            method: 'POST',
+            endpoint: '/user',
+            query: {},
+            body: {
+                idToken: 'xxx',
+                profile: {
+                    displayName: 'xxx',
+                    photoURL: 'xxx',
+                },
+            },
+        });
+    });
+
+    it('#setUsername', async () => {
+        setInfoStub.callsFake(info => info); // forward api response
+        getIdTokenStub.onFirstCall().returns('xxx');
+
+        const result = await user.setUsername('xxx');
+        expect(result).to.eql({
+            method: 'POST',
+            endpoint: '/user/username',
+            query: {},
+            body: {
+                idToken: 'xxx',
+                username: 'xxx',
+            },
+        });
+    });
+
+    it('#changePassword', async () => {
+        getIdTokenStub.onFirstCall().returns('xxx');
+
+        const result = await user.changePassword('1234567', '1234567xxx');
+        expect(result).to.eql({
+            method: 'POST',
+            endpoint: '/user/password',
+            query: {},
+            body: {
+                idToken: 'xxx',
+                currentPassword: '1234567',
+                newPassword: '1234567xxx',
+            },
+        });
+    });
+
+    it('#logout', async () => {
+        getIdTokenStub.onFirstCall().returns('xxx');
+
+        const result = await user.logout();
+        expect(result).to.eql({
+            method: 'DELETE',
+            endpoint: '/',
+            query: {},
+            body: {
+                idToken: 'xxx',
+            },
+        });
+    });
+
+    it('#delete', async () => {
+        getIdTokenStub.onFirstCall().returns('xxx');
+
+        const result = await user.delete();
+        expect(result).to.eql({
+            method: 'DELETE',
+            endpoint: '/cancel',
+            query: {},
+            body: {
+                idToken: 'xxx',
+                refreshToken: 'xxx',
+            },
+        });
     });
 
 });
