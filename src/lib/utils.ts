@@ -10,3 +10,8 @@ export function ApiError(result: ResponseError) {
     this.message = result.message;
     this.error = result;
 }
+
+export function isExpiredInSeconds(expiredTimeSecs: number, costMore = 0) {
+    const timeSecs = Math.ceil(new Date().getTime() / 1000) + costMore;
+    return timeSecs >= expiredTimeSecs;
+}

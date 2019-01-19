@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import { decodeJWTPayload, ApiError } from '../src/lib/utils';
+import { decodeJWTPayload, ApiError, isExpiredInSeconds } from '../src/lib/utils';
 
 global['atob'] = (b64: string) => Buffer.from(b64, 'base64').toString();
 
@@ -23,6 +23,16 @@ describe('utils', () => {
         expect(result.name).to.equal('ApiError');
         expect(result.message).to.equal('Route error ...');
         expect(result.error).to.eql(error);
+    });
+
+    it('#isExpiredInSeconds', () => {
+        const nowSecs = Math.ceil(new Date().getTime() / 1000);
+        const result1 = isExpiredInSeconds(nowSecs);
+        const result2 = isExpiredInSeconds(nowSecs + 10);
+        const result3 = isExpiredInSeconds(nowSecs + 10, 10);
+        expect(result1).to.equal(true, 'expire now');
+        expect(result2).to.equal(false, 'expire in 10 secs later');
+        expect(result3).to.equal(true, 'expire in 10 secs later, but also cost 10 secs');
     });
 
 });
