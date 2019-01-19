@@ -1,7 +1,6 @@
 import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
 import { get as cacheGet, set as cacheSet } from 'lscache';
-import * as _md5 from 'md5';
-const md5 = _md5;
+import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
 import { ApiException } from '../utils';
