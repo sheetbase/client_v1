@@ -126,10 +126,16 @@ export class ApiService {
         return result.data;
     }
 
-    private async cache(url: string, cacheTime: number, refresher: {(): Promise<any>}) {
-        cacheTime = Math.abs(cacheTime || this.app.options.cacheTime || 0);
-        if (!!cacheTime) {
-            const cacheKey = md5(url);
+    private async cache(cacheKey: string, cacheTime: number, refresher: {(): Promise<any>}) {
+        const { cacheTime: globalCacheTime = 0 } = this.app.options;
+        // cache time policy
+        // cacheTime = -1 -> disable cache (0)
+        // globalCacheTime = 0 and cacheTime = 0 -> disable cache (0)
+        // globalCacheTime = 0 and cacheTime # 0 -> cacheTime
+        // globalCacheTime # 0 and cacheTime = 0 -> globalCacheTime
+        // globalCacheTime # 0 and cacheTime # 0 -> cacheTime
+        cacheTime = (cacheTime === -1) ? 0 : Math.abs(cacheTime || globalCacheTime || 0);
+        if (cacheTime !== 0) {
             const cachedData = cacheGet(cacheKey);
             if (!!cachedData) {
                 return cachedData;
@@ -171,9 +177,9 @@ export class ApiService {
             this.buildEndpoint(endpoint),
             this.buildQuery(query),
         );
-        return await this.cache(url, cacheTime, async () => {
-            return await this.fetch(url, { method: 'GET' });
-        });
+        return await this.cache(md5(url), cacheTime, async () =>
+            await this.fetch(url, { method: 'GET' }),
+        );
     }
 
     async post(endpoint?: string, query = {}, body = {}) {
