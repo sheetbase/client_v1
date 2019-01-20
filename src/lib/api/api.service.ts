@@ -126,15 +126,33 @@ export class ApiService {
         return result.data;
     }
 
+    private async cache(url: string, cacheTime: number, refresher: {(): Promise<any>}) {
+        cacheTime = Math.abs(cacheTime || this.app.options.cacheTime || 0);
+        if (!!cacheTime) {
+            const cacheKey = md5(url);
+            const cachedData = cacheGet(cacheKey);
+            if (!!cachedData) {
+                return cachedData;
+            } else {
+                const freshData = await refresher(); // get data
+                cacheSet(cacheKey, freshData, 60); // save cache data
+                return freshData;
+            }
+        } else {
+            return await refresher();
+        }
+    }
+
     async request(inputs: {
         method?: string,
         endpoint?: string,
         query?: {},
         body?: {},
+        cacheTime?: number;
     } = {}) {
-        const { method = 'get', endpoint = '/', query = {}, body = {} } = inputs;
+        const { method = 'get', endpoint = '/', query = {}, body = {}, cacheTime = 0 } = inputs;
         if (method.toLowerCase() === 'get') {
-            return this.get(endpoint, query);
+            return this.get(endpoint, query, cacheTime);
         } else if (method.toLowerCase() === 'post') {
             return this.post(endpoint, query, body);
         } else {
@@ -142,7 +160,7 @@ export class ApiService {
         }
     }
 
-    async get(endpoint?: string, query = {}, cache = false) {
+    async get(endpoint?: string, query = {}, cacheTime = 0) {
         const beforeHookResult = await this.runHooks('before', {
             endpoint, query, body: {},
         });
@@ -153,19 +171,9 @@ export class ApiService {
             this.buildEndpoint(endpoint),
             this.buildQuery(query),
         );
-        // retrieve cache
-        const cacheKey = md5(url);
-        const cachedData = cacheGet(cacheKey);
-        if (cache && !!cachedData) {
-            return cachedData;
-        }
-        // send request
-        const data = await this.fetch(url, { method: 'GET' });
-        // save cache
-        if (cache) {
-            cacheSet(cacheKey, data, 60);
-        }
-        return data;
+        return await this.cache(url, cacheTime, async () => {
+            return await this.fetch(url, { method: 'GET' });
+        });
     }
 
     async post(endpoint?: string, query = {}, body = {}) {
