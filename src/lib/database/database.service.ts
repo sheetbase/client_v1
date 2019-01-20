@@ -32,18 +32,18 @@ export class DatabaseService {
         return result;
     }
 
-    async all(table: string, cache = true) {
-        return await this.Api.get('/', { table }, cache);
+    async all(table: string, cacheTime = 0) {
+        return await this.Api.get('/', { table }, cacheTime);
     }
 
     async item(
         table: string,
         idOrCondition: number | {[field: string]: string},
-        cache = true,
+        cacheTime = 0,
     ) {
         return await this.Api.get('/', {
             ... this.convertFinder(idOrCondition), table,
-        }, cache);
+        }, cacheTime);
     }
 
     async delete(
@@ -55,48 +55,48 @@ export class DatabaseService {
         });
     }
 
-    async collection(collection: string, returnObject = false, cache = true) {
+    async collection(collection: string, returnObject = false, cacheTime = 0) {
         return await this.Api.get('/', {
             collection, type: returnObject ? 'object' : 'list',
-        }, cache);
+        }, cacheTime);
     }
 
-    async doc(collection: string, doc: string, cache = true) {
-        return await this.Api.get('/', { collection, doc }, cache);
+    async doc(collection: string, doc: string, cacheTime = 0) {
+        return await this.Api.get('/', { collection, doc }, cacheTime);
     }
 
-    async object(path: string, cache = true) {
+    async object(path: string, cacheTime = 0) {
         return await this.Api.get('/', {
             path, type: 'object',
-        }, cache);
+        }, cacheTime);
     }
 
-    async list(path: string, cache = true) {
+    async list(path: string, cacheTime = 0) {
         return await this.Api.get('/', {
             path, type: 'list',
-        }, cache);
+        }, cacheTime);
     }
 
-    async query(table: string, query: SQLQuery = {}, cache = true) {
+    async query(table: string, query: SQLQuery = {}, cacheTime = 0) {
         return await this.Api.get('/query', {
             ... query,
             table,
-        }, cache);
+        }, cacheTime);
     }
 
-    async deepQuery(collection: string, query: NoSQLQuery = {}, cache = true) {
+    async deepQuery(collection: string, query: NoSQLQuery = {}, cacheTime = 0) {
         return await this.Api.get('/query', {
             ... query,
             collection,
-        }, cache);
+        }, cacheTime);
     }
 
-    async search(tableOrCollection: string, s: string, cache = true) {
+    async search(tableOrCollection: string, s: string, cacheTime = 0) {
         return await this.Api.get('/search', {
             table: tableOrCollection,
             collection: tableOrCollection,
             s,
-        }, cache);
+        }, cacheTime);
     }
 
     async updateDoc(
