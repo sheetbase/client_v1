@@ -112,7 +112,7 @@ export class User {
 
     async updateProfile(profile: UserProfile) {
         const newInfo = await this.Api.post('/user', {}, {
-            idToken: this.getIdToken(),
+            idToken: await this.getIdToken(),
             profile,
         });
         return this.setInfo(newInfo);
@@ -120,7 +120,7 @@ export class User {
 
     async setUsername(username: string) {
         const newInfo = await this.Api.post('/user/username', {}, {
-            idToken: this.getIdToken(),
+            idToken: await this.getIdToken(),
             username,
         });
         return this.setInfo(newInfo);
@@ -128,7 +128,7 @@ export class User {
 
     async changePassword(currentPassword: string, newPassword: string) {
         return await this.Api.post('/user/password', {}, {
-            idToken: this.getIdToken(),
+            idToken: await this.getIdToken(),
             currentPassword,
             newPassword,
         });
@@ -140,13 +140,13 @@ export class User {
 
     async logout() {
         return await this.Api.delete('/', {}, {
-            idToken: this.getIdToken(),
+            idToken: await this.getIdToken(),
         });
     }
 
     async delete() {
         return await this.Api.delete('/cancel', {}, {
-            idToken: this.getIdToken(),
+            idToken: await this.getIdToken(),
             refreshToken: this.refreshToken,
         });
     }

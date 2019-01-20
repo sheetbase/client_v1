@@ -4,7 +4,7 @@ import { UserInfo } from '@sheetbase/user-server';
 
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
-import { decodeJWTPayload, isExpiredJWT } from '../utils';
+import { isExpiredJWT } from '../utils';
 
 import { SignInData } from './types';
 import { User } from './user';
@@ -25,7 +25,7 @@ export class AuthService {
         this.Api = this.app.Api
             .addBeforeHooks(async (data) => {
                 if (!!this.currentUser) {
-                    data.query['idToken'] = this.currentUser.getIdToken();
+                    data.query['idToken'] = await this.currentUser.getIdToken();
                 }
                 return data;
             })
