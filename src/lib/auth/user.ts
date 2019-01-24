@@ -103,7 +103,7 @@ export class User {
 
     async sendEmailVerification() {
         if (!this.emailVerified) {
-            return await this.Api.put('/action', {}, {
+            return await this.Api.put('/oob', {}, {
                 mode: 'verifyEmail',
                 email: this.email,
             });
@@ -112,7 +112,6 @@ export class User {
 
     async updateProfile(profile: UserProfile) {
         const newInfo = await this.Api.post('/user', {}, {
-            idToken: await this.getIdToken(),
             profile,
         });
         return this.setInfo(newInfo);
@@ -120,7 +119,6 @@ export class User {
 
     async setUsername(username: string) {
         const newInfo = await this.Api.post('/user/username', {}, {
-            idToken: await this.getIdToken(),
             username,
         });
         return this.setInfo(newInfo);
@@ -128,25 +126,17 @@ export class User {
 
     async changePassword(currentPassword: string, newPassword: string) {
         return await this.Api.post('/user/password', {}, {
-            idToken: await this.getIdToken(),
             currentPassword,
             newPassword,
         });
     }
 
-    // TODO: async updateEmail(newEmail: string) {}
-
-    // TODO: async updatePhoneNumber(phoneCredential: any) {}
-
     async logout() {
-        return await this.Api.delete('/', {}, {
-            idToken: await this.getIdToken(),
-        });
+        return await this.Api.delete('/');
     }
 
     async delete() {
         return await this.Api.delete('/cancel', {}, {
-            idToken: await this.getIdToken(),
             refreshToken: this.refreshToken,
         });
     }
