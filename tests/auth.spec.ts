@@ -169,6 +169,24 @@ describe('Auth service', () => {
         expect(result.user).to.eql({ uid: 'xxx' });
     });
 
+    it('#signInAnonymously', async () => {
+        let putResult: any;
+        apiPutStub.callsFake(async (endpoint, query, body) => {
+            putResult = { method: 'PUT', endpoint, query, body };
+            return { info: { uid: 'xxx' }, idToken: 'xxx', refreshToken: 'xxx' };
+        });
+        signInStub.onFirstCall().returns({ uid: 'xxx' });
+
+        const result = await authService.signInAnonymously();
+        expect(putResult).to.eql({
+            method: 'PUT',
+            endpoint: '/',
+            query: {},
+            body: { offlineAccess: true },
+        });
+        expect(result.user).to.eql({ uid: 'xxx' });
+    });
+
     it('#signInWithLocalUser (no local user info)', async () => {
         getItemStub.onFirstCall().returns(null);
         let result: any;
@@ -567,7 +585,7 @@ describe('User', () => {
         const result = await user.sendEmailVerification();
         expect(result).to.eql({
             method: 'PUT',
-            endpoint: '/action',
+            endpoint: '/oob',
             query: {},
             body: {
                 mode: 'verifyEmail',
@@ -578,7 +596,6 @@ describe('User', () => {
 
     it('#updateProfile', async () => {
         setInfoStub.callsFake(info => info); // forward api response
-        getIdTokenStub.onFirstCall().returns('xxx');
 
         const result = await user.updateProfile({
             displayName: 'xxx',
@@ -589,7 +606,6 @@ describe('User', () => {
             endpoint: '/user',
             query: {},
             body: {
-                idToken: 'xxx',
                 profile: {
                     displayName: 'xxx',
                     photoURL: 'xxx',
@@ -600,7 +616,6 @@ describe('User', () => {
 
     it('#setUsername', async () => {
         setInfoStub.callsFake(info => info); // forward api response
-        getIdTokenStub.onFirstCall().returns('xxx');
 
         const result = await user.setUsername('xxx');
         expect(result).to.eql({
@@ -608,22 +623,18 @@ describe('User', () => {
             endpoint: '/user/username',
             query: {},
             body: {
-                idToken: 'xxx',
                 username: 'xxx',
             },
         });
     });
 
     it('#changePassword', async () => {
-        getIdTokenStub.onFirstCall().returns('xxx');
-
         const result = await user.changePassword('1234567', '1234567xxx');
         expect(result).to.eql({
             method: 'POST',
             endpoint: '/user/password',
             query: {},
             body: {
-                idToken: 'xxx',
                 currentPassword: '1234567',
                 newPassword: '1234567xxx',
             },
@@ -631,29 +642,22 @@ describe('User', () => {
     });
 
     it('#logout', async () => {
-        getIdTokenStub.onFirstCall().returns('xxx');
-
         const result = await user.logout();
         expect(result).to.eql({
             method: 'DELETE',
             endpoint: '/',
-            query: {},
-            body: {
-                idToken: 'xxx',
-            },
+            query: undefined,
+            body: undefined,
         });
     });
 
     it('#delete', async () => {
-        getIdTokenStub.onFirstCall().returns('xxx');
-
         const result = await user.delete();
         expect(result).to.eql({
             method: 'DELETE',
             endpoint: '/cancel',
             query: {},
             body: {
-                idToken: 'xxx',
                 refreshToken: 'xxx',
             },
         });

@@ -6,7 +6,6 @@ import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
 import { isExpiredJWT } from '../utils';
 
-import { SignInData } from './types';
 import { User } from './user';
 
 const SHEETBASE_USER_CHANGED = 'SHEETBASE_USER_CHANGED';
@@ -44,7 +43,7 @@ export class AuthService {
     async createUserWithEmailAndPassword(email: string, password: string) {
         const { info, idToken, refreshToken } = await this.Api.put('/', {}, {
             email, password, offlineAccess: true,
-        }) as SignInData;
+        });
         const user = await this.signIn(info, idToken, refreshToken);
         return { user };
     }
@@ -60,6 +59,14 @@ export class AuthService {
     async signInWithCustomToken(token: string) {
         const { info, idToken, refreshToken } = await this.Api.post('/', {}, {
             customToken: token, offlineAccess: true,
+        });
+        const user = await this.signIn(info, idToken, refreshToken);
+        return { user };
+    }
+
+    async signInAnonymously() {
+        const { info, idToken, refreshToken } = await this.Api.put('/', {}, {
+            offlineAccess: true,
         });
         const user = await this.signIn(info, idToken, refreshToken);
         return { user };
