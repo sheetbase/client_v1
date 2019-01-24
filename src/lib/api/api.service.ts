@@ -141,7 +141,7 @@ export class ApiService {
                 return cachedData;
             } else {
                 const freshData = await refresher(); // get data
-                cacheSet(cacheKey, freshData, 60); // save cache data
+                cacheSet(cacheKey, freshData, cacheTime); // save cache data
                 return freshData;
             }
         } else {
