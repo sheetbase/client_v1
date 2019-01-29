@@ -167,6 +167,11 @@ export class ApiService {
     }
 
     async get(endpoint?: string, query = {}, cacheTime = 0) {
+        const originalUrl = this.buildUrl(
+            this.buildEndpoint(endpoint),
+            this.buildQuery(query),
+        );
+        // run hooks
         const beforeHookResult = await this.runHooks('before', {
             endpoint, query, body: {},
         });
@@ -177,7 +182,7 @@ export class ApiService {
             this.buildEndpoint(endpoint),
             this.buildQuery(query),
         );
-        return await this.cache(md5(url), cacheTime, async () =>
+        return await this.cache(md5(originalUrl), cacheTime, async () =>
             await this.fetch(url, { method: 'GET' }),
         );
     }
