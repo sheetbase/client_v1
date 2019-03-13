@@ -1,7 +1,7 @@
-import { MailingData } from '@sheetbase/gmail-server';
-
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
+
+import { MailingData } from './types';
 
 export class MailService {
 
@@ -17,11 +17,16 @@ export class MailService {
     }
 
     async quota() {
-        return await this.Api.get('/quota', {});
+        return await this.Api.get('/', {});
     }
 
-    async send(mailingData: MailingData, transporter = 'gmail') {
-        return await this.Api.post('/', {}, { mailingData, transporter });
+    async send(
+        mailingData: MailingData,
+        category = 'uncategorized',
+        template = null,
+        silent = null,
+    ) {
+        return await this.Api.post('/', {}, { mailingData, category, template, silent });
     }
 
 }
