@@ -1,7 +1,7 @@
-import { SQLQuery, NoSQLQuery } from '@sheetbase/sheets-server';
-
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
+
+import { Filter, AdvancedFilter } from './types';
 
 export class DatabaseService {
 
@@ -16,116 +16,78 @@ export class DatabaseService {
             .setEndpoint(this.app.options.authEndpoint || 'database');
     }
 
-    private convertFinder(finder: number | string | {[field: string]: string}) {
-        let result = {};
-        if (typeof finder === 'number') {
-            result = { id: finder };
-        } else if (typeof finder === 'string') {
-            result = { doc: finder };
+    async all<Item>(sheet: string, cacheTime = 0): Promise<Item[]> {
+        return await this.Api.get('/', { sheet }, cacheTime);
+    }
+
+    async query<Item>(sheet: string, filter: Filter, offline = true, cacheTime = 0): Promise<Item[]> {
+        // prepare query
+        let where: string;
+        let equal: any;
+        let advancedFilter: AdvancedFilter;
+        if (filter instanceof Function) {
+            advancedFilter = filter;
         } else {
-            const [ where ] = Object.keys(finder);
-            result = {
-                where,
-                equal: finder[where],
-            };
+            const { where: filterWhere, equal: filterEqual } = filter as any;
+            if (!!filterWhere) {
+                where = filterWhere;
+                equal = filterEqual;
+            } else {
+                where = Object.keys(filter)[0];
+                equal = filter[where];
+            }
         }
-        return result;
+        // query items
+        if (offline) {
+            // load local items
+            const localItems = await this.all(sheet);
+            // turn where/equal to advance filter
+            advancedFilter = advancedFilter || ((item: Item) => {
+                return item[where] = equal;
+            });
+            // query local items
+            const items: Item[] = [];
+            for (let i = 0; i < localItems.length; i++) {
+                const item = localItems[i] as Item;
+                if (advancedFilter(item)) {
+                    items.push(item);
+                }
+            }
+            return items;
+        } else {
+            if (!advancedFilter) {
+                return await this.Api.get('/', { sheet, where, equal }, cacheTime);
+            } else {
+                throw new Error('Can only apply advanced query with local data.');
+            }
+        }
     }
 
-    async all(table: string, cacheTime = 0) {
-        return await this.Api.get('/', { table }, cacheTime);
+    async item<Item>(sheet: string, finder: string | Filter, offline = true, cacheTime = 0) {
+        // turn key => { $key: finder }
+        if (typeof finder === 'string') {
+            finder = { $key: finder };
+        }
+        // query items
+        const items: Item[] = await this.query(sheet, finder, offline, cacheTime);
+        // extract item
+        let item: Item = null;
+        if (items.length === 1) {
+            item = items[0] as Item;
+        }
+        return item;
     }
 
-    async item(
-        table: string,
-        idOrCondition: number | {[field: string]: string},
-        cacheTime = 0,
-    ) {
-        return await this.Api.get('/', {
-            ... this.convertFinder(idOrCondition), table,
-        }, cacheTime);
+    async update<Data>(sheet: string, key: string, data: Data) {
+        return await this.Api.post('/', {}, { sheet, key, data });
     }
 
-    async delete(
-        table: string,
-        idOrCondition: number | string | {[field: string]: string},
-    ) {
-        return await this.Api.delete('/', {}, {
-            ... this.convertFinder(idOrCondition), table,
-        });
+    async add<Data>(sheet: string, key: string, data: Data) {
+        return await this.update(sheet, key, data);
     }
 
-    async collection(collection: string, returnObject = false, cacheTime = 0) {
-        return await this.Api.get('/', {
-            collection, type: returnObject ? 'object' : 'list',
-        }, cacheTime);
-    }
-
-    async doc(collection: string, doc: string, cacheTime = 0) {
-        return await this.Api.get('/', { collection, doc }, cacheTime);
-    }
-
-    async object(path: string, cacheTime = 0) {
-        return await this.Api.get('/', {
-            path, type: 'object',
-        }, cacheTime);
-    }
-
-    async list(path: string, cacheTime = 0) {
-        return await this.Api.get('/', {
-            path, type: 'list',
-        }, cacheTime);
-    }
-
-    async query(table: string, query: SQLQuery = {}, cacheTime = 0) {
-        return await this.Api.get('/query', {
-            ... query,
-            table,
-        }, cacheTime);
-    }
-
-    async deepQuery(collection: string, query: NoSQLQuery = {}, cacheTime = 0) {
-        return await this.Api.get('/query', {
-            ... query,
-            collection,
-        }, cacheTime);
-    }
-
-    async search(tableOrCollection: string, s: string, cacheTime = 0) {
-        return await this.Api.get('/search', {
-            table: tableOrCollection,
-            collection: tableOrCollection,
-            s,
-        }, cacheTime);
-    }
-
-    async updateDoc(
-        collection: string,
-        data: {},
-        idOrDocOrCondition?: number | string | {[field: string]: string},
-    ) {
-        return await this.Api.post('/', {}, {
-            ... this.convertFinder(idOrDocOrCondition), collection, data,
-        });
-    }
-
-    async update(
-        table: string,
-        data: {},
-        idOrCondition?: number | {[field: string]: string},
-    ) {
-        const body = {
-            ... this.convertFinder(idOrCondition),
-            table,
-            data,
-        };
-        return await this.Api.post('/', {}, body);
-    }
-
-    async updates(
-        updates: {[path: string]: any},
-    ) {
-        return await this.Api.post('/', {}, { updates });
+    async remove(sheet: string, key: string) {
+        return await this.update(sheet, key, null);
     }
 
 }
