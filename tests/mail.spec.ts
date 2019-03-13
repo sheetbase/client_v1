@@ -51,15 +51,22 @@ describe('(Mail) Mail service', () => {
         const result = await mailService.quota();
         expect(result).to.eql({
             method: 'GET',
-            endpoint: '/quota',
+            endpoint: '/',
             params: {},
         });
     });
 
     it('#send', async () => {
-        const result = await mailService.send({
-            recipient: 'xxx@xxx.xxx',
-        }, 'mail');
+        const result = await mailService.send(
+            {
+                recipient: 'xxx@xxx.xxx',
+            },
+            'message',
+            {
+                hello: { name: 'John' },
+            },
+            false,
+        );
         expect(result).to.eql({
             method: 'POST',
             endpoint: '/',
@@ -68,7 +75,11 @@ describe('(Mail) Mail service', () => {
                 mailingData: {
                     recipient: 'xxx@xxx.xxx',
                 },
-                transporter: 'mail',
+                category: 'message',
+                template: {
+                    hello: { name: 'John' },
+                },
+                silent: false,
             },
         });
     });

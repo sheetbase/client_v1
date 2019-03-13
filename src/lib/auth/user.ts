@@ -1,7 +1,8 @@
-import { UserInfo, UserProfile } from '@sheetbase/user-server';
 
 import { ApiService } from '../api/api.service';
 import { decodeJWTPayload, isExpiredJWT } from '../utils';
+
+import { UserInfo, UserProfile } from './types';
 
 export class User {
     private Api: ApiService;
@@ -16,8 +17,8 @@ export class User {
     providerData: any;
     email: string;
     emailVerified: boolean;
-    createdAt: number;
-    lastLogin: number;
+    createdAt: string;
+    lastLogin: string;
     username: string;
     phoneNumber: string;
     displayName: string;

@@ -358,8 +358,8 @@ describe('User', () => {
         providerData: null,
         email: 'xxx@xxx.xxx',
         emailVerified: false,
-        createdAt: 1234567890,
-        lastLogin: 1234567890,
+        createdAt: '2019-01-01T00:00:00.1000Z',
+        lastLogin: '2019-01-01T00:00:00.1000Z',
         username: '',
         phoneNumber: '',
         displayName: '',
@@ -456,8 +456,8 @@ describe('User', () => {
         expect(user.providerData).to.equal(null, '.providerData');
         expect(user.email).to.equal('xxx@xxx.xxx', '.email');
         expect(user.emailVerified).to.equal(false, '.emailVerified');
-        expect(user.createdAt).to.equal(1234567890, '.createdAt');
-        expect(user.lastLogin).to.equal(1234567890, '.lastLogin');
+        expect(user.createdAt).to.equal('2019-01-01T00:00:00.1000Z', '.createdAt');
+        expect(user.lastLogin).to.equal('2019-01-01T00:00:00.1000Z', '.lastLogin');
         expect(user.username).to.equal('', '.username');
         expect(user.phoneNumber).to.equal('', '.phoneNumber');
         expect(user.displayName).to.equal('', '.displayName');
@@ -475,8 +475,8 @@ describe('User', () => {
         expect(result.providerData).to.equal(null, '.providerData');
         expect(result.email).to.equal('xxx@xxx.xxx', '.email');
         expect(result.emailVerified).to.equal(false, '.emailVerified');
-        expect(result.createdAt).to.equal(1234567890, '.createdAt');
-        expect(result.lastLogin).to.equal(1234567890, '.lastLogin');
+        expect(result.createdAt).to.equal('2019-01-01T00:00:00.1000Z', '.createdAt');
+        expect(result.lastLogin).to.equal('2019-01-01T00:00:00.1000Z', '.lastLogin');
         expect(result.username).to.equal('', '.username');
         expect(result.phoneNumber).to.equal('', '.phoneNumber');
         expect(result.displayName).to.equal('', '.displayName');

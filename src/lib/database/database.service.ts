@@ -43,7 +43,7 @@ export class DatabaseService {
             const localItems = await this.all(sheet);
             // turn where/equal to advance filter
             advancedFilter = advancedFilter || ((item: Item) => {
-                return item[where] = equal;
+                return item[where] === equal;
             });
             // query local items
             const items: Item[] = [];
@@ -58,7 +58,7 @@ export class DatabaseService {
             if (!advancedFilter) {
                 return await this.Api.get('/', { sheet, where, equal }, cacheTime);
             } else {
-                throw new Error('Can only apply advanced query with local data.');
+                throw new Error('Can only apply advanced query when offline argument is true.');
             }
         }
     }
@@ -72,7 +72,7 @@ export class DatabaseService {
         const items: Item[] = await this.query(sheet, finder, offline, cacheTime);
         // extract item
         let item: Item = null;
-        if (items.length === 1) {
+        if ((items || []).length === 1) {
             item = items[0] as Item;
         }
         return item;
