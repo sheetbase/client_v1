@@ -10,19 +10,51 @@ JS client for Sheetbase app.
 
 ## Install
 
-`npm install @sheetbase/client`
+### NPM
+
+`npm install --save @sheetbase/client@latest`
+
+```ts
+// full package, for dev
+import { initializeApp } from '@sheetbase/client';
+
+// only needed parts
+import { initializeApp } from '@sheetbase/client/app';
+// import '@sheetbase/client/database';
+// import '@sheetbase/client/auth';
+// import '@sheetbase/client/storage';
+// import '@sheetbase/client/mail';
+```
+
+### CDN
+
+Full package: <https://unpkg.com/@sheetbase/client@latest/dist/sheetbase.min.js>
+
+Only needed parts:
+
+- App (required): <https://unpkg.com/@sheetbase/client@latest/dist/sheetbase-app.min.js>
+- Database (optional): <https://unpkg.com/@sheetbase/client@latest/dist/sheetbase-database.min.js>
+- Auth (optional): <https://unpkg.com/@sheetbase/client@latest/dist/sheetbase-auth.min.js>
+- Storage (optional): <https://unpkg.com/@sheetbase/client@latest/dist/sheetbase-storage.min.js>
+- Mail (optional): <https://unpkg.com/@sheetbase/client@latest/dist/sheetbase-mail.min.js>
 
 ## Usage
 
 ```ts
 
-import { initializeApp } from '@sheetbase/client';
+import { initializeApp } from '@sheetbase/client/app';
 
 // init an app
 const app = initializeApp({ /* configs */ });
 
 // send a GET request
 const result = await app.api().get('/');
+
+// access imported parts
+const database = app.database();
+const auth = app.auth();
+const storage = app.storage();
+const mail = app.mail();
 
 ```
 
