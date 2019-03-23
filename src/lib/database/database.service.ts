@@ -179,4 +179,12 @@ export class DatabaseService {
         return await this.update(sheet, key, null);
     }
 
+    async increase(
+        sheet: string,
+        key: string,
+        updates: string | string[] | {[path: string]: number},
+    ) {
+        return await this.Api.post('/', {}, { sheet, key, increasing: updates });
+    }
+
 }

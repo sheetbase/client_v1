@@ -1,11 +1,11 @@
 import { publish, subscribe } from 'pubsub-js';
 import { getItem, setItem, removeItem } from 'localforage';
+import { UserInfo } from '@sheetbase/models';
 
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
 import { isExpiredJWT } from '../utils';
 
-import { UserInfo } from './types';
 import { User } from './user';
 
 const SHEETBASE_USER_CHANGED = 'SHEETBASE_USER_CHANGED';

@@ -1,8 +1,7 @@
+import { UserInfo, UserEditableProfile, UserProfileSettings } from '@sheetbase/models';
 
 import { ApiService } from '../api/api.service';
 import { decodeJWTPayload, isExpiredJWT } from '../utils';
-
-import { UserInfo, UserProfile } from './types';
 
 export class User {
     private Api: ApiService;
@@ -23,7 +22,12 @@ export class User {
     phoneNumber: string;
     displayName: string;
     photoURL: string;
+    bio: string;
+    url: string;
+    address: string;
+    additionalData: {[key: string]: any};
     claims: {[claim: string]: any};
+    settings: UserProfileSettings;
     isAnonymous: boolean;
     isNewUser: boolean;
 
@@ -41,10 +45,25 @@ export class User {
 
     private setInfo(info: UserInfo) {
         const {
-            uid, providerId, providerData,
-            email, emailVerified, createdAt, lastLogin,
-            username, phoneNumber, displayName, photoURL, claims,
-            isAnonymous, isNewUser,
+            uid,
+            providerId,
+            providerData,
+            email,
+            emailVerified,
+            createdAt,
+            lastLogin,
+            username,
+            phoneNumber,
+            displayName,
+            photoURL,
+            bio,
+            url,
+            address,
+            additionalData,
+            claims,
+            settings,
+            isAnonymous,
+            isNewUser,
         } = info;
         this.uid = uid;
         this.providerId = providerId;
@@ -57,7 +76,12 @@ export class User {
         this.displayName = displayName;
         this.phoneNumber = phoneNumber;
         this.photoURL = photoURL;
+        this.bio = bio;
+        this.url = url;
+        this.address = address;
+        this.additionalData = additionalData;
         this.claims = claims;
+        this.settings = settings;
         this.isAnonymous = isAnonymous;
         this.isNewUser = isNewUser;
         return info;
@@ -75,14 +99,34 @@ export class User {
         const phoneNumber = this.phoneNumber;
         const displayName = this.displayName;
         const photoURL = this.photoURL;
+        const bio = this.bio;
+        const url = this.url;
+        const address = this.address;
+        const additionalData = this.additionalData;
         const claims = this.claims;
+        const settings = this.settings;
         const isAnonymous = this.isAnonymous;
         const isNewUser = this.isNewUser;
         return {
-            uid, providerId, providerData,
-            email, emailVerified, createdAt, lastLogin,
-            username, phoneNumber, displayName, photoURL, claims,
-            isAnonymous, isNewUser,
+            uid,
+            providerId,
+            providerData,
+            email,
+            emailVerified,
+            createdAt,
+            lastLogin,
+            username,
+            phoneNumber,
+            displayName,
+            photoURL,
+            bio,
+            url,
+            address,
+            additionalData,
+            claims,
+            settings,
+            isAnonymous,
+            isNewUser,
         };
     }
 
@@ -111,9 +155,37 @@ export class User {
         }
     }
 
-    async updateProfile(profile: UserProfile) {
+    async updateProfile(profile: UserEditableProfile) {
         const newInfo = await this.Api.post('/user', {}, {
             profile,
+        });
+        return this.setInfo(newInfo);
+    }
+
+    async setAdditionalData(data: {[key: string]: any}) {
+        const newInfo = await this.Api.post('/user/additional', {}, {
+            additionalData: data,
+        });
+        return this.setInfo(newInfo);
+    }
+
+    async setSettings(data: {[key: string]: any}) {
+        const newInfo = await this.Api.post('/user/settings', {}, {
+            settings: data,
+        });
+        return this.setInfo(newInfo);
+    }
+
+    async setProfilePublicly(props: string | string[]) {
+        const newInfo = await this.Api.post('/user/publicly', {}, {
+            publicly: props,
+        });
+        return this.setInfo(newInfo);
+    }
+
+    async setProfilePrivately(props: string | string[]) {
+        const newInfo = await this.Api.post('/user/privately', {}, {
+            privately: props,
         });
         return this.setInfo(newInfo);
     }
