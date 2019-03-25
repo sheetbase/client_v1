@@ -152,6 +152,10 @@ export class DatabaseService {
         }
     }
 
+    async items(sheet: string, filter?: Filter, offline = true, cacheTime = 0) {
+        return !!filter ? this.query(sheet, filter, offline, cacheTime) : this.all(sheet, cacheTime);
+    }
+
     async item<Item>(sheet: string, finder: string | Filter, offline = true, cacheTime = 0) {
         // turn key => { $key: finder }
         if (typeof finder === 'string') {
@@ -165,6 +169,10 @@ export class DatabaseService {
             item = items[0] as Item;
         }
         return item;
+    }
+
+    async set<Data>(sheet: string, key: string, data: Data) {
+        return await this.Api.post('/', {}, { sheet, key, data, clean: true });
     }
 
     async update<Data>(sheet: string, key: string, data: Data) {
@@ -182,9 +190,17 @@ export class DatabaseService {
     async increase(
         sheet: string,
         key: string,
-        updates: string | string[] | {[path: string]: number},
+        increasing: string | string[] | {[path: string]: number},
     ) {
-        return await this.Api.post('/', {}, { sheet, key, increasing: updates });
+        return await this.Api.post('/', {}, { sheet, key, increasing });
+    }
+
+    async content(docId: string, withStyles = false, cacheTime = 0) {
+        const query: any = { docId };
+        if (withStyles) {
+            query.withStyles = true;
+        }
+        return await this.Api.get('/content', query, cacheTime);
     }
 
 }

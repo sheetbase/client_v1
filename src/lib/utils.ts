@@ -1,4 +1,5 @@
 import { ResponseError } from '@sheetbase/core-server';
+import { PopupConfigs } from './types';
 
 export function decodeJWTPayload(token: string) {
     const [, payloadStr ] = token.split('.');
@@ -19,4 +20,34 @@ export function ApiError(result: ResponseError) {
 export function isExpiredInSeconds(expiredTime: number, costMore = 0) {
     const time = Math.ceil(new Date().getTime() / 1000) + costMore;
     return time >= expiredTime;
+}
+
+export function createPopup(config: PopupConfigs) {
+  const url = config.url || '/';
+  const name = config.name ||  'SheetbaseOAuthLogin'; // no space for IE
+  const options = config.options || 'location=0,status=0,width=800,height=600';
+  const callback = config.callback || (() => true);
+  // launch window
+  const oauthWindow = window.open(url, name, options);
+  // cackback
+  const oauthInterval = window.setInterval(() => {
+    if (oauthWindow.closed) {
+      window.clearInterval(oauthInterval);
+      callback();
+    }
+  }, 1000);
+}
+
+export function getHost() {
+  let host: string;
+  // get from base tag
+  // else from window.location.href
+  const baseHref = ((document.getElementsByTagName('base')[0] || {})['href'] || '').slice(0, -1);
+  if (!!baseHref) {
+    host = baseHref;
+  } else {
+    const hrefSplit = window.location.href.split('/').filter(Boolean);
+    host = hrefSplit[0] + '//' + hrefSplit[1];
+  }
+  return host;
 }

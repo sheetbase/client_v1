@@ -13,7 +13,6 @@ export class User {
     // user info
     uid: string;
     providerId: string;
-    providerData: any;
     email: string;
     emailVerified: boolean;
     createdAt: string;
@@ -47,7 +46,6 @@ export class User {
         const {
             uid,
             providerId,
-            providerData,
             email,
             emailVerified,
             createdAt,
@@ -67,7 +65,6 @@ export class User {
         } = info;
         this.uid = uid;
         this.providerId = providerId;
-        this.providerData = providerData;
         this.email = email;
         this.emailVerified = emailVerified;
         this.createdAt = createdAt;
@@ -90,7 +87,6 @@ export class User {
     toJSON() {
         const uid = this.uid;
         const providerId = this.providerId;
-        const providerData = this.providerData;
         const email = this.email;
         const emailVerified = this.emailVerified;
         const createdAt = this.createdAt;
@@ -110,7 +106,6 @@ export class User {
         return {
             uid,
             providerId,
-            providerData,
             email,
             emailVerified,
             createdAt,

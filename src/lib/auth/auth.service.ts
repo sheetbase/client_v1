@@ -4,9 +4,11 @@ import { UserInfo } from '@sheetbase/models';
 
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
-import { isExpiredJWT } from '../utils';
+import { isExpiredJWT, createPopup, getHost } from '../utils';
 
+import { AuthCredential } from './types';
 import { User } from './user';
+import { AuthProvider } from './provider';
 
 const SHEETBASE_USER_CHANGED = 'SHEETBASE_USER_CHANGED';
 const SHEETBASE_USER_INFO = 'SHEETBASE_USER_INFO';
@@ -19,6 +21,8 @@ export class AuthService {
     app: AppService;
     currentUser: User = null;
 
+    private oauthProvider: AuthProvider; // remember provider for using in processing oauth result
+
     constructor(app: AppService) {
         this.app = app;
         this.Api = this.app.Api
@@ -30,6 +34,8 @@ export class AuthService {
             })
             .extend()
             .setEndpoint(this.app.options.authEndpoint || 'auth');
+        // initial change state (signin locally)
+        setTimeout(() => this.signInWithLocalUser(), 1000);
     }
 
     onAuthStateChanged(next: {(user: User)}) {
@@ -49,49 +55,67 @@ export class AuthService {
     }
 
     async signInWithEmailAndPassword(email: string, password: string) {
-        const { info, idToken, refreshToken } = await this.Api.post('/', {}, {
-            email, password, offlineAccess: true,
-        });
-        const user = await this.signIn(info, idToken, refreshToken);
+        let user: User;
+        if (!!this.currentUser) {
+            user = this.currentUser;
+        } else {
+            const { info, idToken, refreshToken } = await this.Api.post('/', {}, {
+                email, password, offlineAccess: true,
+            });
+            user = await this.signIn(info, idToken, refreshToken);
+        }
         return { user };
     }
 
     async signInWithCustomToken(token: string) {
-        const { info, idToken, refreshToken } = await this.Api.post('/', {}, {
-            customToken: token, offlineAccess: true,
-        });
-        const user = await this.signIn(info, idToken, refreshToken);
+        let user: User;
+        if (!!this.currentUser) {
+            user = this.currentUser;
+        } else {
+            const { info, idToken, refreshToken } = await this.Api.post('/', {}, {
+                customToken: token, offlineAccess: true,
+            });
+            user = await this.signIn(info, idToken, refreshToken);
+        }
         return { user };
     }
 
     async signInAnonymously() {
-        const { info, idToken, refreshToken } = await this.Api.put('/', {}, {
-            offlineAccess: true,
-        });
-        const user = await this.signIn(info, idToken, refreshToken);
+        let user: User;
+        if (!!this.currentUser) {
+            user = this.currentUser;
+        } else {
+            const { info, idToken, refreshToken } = await this.Api.put('/', {}, {
+                offlineAccess: true,
+            });
+            user = await this.signIn(info, idToken, refreshToken);
+        }
         return { user };
     }
 
     async signInWithLocalUser() {
-        let info: UserInfo = await getItem(SHEETBASE_USER_INFO); // retrieve user info
-        if (!!info) {
-            const { uid } = info;
-            const {
-                idToken: localIdToken,
-                refreshToken,
-            } = await getItem(SHEETBASE_USER_CREDS + '_' + uid) || {} as any;
-            if (!!localIdToken && !!refreshToken) {
-                let idToken = localIdToken;
+        // retrieve local creds and info
+        const creds: any = await getItem(SHEETBASE_USER_CREDS);
+        let info: UserInfo = await getItem(SHEETBASE_USER_INFO);
+        // log user in
+        if (!!creds && !!info && creds.uid === info.uid) {
+            let idToken = creds.idToken;
+            // caching check
+            const beenSeconds = (new Date().getTime() - new Date(info.lastLogin).getTime()) / 1000;
+            if (beenSeconds > 86400) { // info expired, over 1 day
                 // renew idToken if expired
                 if (isExpiredJWT(idToken)) {
-                    const expiredUser = new User(this.Api, info, idToken, refreshToken);
+                    const expiredUser = new User(this.Api, info, idToken, creds.refreshToken);
                     idToken = await expiredUser.getIdToken();
                 }
                 // fetch new info
                 info = await this.Api.get('/user', { idToken });
-                // sign user in
-                this.signIn(info, idToken, refreshToken);
             }
+            // sign user in
+            this.signIn(info, idToken, creds.refreshToken);
+        } else {
+            // notify initial state changed
+            publish(SHEETBASE_USER_CHANGED, null);
         }
     }
 
@@ -111,6 +135,49 @@ export class AuthService {
         });
     }
 
+    async signInWithPopup(provider: AuthProvider) {
+        if (!this.currentUser) {
+            const providerConfig = !!this.app.options.authProviders ?
+                this.app.options.authProviders[provider.providerId] : null;
+            if (!!providerConfig) {
+                // remember provider
+                this.oauthProvider = provider;
+                // add handler to parent window
+                window['handleOauthResult'] = (fragment: string) => this.handleOauthResult(fragment);
+                // process request
+                const { clientId, redirectUri } = providerConfig;
+                return createPopup({
+                    url: provider.url(clientId, redirectUri || (getHost() + '/__/auth/handler')),
+                });
+            }
+        }
+    }
+
+    googleAuthProvider() {
+        return new AuthProvider(
+            'google.com',
+            'https://accounts.google.com/o/oauth2/v2/auth',
+            'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+        );
+    }
+
+    facebookAuthProvider() {
+        return new AuthProvider(
+            'facebook.com',
+            'https://www.facebook.com/v3.2/dialog/oauth',
+            'email',
+        );
+    }
+
+    async signOut() {
+        this.currentUser = null;
+        // notify user change
+        publish(SHEETBASE_USER_CHANGED, null);
+        // remove user info & id token & refresh token from local
+        await removeItem(SHEETBASE_USER_INFO);
+        await removeItem(SHEETBASE_USER_CREDS);
+    }
+
     private async signIn(info: UserInfo, idToken: string, refreshToken: string) {
         const { uid } = info;
         this.currentUser = new User(this.Api, info, idToken, refreshToken);
@@ -118,20 +185,42 @@ export class AuthService {
         publish(SHEETBASE_USER_CHANGED, this.currentUser);
         // save user info & id token & refresh token to local
         await setItem(SHEETBASE_USER_INFO, info);
-        await setItem(SHEETBASE_USER_CREDS + '_' + uid, { idToken, refreshToken });
+        await setItem(SHEETBASE_USER_CREDS, { uid, idToken, refreshToken });
         return this.currentUser;
     }
 
-    async signOut() {
-        if (!!this.currentUser) {
-            const { uid } = this.currentUser;
-            this.currentUser = null;
-            // notify user change
-            publish(SHEETBASE_USER_CHANGED, null);
-            // remove user info & id token & refresh token from local
-            await removeItem(SHEETBASE_USER_INFO);
-            await removeItem(SHEETBASE_USER_CREDS + '_' + uid);
+    private async handleOauthResult(result: string) {
+        // if result available
+        if (result !== '') {
+            // process query
+            const query = result.substr(1).split('&');
+            // Parse the URI hash to fetch the access token
+            const credential: AuthCredential = {};
+            for (let i = 0; i < query.length; i++) {
+                const [ key, value = null ] = query[i].split('=');
+                let finalValue: any = value;
+                if (key === 'scope') {
+                    finalValue = value.split('%20');
+                } else if (key === 'expires_in') {
+                    finalValue = +value;
+                }
+                credential[key] = finalValue;
+            }
+            // get user profile
+            if (!credential.access_token) {
+                throw new Error('Sheetbase oauth error!'); // no access token
+            } else {
+                return await this.processOauthResult(credential);
+            }
         }
+    }
+
+    private async processOauthResult(credential: AuthCredential) {
+        const { access_token: accessToken } = credential;
+        const { providerId } = this.oauthProvider;
+        const { info, idToken, refreshToken } = await this.Api.get('/oauth', { providerId, accessToken });
+        const user = await this.signIn(info, idToken, refreshToken);
+        return { user };
     }
 
 }
