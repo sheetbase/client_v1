@@ -25,7 +25,11 @@ export function isExpiredInSeconds(expiredTime: number, costMore = 0) {
 export function createPopup(config: PopupConfigs) {
   const url = config.url || '/';
   const name = config.name ||  'SheetbaseOAuthLogin'; // no space for IE
-  const options = config.options || 'location=0,status=0,width=800,height=600';
+  const options = config.options || (
+    'location=0,status=0' +
+    ',width=' + window.innerWidth +
+    ',height=' + window.innerHeight
+    );
   const callback = config.callback || (() => true);
   // launch window
   const oauthWindow = window.open(url, name, options);

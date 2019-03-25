@@ -1,6 +1,6 @@
 import { UserProviderId } from '@sheetbase/models';
 
-export interface AuthProvider {
+export interface OauthProvider {
   clientId: string;
   redirectUri?: string;
 }
@@ -8,7 +8,7 @@ export interface AuthProvider {
 export interface AuthOptions {
   authEndpoint?: string;
   authProviders?: {
-    [key in UserProviderId]?: AuthProvider;
+    [key in UserProviderId]?: OauthProvider;
   };
 }
 

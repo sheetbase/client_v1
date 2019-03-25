@@ -93,32 +93,6 @@ export class AuthService {
         return { user };
     }
 
-    async signInWithLocalUser() {
-        // retrieve local creds and info
-        const creds: any = await getItem(SHEETBASE_USER_CREDS);
-        let info: UserInfo = await getItem(SHEETBASE_USER_INFO);
-        // log user in
-        if (!!creds && !!info && creds.uid === info.uid) {
-            let idToken = creds.idToken;
-            // caching check
-            const beenSeconds = (new Date().getTime() - new Date(info.lastLogin).getTime()) / 1000;
-            if (beenSeconds > 86400) { // info expired, over 1 day
-                // renew idToken if expired
-                if (isExpiredJWT(idToken)) {
-                    const expiredUser = new User(this.Api, info, idToken, creds.refreshToken);
-                    idToken = await expiredUser.getIdToken();
-                }
-                // fetch new info
-                info = await this.Api.get('/user', { idToken });
-            }
-            // sign user in
-            this.signIn(info, idToken, creds.refreshToken);
-        } else {
-            // notify initial state changed
-            publish(SHEETBASE_USER_CHANGED, null);
-        }
-    }
-
     async sendPasswordResetEmail(email: string) {
         return await this.Api.put('/oob', {}, { mode: 'resetPassword', email });
     }
@@ -187,6 +161,32 @@ export class AuthService {
         await setItem(SHEETBASE_USER_INFO, info);
         await setItem(SHEETBASE_USER_CREDS, { uid, idToken, refreshToken });
         return this.currentUser;
+    }
+
+    private async signInWithLocalUser() {
+        // retrieve local creds and info
+        const creds: any = await getItem(SHEETBASE_USER_CREDS);
+        let info: UserInfo = await getItem(SHEETBASE_USER_INFO);
+        // log user in
+        if (!!creds && !!info && creds.uid === info.uid) {
+            let idToken = creds.idToken;
+            // caching check
+            const beenSeconds = (new Date().getTime() - new Date(info.lastLogin).getTime()) / 1000;
+            if (beenSeconds > 86400) { // info expired, over 1 day
+                // renew idToken if expired
+                if (isExpiredJWT(idToken)) {
+                    const expiredUser = new User(this.Api, info, idToken, creds.refreshToken);
+                    idToken = await expiredUser.getIdToken();
+                }
+                // fetch new info
+                info = await this.Api.get('/user', { idToken });
+            }
+            // sign user in
+            this.signIn(info, idToken, creds.refreshToken);
+        } else {
+            // notify initial state changed
+            publish(SHEETBASE_USER_CHANGED, null);
+        }
     }
 
     private async handleOauthResult(result: string) {

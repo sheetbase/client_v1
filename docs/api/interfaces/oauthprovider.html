@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Query | @sheetbase/client</title>
+	<title>OauthProvider | @sheetbase/client</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../index.html">Globals</a>
 				</li>
 				<li>
-					<a href="query.html">Query</a>
+					<a href="oauthprovider.html">OauthProvider</a>
 				</li>
 			</ul>
-			<h1>Interface Query</h1>
+			<h1>Interface OauthProvider</h1>
 		</div>
 	</div>
 </header>
@@ -66,7 +66,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">Query</span>
+						<span class="target">OauthProvider</span>
 					</li>
 				</ul>
 			</section>
@@ -77,16 +77,8 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#childequal" class="tsd-kind-icon">child<wbr>Equal</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#childexists" class="tsd-kind-icon">child<wbr>Exists</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#contains" class="tsd-kind-icon">contains</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#equal" class="tsd-kind-icon">equal</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#exists" class="tsd-kind-icon">exists</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#gt" class="tsd-kind-icon">gt</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#gte" class="tsd-kind-icon">gte</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#lt" class="tsd-kind-icon">lt</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#lte" class="tsd-kind-icon">lte</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="query.html#where" class="tsd-kind-icon">where</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="oauthprovider.html#clientid" class="tsd-kind-icon">client<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="oauthprovider.html#redirecturi" class="tsd-kind-icon">redirect<wbr>Uri</a></li>
 							</ul>
 						</section>
 					</div>
@@ -95,102 +87,22 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="childequal" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> child<wbr>Equal</h3>
-					<div class="tsd-signature tsd-kind-icon">child<wbr>Equal<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="clientid" class="tsd-anchor"></a>
+					<h3>client<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">client<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L18">lib/database/types.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/auth/types.ts#L4">lib/auth/types.ts:4</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="childexists" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> child<wbr>Exists</h3>
-					<div class="tsd-signature tsd-kind-icon">child<wbr>Exists<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<a name="redirecturi" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> redirect<wbr>Uri</h3>
+					<div class="tsd-signature tsd-kind-icon">redirect<wbr>Uri<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L17">lib/database/types.ts:17</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="contains" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> contains</h3>
-					<div class="tsd-signature tsd-kind-icon">contains<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L12">lib/database/types.ts:12</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="equal" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> equal</h3>
-					<div class="tsd-signature tsd-kind-icon">equal<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L10">lib/database/types.ts:10</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="exists" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> exists</h3>
-					<div class="tsd-signature tsd-kind-icon">exists<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">true</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L11">lib/database/types.ts:11</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="gt" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> gt</h3>
-					<div class="tsd-signature tsd-kind-icon">gt<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L15">lib/database/types.ts:15</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="gte" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> gte</h3>
-					<div class="tsd-signature tsd-kind-icon">gte<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L16">lib/database/types.ts:16</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="lt" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> lt</h3>
-					<div class="tsd-signature tsd-kind-icon">lt<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L13">lib/database/types.ts:13</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="lte" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> lte</h3>
-					<div class="tsd-signature tsd-kind-icon">lte<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L14">lib/database/types.ts:14</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="where" class="tsd-anchor"></a>
-					<h3>where</h3>
-					<div class="tsd-signature tsd-kind-icon">where<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/database/types.ts#L9">lib/database/types.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/4ce0d2a/src/lib/auth/types.ts#L5">lib/auth/types.ts:5</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -260,51 +172,27 @@
 					<li class=" tsd-kind-interface">
 						<a href="mailingdata.html" class="tsd-kind-icon">Mailing<wbr>Data</a>
 					</li>
-					<li class=" tsd-kind-interface">
-						<a href="oauthprovider.html" class="tsd-kind-icon">Oauth<wbr>Provider</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="popupconfigs.html" class="tsd-kind-icon">Popup<wbr>Configs</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="query.html" class="tsd-kind-icon">Query</a>
+						<a href="oauthprovider.html" class="tsd-kind-icon">Oauth<wbr>Provider</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#childequal" class="tsd-kind-icon">child<wbr>Equal</a>
+								<a href="oauthprovider.html#clientid" class="tsd-kind-icon">client<wbr>Id</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#childexists" class="tsd-kind-icon">child<wbr>Exists</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#contains" class="tsd-kind-icon">contains</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#equal" class="tsd-kind-icon">equal</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#exists" class="tsd-kind-icon">exists</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#gt" class="tsd-kind-icon">gt</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#gte" class="tsd-kind-icon">gte</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#lt" class="tsd-kind-icon">lt</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#lte" class="tsd-kind-icon">lte</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="query.html#where" class="tsd-kind-icon">where</a>
+								<a href="oauthprovider.html#redirecturi" class="tsd-kind-icon">redirect<wbr>Uri</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface">
+						<a href="popupconfigs.html" class="tsd-kind-icon">Popup<wbr>Configs</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="query.html" class="tsd-kind-icon">Query</a>
+					</li>
 					<li class=" tsd-kind-interface">
 						<a href="storageoptions.html" class="tsd-kind-icon">Storage<wbr>Options</a>
 					</li>
