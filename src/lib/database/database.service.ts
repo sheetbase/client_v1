@@ -171,6 +171,40 @@ export class DatabaseService {
         return item;
     }
 
+    async content(docId: string, withStyles = false, cacheTime = 0): Promise<{
+        docId: string;
+        content: string;
+    }> {
+        const query: any = { docId };
+        if (withStyles) {
+            query.withStyles = true;
+        }
+        return await this.Api.get('/content', query, cacheTime);
+    }
+
+    async itemAndContent<Item>(
+        sheet: string,
+        finder: string | Filter,
+        offline = true,
+        cacheTime = 0,
+        withStyles = false,
+    ): Promise<Item> {
+        let item: any = await this.item(sheet, finder, offline, cacheTime);
+        if (!!item && !item.content && !!item.contentSource) {
+            let docId: string = item.contentSource;
+            // process content source
+            if (docId.indexOf('https://docs.google.com/document/d/') > -1) {
+                docId = docId.replace('https://docs.google.com/document/d/', '').split('/')[0];
+            }
+            // get data
+            const data = await this.content(docId, withStyles, cacheTime);
+            // merge content to item
+            item = { ... item, ... data };
+        }
+        // return final item
+        return item;
+    }
+
     async set<Data>(sheet: string, key: string, data: Data) {
         return await this.Api.post('/', {}, { sheet, key, data, clean: true });
     }
@@ -193,14 +227,6 @@ export class DatabaseService {
         increasing: string | string[] | {[path: string]: number},
     ) {
         return await this.Api.post('/', {}, { sheet, key, increasing });
-    }
-
-    async content(docId: string, withStyles = false, cacheTime = 0) {
-        const query: any = { docId };
-        if (withStyles) {
-            query.withStyles = true;
-        }
-        return await this.Api.get('/content', query, cacheTime);
     }
 
 }
