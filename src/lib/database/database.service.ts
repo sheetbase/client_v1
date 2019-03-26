@@ -157,16 +157,16 @@ export class DatabaseService {
     }
 
     async item<Item>(sheet: string, finder: string | Filter, offline = true, cacheTime = 0) {
-        // turn key => { $key: finder }
-        if (typeof finder === 'string') {
-            finder = { $key: finder };
-        }
-        // query items
-        const items: Item[] = await this.query(sheet, finder, offline, cacheTime);
-        // extract item
         let item: Item = null;
-        if ((items || []).length === 1) {
-            item = items[0] as Item;
+        if (typeof finder === 'string') {
+            item = await this.Api.get('/', { sheet, key: finder }, cacheTime);
+        } else {
+            // query items
+            const items: Item[] = await this.query(sheet, finder, offline, cacheTime);
+            // extract item
+            if ((items || []).length === 1) {
+                item = items[0] as Item;
+            }
         }
         return item;
     }
@@ -176,9 +176,7 @@ export class DatabaseService {
         content: string;
     }> {
         const query: any = { docId };
-        if (withStyles) {
-            query.withStyles = true;
-        }
+        if (withStyles) { query.withStyles = true; }
         return await this.Api.get('/content', query, cacheTime);
     }
 
@@ -188,7 +186,7 @@ export class DatabaseService {
         offline = true,
         cacheTime = 0,
         withStyles = false,
-    ): Promise<Item> {
+    ) {
         let item: any = await this.item(sheet, finder, offline, cacheTime);
         if (!!item && !item.content && !!item.contentSource) {
             let docId: string = item.contentSource;
@@ -202,7 +200,7 @@ export class DatabaseService {
             item = { ... item, ... data };
         }
         // return final item
-        return item;
+        return item as Item;
     }
 
     async set<Data>(sheet: string, key: string, data: Data) {
