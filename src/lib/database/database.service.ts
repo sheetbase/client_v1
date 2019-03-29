@@ -188,12 +188,17 @@ export class DatabaseService {
         withStyles = false,
     ) {
         let item: any = await this.item(sheet, finder, offline, cacheTime);
-        if (!!item && !item.content && !!item.contentSource) {
-            let docId: string = item.contentSource;
+        if (
+            !!item &&
+            !item.content &&
+            !!item.contentSource &&
+            (
+                item.contentSource.indexOf('http') < 0 ||
+                item.contentSource.indexOf('https://docs.google.com/document/d/') > -1
+            )
+        ) {
             // process content source
-            if (docId.indexOf('https://docs.google.com/document/d/') > -1) {
-                docId = docId.replace('https://docs.google.com/document/d/', '').split('/')[0];
-            }
+            const docId = item.contentSource.replace('https://docs.google.com/document/d/', '').split('/')[0];
             // get data
             const data = await this.content(docId, withStyles, cacheTime);
             // merge content to item
