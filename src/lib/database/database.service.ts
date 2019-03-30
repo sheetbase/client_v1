@@ -1,9 +1,8 @@
 import { AppService } from '../app/app.service';
 
-import { DataRefresher, Filter, AdvancedFilter, Query, DocsContentStyles } from './types';
+import { Filter, AdvancedFilter, Query, DocsContentStyles } from './types';
 import { DatabaseDirectService } from './direct';
 import { DatabaseServerService } from './server';
-import { getCache } from './cache';
 import { buildQuery, buildAdvancedFilter } from './filter';
 
 export class DatabaseService {
@@ -98,8 +97,10 @@ export class DatabaseService {
     cacheTime = 0,
   ) {
     if ( // server
-      input.indexOf('http') < 0 || // doc id
-      ( // doc url
+      // doc id
+      input.indexOf('http') < 0 ||
+      // doc url
+      (
         input.indexOf('https://docs.google.com/document/d/e/') < 0 &&
         input.indexOf('/pub') < 0
       )
@@ -124,6 +125,7 @@ export class DatabaseService {
       !!item &&
       !item.content &&
       !!item.contentSource &&
+      // must be: doc id | doc url | published url
       (
         item.contentSource.indexOf('http') < 0 ||
         item.contentSource.indexOf('https://docs.google.com/document/d/') > -1

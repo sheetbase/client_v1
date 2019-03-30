@@ -19,7 +19,7 @@ export class DatabaseDirectService {
       'SHEETBASE_DATA_' + sheet,
       this.getCacheTime(cacheTime),
       async () => {
-        const response = await fetch(this.buildDataUrl(sheet));
+        const response = await fetch(this.csvUrl(sheet));
         const items = await this.parseCSV<Item>(await response.text());
         for (let i = 0, l = items.length; i < l; i++) {
           items[i]['_row'] = i + 2;
@@ -46,7 +46,7 @@ export class DatabaseDirectService {
     return { content };
   }
 
-  private buildDataUrl(sheet: string) {
+  private csvUrl(sheet: string) {
     const { databasePublicId, databaseGids } = this.app.options;
     return `https://docs.google.com/spreadsheets/d/e/`
       + databasePublicId +
@@ -59,7 +59,7 @@ export class DatabaseDirectService {
     return new Promise<Item[]>((resolve, reject) => {
       parse(csv, {
         header: true,
-        complete: (result) => resolve(result.data),
+        complete: (result) => !result.errors.length ? resolve(result.data) : reject(result.errors),
       });
     });
   }
@@ -94,6 +94,7 @@ export class DatabaseDirectService {
   }
 
   private getCacheTime(cacheTime: number) {
-    return (cacheTime === -1) ? 0 : Math.abs(cacheTime || this.app.options.cacheTime || 0);
+    const { cacheTime: globalCacheTime } = this.app.options;
+    return (cacheTime === -1) ? 0 : Math.abs(cacheTime || globalCacheTime || 0);
   }
 }

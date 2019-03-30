@@ -68,14 +68,11 @@ export function parseData(data: any) {
     data = false;
   } else if (!isNaN(data)) {
     // number
-    // tslint:disable:ban radix
-    if (Number(data) % 1 === 0) {
-        data = parseInt(data);
-    }
-    if (Number(data) % 1 !== 0) {
-        data = parseFloat(data);
-    }
-  } else {
+    data = Number(data);
+  } else if (
+    (data.substr(0, 1) === '{' && data.substr(-1) === '}') ||
+    (data.substr(0, 1) === '[' && data.substr(-1) === ']')
+  ) {
     // JSON
     try {
       data = JSON.parse(data);
@@ -99,14 +96,11 @@ export function parseObject(obj: {}) {
       obj[key] = false;
     } else if (!isNaN(obj[key])) {
       // number
-      // tslint:disable:ban radix
-      if (Number(obj[key]) % 1 === 0) {
-        obj[key] = parseInt(obj[key]);
-      }
-      if (Number(obj[key]) % 1 !== 0) {
-        obj[key] = parseFloat(obj[key]);
-      }
-    } else {
+      obj[key] = Number(obj[key]);
+    } else if (
+      (obj[key].substr(0, 1) === '{' && obj[key].substr(-1) === '}') ||
+      (obj[key].substr(0, 1) === '[' && obj[key].substr(-1) === ']')
+    ) {
       // JSON
       try {
         obj[key] = JSON.parse(obj[key]);
@@ -115,14 +109,14 @@ export function parseObject(obj: {}) {
       }
     }
   }
-  return obj as any;
+  return obj;
 }
 
 export function o2a<Obj, K extends keyof Obj, P extends Obj[K]>(
   object: Obj,
   keyName = '$key',
 ): Array<(P extends {[key: string]: any} ? P: {value: P}) & {$key: string}> {
-  const arr = [];
+  const data = [];
   for (const key of Object.keys(object || {})) {
     if (object[key] instanceof Object) {
       object[key][keyName] = key;
@@ -132,9 +126,9 @@ export function o2a<Obj, K extends keyof Obj, P extends Obj[K]>(
       object[key][keyName] = key;
       object[key]['value'] = value;
     }
-    arr.push(object[key]);
+    data.push(object[key]);
   }
-  return arr;
+  return data;
 }
 
 export function a2o<Obj>(
@@ -142,7 +136,7 @@ export function a2o<Obj>(
   keyName = '$key',
 ): {[key: string]: Obj} {
   const obj = {};
-  for (let i = 0, length = (array || []).length; i < length; i++) {
+  for (let i = 0, l = (array || []).length; i < l; i++) {
     const item = array[i];
     obj[
       item[keyName] ||
