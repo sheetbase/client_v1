@@ -1,5 +1,12 @@
-export interface DatabaseOptions {
+export interface DatabaseOptions extends DatabasePublicOptions {
     databaseEndpoint?: string;
+}
+
+export interface DatabasePublicOptions {
+    databasePublicId?: string;
+    databaseGids?: {
+        [sheetName: string]: string;
+    };
 }
 
 export type AdvancedFilter = (item: any) => boolean;
@@ -17,3 +24,7 @@ export interface Query {
     childExists?: any;
     childEqual?: string;
 }
+
+export type DocsContentStyles = 'clean' | 'minimal' | 'full';
+
+export type DataRefresher<Data> = () => Promise<Data>;
