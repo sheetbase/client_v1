@@ -27,9 +27,20 @@ export class DatabaseService {
   }
 
   async all<Item>(sheet: string, cacheTime = 0) {
-    return this.isDirect(sheet) ?
-      await this.direct().all<Item>(sheet, cacheTime) :
-      await this.server().all<Item>(sheet, cacheTime);
+    let items: Item[];
+    // first load from direct
+    if (this.isDirect(sheet)) {
+      try {
+        items = await this.direct().all<Item>(sheet, cacheTime);
+      } catch (error) {
+        //
+      }
+    }
+    // load from server
+    if (!items) {
+      items = await this.server().all<Item>(sheet, cacheTime);
+    }
+    return items;
   }
 
   async query<Item>(sheet: string, filter: Filter, offline = true, cacheTime = 0): Promise<Item[]> {
