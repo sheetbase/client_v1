@@ -27,7 +27,7 @@ export class DatabaseService {
   }
 
   async all<Item>(sheet: string, cacheTime = 0) {
-    let items: Item[];
+    let items: Item[] = [];
     // first load from direct
     if (this.isDirect(sheet)) {
       try {
