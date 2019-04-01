@@ -16,7 +16,7 @@ export class DatabaseDirectService {
 
   async all<Item>(sheet: string, cacheTime = 0) {
     return await getCacheAndRefresh<Item[]>(
-      'SHEETBASE_DATA_' + sheet,
+      'DATA_' + sheet,
       this.getCacheTime(cacheTime),
       async () => {
         const response = await fetch(this.csvUrl(sheet));
@@ -36,7 +36,7 @@ export class DatabaseDirectService {
     cacheTime = 0,
   ): Promise<{ content: string; }> {
     const content = await getCacheAndRefresh<string>(
-      'SHEETBASE_CONTENT_' + url.replace('/pub', '').split('/').pop(),
+      'CONTENT_' + url.replace('/pub', '').split('/').pop(),
       this.getCacheTime(cacheTime),
       async () => {
         const response = await fetch(url);
@@ -74,12 +74,53 @@ export class DatabaseDirectService {
       // remove attrs
       const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
       for (let i = 0, l = removeAttrs.length; i < l; i++) {
-        content = content.replace(
-          new RegExp('(\ ' + removeAttrs[i] + '\=\".*?\")', 'g'), '');
+        content = content.replace(new RegExp('(\ ' + removeAttrs[i] + '\=\".*?\")', 'g'), '');
       }
+    } else if (styles === 'minimal') { // minimal
+      // copy class to inline
+      const classGroups = {};
+      const classes = {};
+      // extract classes
+      const classStrs = content.match(/class\=\"(.*?)\"/g);
+      for (let i = 0, l = classStrs.length; i < l; i++) {
+        const classStr = classStrs[i].match(/class\=\"(.*?)\"/);
+        if (!!classStr) {
+          const classNamesStr = classStr.pop();
+          if (classNamesStr.indexOf(' ') > -1) {
+            classGroups[classNamesStr] = '';
+          }
+          const classNames = classNamesStr.split(' ');
+          for (let j = 0, lj = classNames.length; j < lj; j++) {
+            classes[classNames[j]] = '';
+          }
+        }
+      }
+      // get styles
+      for (const className of Object.keys(classes)) {
+        const styles = content.match(new RegExp('.' + className + '{(.*?)}')).pop(); // extract styles
+        classes[className] = styles.replace(/\"/g, '\'');
+      }
+      // group styles
+      for (const classGroup of Object.keys(classGroups)) {
+        let styles = '';
+        const classNames = classGroup.split(' ');
+        for (let i = 0, l = classNames.length; i < l; i++) {
+          const className = classNames[i];
+          styles += classes[className] + ';';
+        }
+        // save styles to group
+        classGroups[classGroup] = styles;
+      }
+      // replace
+      const allClasses = { ... classGroups, ... classes };
+      for(const key of Object.keys(allClasses)) {
+        const styles = allClasses[key];
+        content = content.replace(new RegExp('class="' + key + '"', 'g'), 'style="' + styles + '"');
+      }
+      // remove style tag
+      content = content.replace(/\<style(.*?)\<\/style\>/g, '');
     }
-    // minimal (default)
-    // full (not supported)
+    // full (default)
 
     // replace redirect links
     const links = content.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\"/g);

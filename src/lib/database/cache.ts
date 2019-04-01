@@ -1,20 +1,24 @@
 import { getItem, setItem } from 'localforage';
 
+function cachePrefix(key: string) {
+  return 'SHEETBASECACHE_' + key;
+}
+
 export async function setCache<Data>(
   key: string,
   data: Data,
   expiration?: number,
 ) {
   expiration = !!expiration ? expiration : 1; // default to 10 minutes
-  await setItem<number>(key + '_expiration', new Date().getTime() + (expiration * 60000));
-  return await setItem<Data>(key, data);
+  await setItem<number>(cachePrefix(key) + '_expiration', new Date().getTime() + (expiration * 60000));
+  return await setItem<Data>(cachePrefix(key), data);
 }
 
 export async function getCache<Data>(key: string, always = false) {
   let expired = true;
-  const cachedData = await getItem<Data>(key);
+  const cachedData = await getItem<Data>(cachePrefix(key));
   if (!!cachedData) {
-    const cacheExpiration = await getItem<number>(key + '_expiration');
+    const cacheExpiration = await getItem<number>(cachePrefix(key) + '_expiration');
     if (!cacheExpiration || cacheExpiration > new Date().getTime()) {
       expired = false;
     }
@@ -36,7 +40,7 @@ export async function getCacheAndRefresh<Data>(
     data = await refresher(); // always fresh
   } else {
     // get cached
-    const { data: cachedData, expired } = await getCache<Data>(key, true) as {
+    const { data: cachedData, expired } = await getCache<Data>(cachePrefix(key), true) as {
       data: Data; expired: boolean;
     };
     if (!expired) {
@@ -50,7 +54,7 @@ export async function getCacheAndRefresh<Data>(
         // error
       }
       if (!!data) {
-        await setCache(key, data, expiration);
+        await setCache(cachePrefix(key), data, expiration);
       } else {
         data = cachedData; // use expired value anyway
       }
