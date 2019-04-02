@@ -64,19 +64,31 @@ export class DatabaseDirectService {
     });
   }
 
-  private parseContent(content: string, styles: DocsContentStyles = 'minimal') {
-    content = content.match(/\<div id\=\"contents\"\>(.*)\<\/div\>\<div id\=\"footer\"\>/).pop();
+  private parseContent(content: string, styles: DocsContentStyles = 'clean') {
+    // between: <div id="contents"></div><div id="footer">
+    // => main content only
+    const contentsMatch = content.match(/\<div id\=\"contents\"\>(.*)\<\/div\>\<div id\=\"footer\"\>/);
+    if (!!contentsMatch) {
+      content = contentsMatch.pop();
+    } else {
+      // between: </head></html>
+      // => <body>...</body>
+      content = content.match(/\<\/head\>(.*)\<\/html\>/).pop();
+      content = content
+        .replace(/\<body(.*?)\>/, '') // replace: <body...>
+        .replace('</body>', ''); // replace </body>
+    }
 
     // clean style
     if (styles === 'clean') {
-      // remove style tag
-      content = content.replace(/\<style(.*?)\<\/style\>/g, '');
       // remove attrs
       const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
       for (let i = 0, l = removeAttrs.length; i < l; i++) {
         content = content.replace(new RegExp('(\ ' + removeAttrs[i] + '\=\".*?\")', 'g'), '');
       }
     } else if (styles === 'minimal') { // minimal
+      // TODO: ...
+    } else if (styles === 'full') { // full
       // copy class to inline
       const classGroups = {};
       const classes = {};
@@ -117,11 +129,12 @@ export class DatabaseDirectService {
         const styles = allClasses[key];
         content = content.replace(new RegExp('class="' + key + '"', 'g'), 'style="' + styles + '"');
       }
-      // remove style tag
-      content = content.replace(/\<style(.*?)\<\/style\>/g, '');
     }
-    // full (default)
 
+    // remove all script tag
+    content = content.replace(/\<script(.*?)\<\/script\>/g, '');
+    // remove all style tag
+    content = content.replace(/\<style(.*?)\<\/style\>/g, '');
     // replace redirect links
     const links = content.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\"/g);
     for (let i = 0, l = links.length; i < l; i++) {
