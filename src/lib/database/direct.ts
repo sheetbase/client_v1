@@ -39,7 +39,7 @@ export class DatabaseDirectService {
       'CONTENT_' + url.replace('/pub', '').split('/').pop(),
       this.getCacheTime(cacheTime),
       async () => {
-        const response = await fetch(url);
+        const response = await fetch(url + '?embedded=true');
         return await this.parseContent(await response.text(), styles);
       },
     );
@@ -64,86 +64,141 @@ export class DatabaseDirectService {
     });
   }
 
-  private parseContent(content: string, styles: DocsContentStyles = 'clean') {
-    // between: <div id="contents"></div><div id="footer">
-    // => main content only
-    const contentsMatch = content.match(/\<div id\=\"contents\"\>(.*)\<\/div\>\<div id\=\"footer\"\>/);
-    if (!!contentsMatch) {
-      content = contentsMatch.pop();
-    } else {
-      // between: </head></html>
-      // => <body>...</body>
-      content = content.match(/\<\/head\>(.*)\<\/html\>/).pop();
+  private getContentClassStyles(html: string) {
+    // copy class to inline
+    const classGroups = {};
+    const classes = {};
+    // extract classes
+    const classStrs = html.match(/class\=\"(.*?)\"/g);
+    for (let i = 0, l = classStrs.length; i < l; i++) {
+      const classStr = classStrs[i].match(/class\=\"(.*?)\"/);
+      if (!!classStr) {
+        const classNamesStr = classStr.pop();
+        // add to classGroups
+        if (classNamesStr.indexOf(' ') > -1) {
+          classGroups[classNamesStr] = '';
+        }
+        // add to classes
+        const classNames = classNamesStr.split(' ').filter(Boolean);
+        for (let j = 0, lj = classNames.length; j < lj; j++) {
+          classes[classNames[j]] = '';
+        }
+      }
+    }
+    // get class styles
+    for (const className of Object.keys(classes)) {
+      const stylesMatch = html.match(new RegExp('.' + className + '{(.*?)}'));
+      // extract styles
+      if (!!stylesMatch) {
+        classes[className] = stylesMatch.pop().replace(/\"/g, '\'') + ';';
+      }
+    }
+    // get group styles
+    for (const classGroup of Object.keys(classGroups)) {
+      let groupStyles = '';
+      const classNames = classGroup.split(' ').filter(Boolean);
+      for (let i = 0, l = classNames.length; i < l; i++) {
+        groupStyles = groupStyles + classNames[i];
+      }
+      // save styles to group
+      classGroups[classGroup] = groupStyles;
+    }
+    return { ... classGroups, ... classes };
+  }
+
+  private getContentClassStylesMinimal(html: string) {
+    const classStylesMinimal = {};
+    // extract kept props
+    const classStyles = this.getContentClassStyles(html);
+    const keptProps = [
+      'text-align',
+      'font-weight',
+      'font-style',
+      'font-size',
+      'text-decoration',
+      'color',
+      'background-color',
+    ];
+    for(const key of Object.keys(classStyles)) {
+      const styles = classStyles[key];
+      let stylesMinimal = '';
+      for (let i = 0; i < keptProps.length; i++) {
+        const propMatch = styles.match(new RegExp(keptProps[i] + ':' + '(.*?)' + ';'));
+        if (!!propMatch) {
+          stylesMinimal = stylesMinimal + propMatch.shift();
+        }
+      }
+      // saving
+      classStylesMinimal[key] = stylesMinimal;
+    }
+    return classStylesMinimal;
+  }
+
+  private parseContent(html: string, styles: DocsContentStyles = 'clean') {
+    let content = html; // original
+    if (styles !== 'original') {
+
+      // extract content, between: </head></html>
+      content = html.match(/\<\/head\>(.*)\<\/html\>/).pop();
+
+      // clean up
       content = content
         .replace(/\<body(.*?)\>/, '') // replace: <body...>
-        .replace('</body>', ''); // replace </body>
-    }
+        .replace('</body>', '') // replace </body>
+        .replace(/\<script(.*?)\<\/script\>/g, '') // remove all script tag
+        .replace(/\<style(.*?)\<\/style\>/g, ''); // remove all style tag
 
-    // clean style
-    if (styles === 'clean') {
-      // remove attrs
-      const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
-      for (let i = 0, l = removeAttrs.length; i < l; i++) {
-        content = content.replace(new RegExp('(\ ' + removeAttrs[i] + '\=\".*?\")', 'g'), '');
+      // replace redirect links
+      const links = content.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\"/g);
+      for (let i = 0, l = links.length; i < l; i++) {
+        const link = links[i];
+        const url = link.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\&amp\;/).pop();
+        content = content.replace(link, '"' + url + '"');
       }
-    } else if (styles === 'minimal') { // minimal
-      // TODO: ...
-    } else if (styles === 'full') { // full
-      // copy class to inline
-      const classGroups = {};
-      const classes = {};
-      // extract classes
-      const classStrs = content.match(/class\=\"(.*?)\"/g);
-      for (let i = 0, l = classStrs.length; i < l; i++) {
-        const classStr = classStrs[i].match(/class\=\"(.*?)\"/);
-        if (!!classStr) {
-          const classNamesStr = classStr.pop();
-          if (classNamesStr.indexOf(' ') > -1) {
-            classGroups[classNamesStr] = '';
-          }
-          const classNames = classNamesStr.split(' ');
-          for (let j = 0, lj = classNames.length; j < lj; j++) {
-            classes[classNames[j]] = '';
+
+      // styles
+      if (styles === 'full') {
+        // move class styles to inline
+        const classStyles = this.getContentClassStyles(html);
+        for(const key of Object.keys(classStyles)) {
+          content = content.replace(
+            new RegExp('class="' + key + '"', 'g'),
+            'style="' + classStyles[key] + '"',
+          );
+        }
+        // TODO: move tag styles to inline
+      } else {
+
+        // remove all attributes
+        const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
+        for (let i = 0, l = removeAttrs.length; i < l; i++) {
+          content = content.replace(
+            new RegExp('\ ' + removeAttrs[i] + '\=\"(.*?)\"', 'g'),
+            '',
+          );
+        }
+
+        // minimal
+        if (styles === 'minimal') {
+          const classStylesMinimal = this.getContentClassStylesMinimal(html);
+          for(const key of Object.keys(classStylesMinimal)) {
+            if (!!classStylesMinimal[key]) {
+              content = content.replace(
+                new RegExp('class="' + key + '"', 'g'),
+                'style="' + classStylesMinimal[key] + '"',
+              );
+            } else {
+              content = content.replace(
+                new RegExp(' class="' + key + '"', 'g'),
+                '',
+              );
+            }
           }
         }
-      }
-      // get styles
-      for (const className of Object.keys(classes)) {
-        const styles = content.match(new RegExp('.' + className + '{(.*?)}')).pop(); // extract styles
-        classes[className] = styles.replace(/\"/g, '\'');
-      }
-      // group styles
-      for (const classGroup of Object.keys(classGroups)) {
-        let styles = '';
-        const classNames = classGroup.split(' ');
-        for (let i = 0, l = classNames.length; i < l; i++) {
-          const className = classNames[i];
-          styles += classes[className] + ';';
-        }
-        // save styles to group
-        classGroups[classGroup] = styles;
-      }
-      // replace
-      const allClasses = { ... classGroups, ... classes };
-      for(const key of Object.keys(allClasses)) {
-        const styles = allClasses[key];
-        content = content.replace(new RegExp('class="' + key + '"', 'g'), 'style="' + styles + '"');
-      }
-    }
 
-    // remove all script tag
-    content = content.replace(/\<script(.*?)\<\/script\>/g, '');
-    // remove all style tag
-    content = content.replace(/\<style(.*?)\<\/style\>/g, '');
-    // replace redirect links
-    const links = content.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\"/g);
-    for (let i = 0, l = links.length; i < l; i++) {
-      const link = links[i];
-      const url = link.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\&amp\;/).pop();
-      content = content.replace(link, '"' + url + '"');
-    }
+      }
 
-    // final content
+    }
     return content;
   }
 

@@ -25,6 +25,6 @@ export interface Query {
     childEqual?: string;
 }
 
-export type DocsContentStyles = 'clean' | 'minimal' | 'full';
+export type DocsContentStyles = 'clean' | 'minimal' | 'full' | 'original';
 
 export type DataRefresher<Data> = () => Promise<Data>;
