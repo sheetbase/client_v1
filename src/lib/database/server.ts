@@ -29,7 +29,7 @@ export class DatabaseServerService {
 
     async content(
         docId: string,
-        styles: DocsContentStyles = 'minimal',
+        styles: DocsContentStyles = 'clean',
         cacheTime = 0,
     ): Promise<{ docId?: string; content: string; }> {
         return await this.Api.get('/content', { docId, styles }, cacheTime);

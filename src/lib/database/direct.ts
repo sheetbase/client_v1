@@ -16,7 +16,7 @@ export class DatabaseDirectService {
 
   async all<Item>(sheet: string, cacheTime = 0) {
     return await getCacheAndRefresh<Item[]>(
-      'DATA_' + sheet,
+      'data_' + sheet,
       this.getCacheTime(cacheTime),
       async () => {
         const response = await fetch(this.csvUrl(sheet));
@@ -32,11 +32,11 @@ export class DatabaseDirectService {
 
   async content(
     url: string,
-    styles: DocsContentStyles = 'minimal',
+    styles: DocsContentStyles = 'clean',
     cacheTime = 0,
   ): Promise<{ content: string; }> {
     const content = await getCacheAndRefresh<string>(
-      'CONTENT_' + url.replace('/pub', '').split('/').pop(),
+      'content_' + url.replace('/pub', '').split('/').pop(),
       this.getCacheTime(cacheTime),
       async () => {
         const response = await fetch(url + '?embedded=true');
@@ -98,40 +98,12 @@ export class DatabaseDirectService {
       let groupStyles = '';
       const classNames = classGroup.split(' ').filter(Boolean);
       for (let i = 0, l = classNames.length; i < l; i++) {
-        groupStyles = groupStyles + classNames[i];
+        groupStyles = groupStyles + classes[classNames[i]];
       }
       // save styles to group
       classGroups[classGroup] = groupStyles;
     }
     return { ... classGroups, ... classes };
-  }
-
-  private getContentClassStylesMinimal(html: string) {
-    const classStylesMinimal = {};
-    // extract kept props
-    const classStyles = this.getContentClassStyles(html);
-    const keptProps = [
-      'text-align',
-      'font-weight',
-      'font-style',
-      'font-size',
-      'text-decoration',
-      'color',
-      'background-color',
-    ];
-    for(const key of Object.keys(classStyles)) {
-      const styles = classStyles[key];
-      let stylesMinimal = '';
-      for (let i = 0; i < keptProps.length; i++) {
-        const propMatch = styles.match(new RegExp(keptProps[i] + ':' + '(.*?)' + ';'));
-        if (!!propMatch) {
-          stylesMinimal = stylesMinimal + propMatch.shift();
-        }
-      }
-      // saving
-      classStylesMinimal[key] = stylesMinimal;
-    }
-    return classStylesMinimal;
   }
 
   private parseContent(html: string, styles: DocsContentStyles = 'clean') {
@@ -157,7 +129,7 @@ export class DatabaseDirectService {
       }
 
       // styles
-      if (styles === 'full') {
+      if (styles === 'full') { // full
         // move class styles to inline
         const classStyles = this.getContentClassStyles(html);
         for(const key of Object.keys(classStyles)) {
@@ -167,7 +139,7 @@ export class DatabaseDirectService {
           );
         }
         // TODO: move tag styles to inline
-      } else {
+      } else { //clean
 
         // remove all attributes
         const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
@@ -176,24 +148,6 @@ export class DatabaseDirectService {
             new RegExp('\ ' + removeAttrs[i] + '\=\"(.*?)\"', 'g'),
             '',
           );
-        }
-
-        // minimal
-        if (styles === 'minimal') {
-          const classStylesMinimal = this.getContentClassStylesMinimal(html);
-          for(const key of Object.keys(classStylesMinimal)) {
-            if (!!classStylesMinimal[key]) {
-              content = content.replace(
-                new RegExp('class="' + key + '"', 'g'),
-                'style="' + classStylesMinimal[key] + '"',
-              );
-            } else {
-              content = content.replace(
-                new RegExp(' class="' + key + '"', 'g'),
-                '',
-              );
-            }
-          }
         }
 
       }

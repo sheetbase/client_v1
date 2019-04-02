@@ -1,7 +1,7 @@
 import { getItem, setItem } from 'localforage';
 
 function cachePrefix(key: string) {
-  return 'SHEETBASECACHE_' + key;
+  return 'sheetbasecache_' + key;
 }
 
 export async function setCache<Data>(

@@ -47,7 +47,7 @@
     "url": "https://github.com/sheetbase/client/issues"
   },
   "dependencies": {
-    "@sheetbase/models": "0.0.12",
+    "@sheetbase/models": "0.0.13",
     "localforage": "^1.7.3",
     "lscache": "^1.3.0",
     "papaparse": "4.4.0",

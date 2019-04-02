@@ -104,7 +104,7 @@ export class DatabaseService {
 
   async content(
     input: string, // id | doc url | published url
-    styles: DocsContentStyles = 'minimal',
+    styles: DocsContentStyles = 'clean',
     cacheTime = 0,
   ) {
     if ( // server
@@ -127,25 +127,30 @@ export class DatabaseService {
   async itemAndContent<Item>(
     sheet: string,
     finder: string | Filter,
-    styles: DocsContentStyles = 'minimal',
+    item?: Item, // loaded item where not sure there is content or not
+    styles: DocsContentStyles = 'clean',
     offline = true,
     cacheTime = 0,
   ) {
-    let item: any = await this.item(sheet, finder, offline, cacheTime);
+    // load item
+    if (!item) {
+      item = await this.item(sheet, finder, offline, cacheTime);
+    }
+    // load content
     if (
       !!item &&
-      !item.content &&
-      !!item.contentSource &&
+      !item['content'] &&
+      !!item['contentSource'] &&
       // must be: doc id | doc url | published url
       (
-        item.contentSource.indexOf('http') < 0 ||
-        item.contentSource.indexOf('https://docs.google.com/document/d/') > -1
+        item['contentSource'].indexOf('http') < 0 ||
+        item['contentSource'].indexOf('https://docs.google.com/document/d/') > -1
       )
     ) {
-      // get data
-      const data = await this.content(item.contentSource, styles, cacheTime);
+      // get content data
+      const contentData = await this.content(item['contentSource'], styles, cacheTime);
       // merge content to item
-      item = { ... item, ... data };
+      item = { ... item, ... contentData };
     }
     // return final item
     return item as Item;
