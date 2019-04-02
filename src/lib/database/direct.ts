@@ -70,18 +70,20 @@ export class DatabaseDirectService {
     const classes = {};
     // extract classes
     const classStrs = html.match(/class\=\"(.*?)\"/g);
-    for (let i = 0, l = classStrs.length; i < l; i++) {
-      const classStr = classStrs[i].match(/class\=\"(.*?)\"/);
-      if (!!classStr) {
-        const classNamesStr = classStr.pop();
-        // add to classGroups
-        if (classNamesStr.indexOf(' ') > -1) {
-          classGroups[classNamesStr] = '';
-        }
-        // add to classes
-        const classNames = classNamesStr.split(' ').filter(Boolean);
-        for (let j = 0, lj = classNames.length; j < lj; j++) {
-          classes[classNames[j]] = '';
+    if (!!classStrs) {
+      for (let i = 0, l = classStrs.length; i < l; i++) {
+        const classStr = classStrs[i].match(/class\=\"(.*?)\"/);
+        if (!!classStr) {
+          const classNamesStr = classStr.pop();
+          // add to classGroups
+          if (classNamesStr.indexOf(' ') > -1) {
+            classGroups[classNamesStr] = '';
+          }
+          // add to classes
+          const classNames = classNamesStr.split(' ').filter(Boolean);
+          for (let j = 0, lj = classNames.length; j < lj; j++) {
+            classes[classNames[j]] = '';
+          }
         }
       }
     }
@@ -122,10 +124,15 @@ export class DatabaseDirectService {
 
       // replace redirect links
       const links = content.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\"/g);
-      for (let i = 0, l = links.length; i < l; i++) {
-        const link = links[i];
-        const url = link.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\&amp\;/).pop();
-        content = content.replace(link, '"' + url + '"');
+      if (!!links) {
+        for (let i = 0, l = links.length; i < l; i++) {
+          const link = links[i];
+          const urlMatch = link.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\&amp\;/);
+          if (!!urlMatch) {
+            const url = urlMatch.pop();
+            content = content.replace(link, '"' + url + '"');
+          }
+        }
       }
 
       // styles

@@ -9,16 +9,18 @@ export async function setCache<Data>(
   data: Data,
   expiration?: number,
 ) {
+  key = cachePrefix(key); // add prefix
   expiration = !!expiration ? expiration : 1; // default to 10 minutes
-  await setItem<number>(cachePrefix(key) + '_expiration', new Date().getTime() + (expiration * 60000));
-  return await setItem<Data>(cachePrefix(key), data);
+  await setItem<number>(key + '_expiration', new Date().getTime() + (expiration * 60000));
+  return await setItem<Data>(key, data);
 }
 
 export async function getCache<Data>(key: string, always = false) {
+  key = cachePrefix(key); // add prefix
   let expired = true;
-  const cachedData = await getItem<Data>(cachePrefix(key));
+  const cachedData = await getItem<Data>(key);
   if (!!cachedData) {
-    const cacheExpiration = await getItem<number>(cachePrefix(key) + '_expiration');
+    const cacheExpiration = await getItem<number>(key + '_expiration');
     if (!cacheExpiration || cacheExpiration > new Date().getTime()) {
       expired = false;
     }
@@ -40,7 +42,7 @@ export async function getCacheAndRefresh<Data>(
     data = await refresher(); // always fresh
   } else {
     // get cached
-    const { data: cachedData, expired } = await getCache<Data>(cachePrefix(key), true) as {
+    const { data: cachedData, expired } = await getCache<Data>(key, true) as {
       data: Data; expired: boolean;
     };
     if (!expired) {
@@ -54,7 +56,7 @@ export async function getCacheAndRefresh<Data>(
         // error
       }
       if (!!data) {
-        await setCache(cachePrefix(key), data, expiration);
+        await setCache(key, data, expiration);
       } else {
         data = cachedData; // use expired value anyway
       }
