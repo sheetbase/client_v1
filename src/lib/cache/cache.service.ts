@@ -1,19 +1,21 @@
-import { createInstance } from 'localforage';
-
 import { AppService } from '../app/app.service';
+import { LocalstorageService } from '../localstorage/localstorage.service';
 
 import { CacheRefresher } from './types';
 
 export class CacheService {
 
+  private Localstorage: LocalstorageService;
+
   app: AppService;
-  storage: LocalForage;
 
   constructor(app: AppService, storageConfigs?: LocalForageOptions) {
     this.app = app;
-    this.storage = createInstance(!!storageConfigs ? storageConfigs : {
-      name: 'sheetbasecache',
-    });
+    // localstorage
+    this.Localstorage = this.app.localstorage()
+      .instance(!!storageConfigs ? storageConfigs : {
+        name: 'SHEETBASE_CACHE',
+      });
   }
 
   instance(storageConfigs: LocalForageOptions) {
@@ -33,15 +35,15 @@ export class CacheService {
 
   async set<Data>(key: string, data: Data, expiration?: number) {
     expiration = !!expiration ? expiration : 1; // default to 10 minutes
-    await this.storage.setItem<number>(key + '_expiration', new Date().getTime() + (expiration * 60000));
-    return await this.storage.setItem<Data>(key, data);
+    await this.Localstorage.set<number>(key + '_expiration', new Date().getTime() + (expiration * 60000));
+    return await this.Localstorage.set<Data>(key, data);
   }
 
   async get<Data>(key: string, always = false) {
     let expired = true;
-    const cachedData = await this.storage.getItem<Data>(key);
+    const cachedData = await this.Localstorage.get<Data>(key);
     if (!!cachedData) {
-      const cacheExpiration = await this.storage.getItem<number>(key + '_expiration');
+      const cacheExpiration = await this.Localstorage.get<number>(key + '_expiration');
       if (!cacheExpiration || cacheExpiration > new Date().getTime()) {
         expired = false;
       }
@@ -84,25 +86,25 @@ export class CacheService {
   }
 
   async remove(key: string) {
-    await this.storage.removeItem(key + '_expiration');
-    return await this.storage.removeItem(key);
+    await this.Localstorage.remove(key + '_expiration');
+    return await this.Localstorage.remove(key);
   }
 
   async flush() {
-    return await this.storage.clear();
+    return await this.Localstorage.clear();
   }
 
   async flushExpired() {
-    const keys = await this.storage.keys();
+    const keys = await this.Localstorage.keys();
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       if (key.indexOf('_expiration') > -1) {
         // retrieve expiration
-        const cacheExpiration = await this.storage.getItem(key);
+        const cacheExpiration = await this.Localstorage.get(key);
         // remove if expired
         if (!!cacheExpiration && cacheExpiration <= new Date().getTime()) {
-          await this.storage.removeItem(key); // expiration
-          await this.storage.removeItem(key.replace('_expiration', '')); // value
+          await this.Localstorage.remove(key); // expiration
+          await this.Localstorage.remove(key.replace('_expiration', '')); // value
         }
       }
     }

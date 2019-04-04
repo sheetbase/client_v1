@@ -31,7 +31,9 @@ const version = require('../../package.json').version;
     removeSync('database');
     removeSync('storage');
     removeSync('mail');
+    removeSync('localstorage');
     removeSync('cache');
+    removeSync('fetch');
 
     console.log('+ Build: sheetbase');
     execSync(tsc('sheetbase.json'));
@@ -77,11 +79,25 @@ const version = require('../../package.json').version;
     execSync(minify('dist/sheetbase-mail.js'));
     packageJson('mail');
 
+    console.log('+ Build: localstorage');
+    execSync(rollup('sheetbase-localstorage.js'));
+    execSync(rollup('sheetbase-localstorage.es5.js'));
+    execSync(rollup('sheetbase-localstorage.es2015.js'));
+    execSync(minify('dist/sheetbase-localstorage.js'));
+    packageJson('localstorage');
+
     console.log('+ Build: cache');
     execSync(rollup('sheetbase-cache.js'));
     execSync(rollup('sheetbase-cache.es5.js'));
     execSync(rollup('sheetbase-cache.es2015.js'));
     execSync(minify('dist/sheetbase-cache.js'));
     packageJson('cache');
+
+    console.log('+ Build: fetch');
+    execSync(rollup('sheetbase-fetch.js'));
+    execSync(rollup('sheetbase-fetch.es5.js'));
+    execSync(rollup('sheetbase-fetch.es2015.js'));
+    execSync(minify('dist/sheetbase-fetch.js'));
+    packageJson('fetch');
 
 })();

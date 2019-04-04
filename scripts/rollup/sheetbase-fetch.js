@@ -1,13 +1,13 @@
 import config from './sheetbase';
 
 export default {
-    input: './dist/esm5/lib/cache/cache.js',
+    input: './dist/esm5/lib/fetch/fetch.js',
     output: [
         {
-            file: './dist/sheetbase-cache.js',
+            file: './dist/sheetbase-fetch.js',
             format: 'umd',
             sourcemap: true,
-            name: 'sheetbase.cache',
+            name: 'sheetbase.fetch',
             exports: 'default',
         }
     ],

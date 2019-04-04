@@ -31,7 +31,7 @@ export class ApiService {
         this.setData(instanceData);
 
         // cache service
-        this.Cache = new CacheService(this.app);
+        this.Cache = this.app.cache();
     }
 
     extend() {

@@ -9,7 +9,9 @@ node_modules/
 /database/
 /storage/
 /mail/
+/localstorage/
 /cache/
+/fetch/
 
 # test
 .nyc_output/

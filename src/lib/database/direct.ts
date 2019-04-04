@@ -9,11 +9,13 @@ import { DocsContentStyles } from './types';
 export class DatabaseDirectService {
 
   private Cache: CacheService;
+
   private app: AppService;
 
   constructor(app: AppService) {
     this.app = app;
-    this.Cache = new CacheService(app);
+    // cache
+    this.Cache = this.app.cache();
   }
 
   async all<Item>(sheet: string, cacheTime = 0) {

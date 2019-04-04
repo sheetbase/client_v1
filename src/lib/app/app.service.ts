@@ -4,7 +4,9 @@ import { AuthService } from '../auth/auth.service';
 import { DatabaseService } from '../database/database.service';
 import { StorageService } from '../storage/storage.service';
 import { MailService } from '../mail/mail.service';
+import { LocalstorageService } from '../localstorage/localstorage.service';
 import { CacheService } from '../cache/cache.service';
+import { FetchService } from '../fetch/fetch.service';
 
 class AppService {
 
@@ -15,7 +17,9 @@ class AppService {
     Database: DatabaseService;
     Storage: StorageService;
     Mail: MailService;
+    Localstorage: LocalstorageService;
     Cache: CacheService;
+    Fetch: FetchService;
 
     constructor(options: AppOptions) {
         this.options = options;
@@ -50,9 +54,19 @@ class AppService {
         return this.Mail;
     }
 
+    localstorage() {
+        if (!this.Localstorage) { throw new Error('No localstorage component.'); }
+        return this.Localstorage;
+    }
+
     cache() {
         if (!this.Cache) { throw new Error('No cache component.'); }
         return this.Cache;
+    }
+
+    fetch() {
+        if (!this.Fetch) { throw new Error('No fetch component.'); }
+        return this.Fetch;
     }
 
 }
