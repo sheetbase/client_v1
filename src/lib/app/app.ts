@@ -17,6 +17,9 @@ function app(name: string) {
 
 export { AppService as App, initializeApp, defaultApp, app };
 export * from '../api/index';
+export * from '../fetch/index';
+export * from '../localstorage/index';
+export * from '../cache/index';
 
 window['$$$SHEETBASE_APPS'] = SHEETBASE_APPS;
 window['$$$SHEETBASE_COMPONENTS'] = {};
