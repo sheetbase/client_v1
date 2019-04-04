@@ -20,6 +20,17 @@ export class CacheService {
     return new CacheService(this.app, storageConfigs);
   }
 
+  cacheTime(cacheTime: number) {
+    // app cache time policy
+    // cacheTime = -1 -> disable cache (0)
+    // globalCacheTime = 0 and cacheTime = 0 -> disable cache (0)
+    // globalCacheTime = 0 and cacheTime # 0 -> cacheTime
+    // globalCacheTime # 0 and cacheTime = 0 -> globalCacheTime
+    // globalCacheTime # 0 and cacheTime # 0 -> cacheTime
+    const { cacheTime: globalCacheTime } = this.app.options;
+    return (cacheTime === -1) ? 0 : Math.abs(cacheTime || globalCacheTime || 0);
+  }
+
   async set<Data>(key: string, data: Data, expiration?: number) {
     expiration = !!expiration ? expiration : 1; // default to 10 minutes
     await this.storage.setItem<number>(key + '_expiration', new Date().getTime() + (expiration * 60000));

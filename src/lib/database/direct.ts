@@ -19,7 +19,7 @@ export class DatabaseDirectService {
   async all<Item>(sheet: string, cacheTime = 0) {
     return await this.Cache.getRefresh<Item[]>(
       'data_' + sheet,
-      this.getCacheTime(cacheTime),
+      this.Cache.cacheTime(cacheTime),
       async () => {
         const response = await fetch(this.csvUrl(sheet));
         const items = await this.parseCSV<Item>(await response.text());
@@ -39,7 +39,7 @@ export class DatabaseDirectService {
   ): Promise<{ content: string; }> {
     const content = await this.Cache.getRefresh<string>(
       'content_' + url.replace('/pub', '').split('/').pop(),
-      this.getCacheTime(cacheTime),
+      this.Cache.cacheTime(cacheTime),
       async () => {
         const response = await fetch(url + '?embedded=true');
         return await this.parseContent(await response.text(), styles);
@@ -165,8 +165,4 @@ export class DatabaseDirectService {
     return content;
   }
 
-  private getCacheTime(cacheTime: number) {
-    const { cacheTime: globalCacheTime } = this.app.options;
-    return (cacheTime === -1) ? 0 : Math.abs(cacheTime || globalCacheTime || 0);
-  }
 }

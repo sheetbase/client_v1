@@ -1,8 +1,8 @@
 import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
-import { get as cacheGet, set as cacheSet } from 'lscache';
 import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
+import { CacheService } from '../cache/cache.service';
 import { ApiError } from '../utils';
 
 import { BeforeRequestHook, ApiInstanceData, ActionData } from './types';
@@ -13,6 +13,8 @@ export class ApiService {
     private predefinedQuery: {};
     private predefinedBody: {};
     private beforeRequestHooks: BeforeRequestHook[];
+
+    private Cache: CacheService;
 
     app: AppService;
 
@@ -27,6 +29,9 @@ export class ApiService {
         this.beforeRequestHooks = [];
         // set custom data
         this.setData(instanceData);
+
+        // cache service
+        this.Cache = new CacheService(this.app);
     }
 
     extend() {
@@ -126,29 +131,6 @@ export class ApiService {
         return result.data;
     }
 
-    private async cache(cacheKey: string, cacheTime: number, refresher: {(): Promise<any>}) {
-        const { cacheTime: globalCacheTime = 0 } = this.app.options;
-        // cache time policy
-        // cacheTime = -1 -> disable cache (0)
-        // globalCacheTime = 0 and cacheTime = 0 -> disable cache (0)
-        // globalCacheTime = 0 and cacheTime # 0 -> cacheTime
-        // globalCacheTime # 0 and cacheTime = 0 -> globalCacheTime
-        // globalCacheTime # 0 and cacheTime # 0 -> cacheTime
-        cacheTime = (cacheTime === -1) ? 0 : Math.abs(cacheTime || globalCacheTime || 0);
-        if (cacheTime !== 0) {
-            const cachedData = cacheGet(cacheKey);
-            if (!!cachedData) {
-                return cachedData;
-            } else {
-                const freshData = await refresher(); // get data
-                cacheSet(cacheKey, freshData, cacheTime); // save cache data
-                return freshData;
-            }
-        } else {
-            return await refresher();
-        }
-    }
-
     async request(inputs: {
         method?: string,
         endpoint?: string,
@@ -182,8 +164,10 @@ export class ApiService {
             this.buildEndpoint(endpoint),
             this.buildQuery(query),
         );
-        return await this.cache(md5(originalUrl), cacheTime, async () =>
-            await this.fetch(url, { method: 'GET' }),
+        return await this.Cache.getRefresh(
+            md5(originalUrl),
+            cacheTime,
+            async () => await this.fetch(url, { method: 'GET' }),
         );
     }
 
