@@ -2,19 +2,21 @@ import { createInstance } from 'localforage';
 
 import { AppService } from '../app/app.service';
 
+import { LocalstorageConfigs } from './types';
+
 export class LocalstorageService {
 
   app: AppService;
   localforage: LocalForage;
 
-  constructor(app: AppService, storageConfigs?: LocalForageOptions) {
+  constructor(app: AppService, storageConfigs?: LocalstorageConfigs) {
     this.app = app;
     this.localforage = createInstance(!!storageConfigs ? storageConfigs : {
-      name: 'SHEETBASE_CACHE',
+      name: 'SHEETBASE_STORAGE',
     });
   }
 
-  instance(storageConfigs: LocalForageOptions) {
+  instance(storageConfigs: LocalstorageConfigs) {
     return new LocalstorageService(this.app, storageConfigs);
   }
 

@@ -13,20 +13,20 @@ class AppService {
     options: AppOptions;
 
     Api: ApiService;
+    Fetch: FetchService;
+    Localstorage: LocalstorageService;
+    Cache: CacheService;
     Auth: AuthService;
     Database: DatabaseService;
     Storage: StorageService;
     Mail: MailService;
-    Fetch: FetchService;
-    Localstorage: LocalstorageService;
-    Cache: CacheService;
 
     constructor(options: AppOptions) {
         this.options = options;
-        this.Api = new ApiService(this);
-        this.Fetch = new FetchService(this);
         this.Localstorage = new LocalstorageService(this);
         this.Cache = new CacheService(this);
+        this.Api = new ApiService(this);
+        this.Fetch = new FetchService(this);
         // initiate other components when available
         for (const key of Object.keys(window['$$$SHEETBASE_COMPONENTS'])) {
             this[key] = new window['$$$SHEETBASE_COMPONENTS'][key](this);

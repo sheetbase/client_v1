@@ -1,5 +1,6 @@
 import { AppService } from '../app/app.service';
 import { LocalstorageService } from '../localstorage/localstorage.service';
+import { LocalstorageConfigs } from '../localstorage/types';
 
 import { CacheRefresher } from './types';
 
@@ -9,7 +10,7 @@ export class CacheService {
 
   app: AppService;
 
-  constructor(app: AppService, storageConfigs?: LocalForageOptions) {
+  constructor(app: AppService, storageConfigs?: LocalstorageConfigs) {
     this.app = app;
     // localstorage
     this.Localstorage = this.app.Localstorage
@@ -18,7 +19,7 @@ export class CacheService {
       });
   }
 
-  instance(storageConfigs: LocalForageOptions) {
+  instance(storageConfigs: LocalstorageConfigs) {
     return new CacheService(this.app, storageConfigs);
   }
 

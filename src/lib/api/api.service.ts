@@ -165,8 +165,8 @@ export class ApiService {
             this.buildQuery(query),
         );
         return await this.Cache.getRefresh(
-            md5(originalUrl),
-            cacheTime,
+            'api_' + md5(originalUrl),
+            this.Cache.cacheTime(cacheTime),
             async () => await this.fetch(url, { method: 'GET' }),
         );
     }
