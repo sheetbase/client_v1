@@ -19,10 +19,7 @@
     "auth",
     "database",
     "storage",
-    "mail",
-    "localstorage",
-    "cache",
-    "fetch"
+    "mail"
   ],
   "scripts": {
     "docs": "typedoc src --out \"docs/api\" --mode file --readme none --excludeExternals --excludeNotExported --ignoreCompilerErrors",

@@ -14,7 +14,7 @@ export class FetchService {
   constructor(app: AppService) {
     this.app = app;
     // cache
-    this.Cache = this.app.cache();
+    this.Cache = this.app.Cache;
   }
 
   async fetch<Data>(input: RequestInfo, init?: RequestInit, meta: FetchMeta = {}) {

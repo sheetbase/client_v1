@@ -12,7 +12,7 @@ export class CacheService {
   constructor(app: AppService, storageConfigs?: LocalForageOptions) {
     this.app = app;
     // localstorage
-    this.Localstorage = this.app.localstorage()
+    this.Localstorage = this.app.Localstorage
       .instance(!!storageConfigs ? storageConfigs : {
         name: 'SHEETBASE_CACHE',
       });

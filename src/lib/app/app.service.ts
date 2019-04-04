@@ -17,13 +17,16 @@ class AppService {
     Database: DatabaseService;
     Storage: StorageService;
     Mail: MailService;
+    Fetch: FetchService;
     Localstorage: LocalstorageService;
     Cache: CacheService;
-    Fetch: FetchService;
 
     constructor(options: AppOptions) {
         this.options = options;
         this.Api = new ApiService(this);
+        this.Fetch = new FetchService(this);
+        this.Localstorage = new LocalstorageService(this);
+        this.Cache = new CacheService(this);
         // initiate other components when available
         for (const key of Object.keys(window['$$$SHEETBASE_COMPONENTS'])) {
             this[key] = new window['$$$SHEETBASE_COMPONENTS'][key](this);
@@ -32,6 +35,18 @@ class AppService {
 
     api() {
         return this.Api;
+    }
+
+    fetch() {
+        return this.Fetch;
+    }
+
+    localstorage() {
+        return this.Localstorage;
+    }
+
+    cache() {
+        return this.Cache;
     }
 
     auth() {
@@ -52,21 +67,6 @@ class AppService {
     mail() {
         if (!this.Mail) { throw new Error('No mail component.'); }
         return this.Mail;
-    }
-
-    localstorage() {
-        if (!this.Localstorage) { throw new Error('No localstorage component.'); }
-        return this.Localstorage;
-    }
-
-    cache() {
-        if (!this.Cache) { throw new Error('No cache component.'); }
-        return this.Cache;
-    }
-
-    fetch() {
-        if (!this.Fetch) { throw new Error('No fetch component.'); }
-        return this.Fetch;
     }
 
 }

@@ -18,5 +18,3 @@ function cache(app?: AppService) {
 }
 
 export default cache;
-
-window['$$$SHEETBASE_COMPONENTS'].Cache = CacheService;

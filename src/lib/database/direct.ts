@@ -15,7 +15,7 @@ export class DatabaseDirectService {
   constructor(app: AppService) {
     this.app = app;
     // cache
-    this.Cache = this.app.cache();
+    this.Cache = this.app.Cache;
   }
 
   async all<Item>(sheet: string, cacheTime = 0) {

@@ -11,9 +11,6 @@
         "database": true,
         "storage": true,
         "mail": true,
-        "localstorage": true,
-        "cache": true,
-        "fetch": true,
 
         "**/.nyc_output": true,
         "**/coverage": true

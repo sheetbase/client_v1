@@ -18,5 +18,3 @@ function localstorage(app?: AppService) {
 }
 
 export default localstorage;
-
-window['$$$SHEETBASE_COMPONENTS'].Localstorage = LocalstorageService;

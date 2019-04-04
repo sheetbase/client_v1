@@ -36,7 +36,7 @@ export class AuthService {
             .extend()
             .setEndpoint(this.app.options.authEndpoint || 'auth');
         // local storage
-        this.Localstorage = this.app.localstorage();
+        this.Localstorage = this.app.Localstorage;
         // initial change state (signin locally)
         setTimeout(() => this.signInWithLocalUser(), 1000);
     }

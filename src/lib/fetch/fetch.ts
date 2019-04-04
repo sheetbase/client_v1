@@ -18,5 +18,3 @@ function fetch(app?: AppService) {
 }
 
 export default fetch;
-
-window['$$$SHEETBASE_COMPONENTS'].Fetch = FetchService;
