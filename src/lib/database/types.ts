@@ -26,5 +26,3 @@ export interface Query {
 }
 
 export type DocsContentStyles = 'clean' | 'full' | 'original';
-
-export type DataRefresher<Data> = () => Promise<Data>;

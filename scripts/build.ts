@@ -31,6 +31,7 @@ const version = require('../../package.json').version;
     removeSync('database');
     removeSync('storage');
     removeSync('mail');
+    removeSync('cache');
 
     console.log('+ Build: sheetbase');
     execSync(tsc('sheetbase.json'));
@@ -75,5 +76,12 @@ const version = require('../../package.json').version;
     execSync(rollup('sheetbase-mail.es2015.js'));
     execSync(minify('dist/sheetbase-mail.js'));
     packageJson('mail');
+
+    console.log('+ Build: cache');
+    execSync(rollup('sheetbase-cache.js'));
+    execSync(rollup('sheetbase-cache.es5.js'));
+    execSync(rollup('sheetbase-cache.es2015.js'));
+    execSync(minify('dist/sheetbase-cache.js'));
+    packageJson('cache');
 
 })();

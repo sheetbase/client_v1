@@ -4,6 +4,7 @@ import { AuthService } from '../auth/auth.service';
 import { DatabaseService } from '../database/database.service';
 import { StorageService } from '../storage/storage.service';
 import { MailService } from '../mail/mail.service';
+import { CacheService } from '../cache/cache.service';
 
 class AppService {
 
@@ -14,6 +15,7 @@ class AppService {
     Database: DatabaseService;
     Storage: StorageService;
     Mail: MailService;
+    Cache: CacheService;
 
     constructor(options: AppOptions) {
         this.options = options;
@@ -46,6 +48,11 @@ class AppService {
     mail() {
         if (!this.Mail) { throw new Error('No mail component.'); }
         return this.Mail;
+    }
+
+    cache() {
+        if (!this.Cache) { throw new Error('No cache component.'); }
+        return this.Cache;
     }
 
 }
