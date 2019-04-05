@@ -20,11 +20,16 @@ export class DatabaseDirectService {
 
   async all<Item>(sheet: string, cacheTime = 0) {
     return await this.Cache.getRefresh<Item[]>(
-      'data_' + sheet,
+      'database_' + sheet,
       cacheTime,
       async () => {
-        const response = await fetch(this.csvUrl(sheet));
-        const items = await this.parseCSV<Item>(await response.text());
+        // fetch csv file
+        const csvText: string = await this.app.Fetch.get(
+          this.csvUrl(sheet), {}, { json: false },
+        );
+        // parse
+        const items = await this.parseCSV<Item>(csvText);
+        // process items
         for (let i = 0, l = items.length; i < l; i++) {
           items[i]['_row'] = i + 2;
           parseObject(items[i]);
@@ -47,8 +52,12 @@ export class DatabaseDirectService {
       'content_' + publishedId + '_' + styles,
       cacheTime,
       async () => {
-        const response = await fetch(url + '?embedded=true');
-        return await this.parseContent(await response.text(), styles);
+        // fetch html content
+        const html: string = await this.app.Fetch.get(
+          url + '?embedded=true', {}, { json: false },
+        );
+        // parse
+        return await this.parseContent(html, styles);
       },
     );
     return { content };

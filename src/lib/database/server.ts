@@ -24,7 +24,7 @@ export class DatabaseServerService {
 
     async all<Item>(sheet: string, cacheTime = 0): Promise<Item[]> {
         return await this.Cache.getRefresh(
-            'data_' + sheet,
+            'database_' + sheet,
             cacheTime,
             async () => await this.Api.get('/', { sheet }),
         );
@@ -32,7 +32,7 @@ export class DatabaseServerService {
 
     async query<Item>(sheet: string, query: Query, cacheTime = 0): Promise<Item[]> {
         return await this.Cache.getRefresh(
-            'data_' + sheet + '_query_' + md5(JSON.stringify(query)),
+            'database_' + sheet + '_query_' + md5(JSON.stringify(query)),
             cacheTime,
             async () => await this.Api.get('/', { ... query, sheet }),
         );
@@ -40,7 +40,7 @@ export class DatabaseServerService {
 
     async item<Item>(sheet: string, key: string, cacheTime = 0): Promise<Item> {
         return await this.Cache.getRefresh(
-            'data_' + sheet + '_' + key,
+            'database_' + sheet + '_' + key,
             cacheTime,
             async () => await this.Api.get('/', { sheet, key }),
         );

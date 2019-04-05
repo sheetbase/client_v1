@@ -168,7 +168,7 @@ export class DatabaseService {
     }
     // clear data
     for (let i = 0; i < input.length; i++) {
-      await this.app.Cache.removeByPrefix('data_' + input[i]);
+      await this.app.Cache.removeByPrefix('database_' + input[i]);
     }
   }
 
