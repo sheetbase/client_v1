@@ -181,8 +181,8 @@ export class DatabaseService {
   }
 
   private isDirect(sheet: string) {
-    const { databasePublicId, databaseGids } = this.app.options;
-    return !!databasePublicId && !!databaseGids && !!databaseGids[sheet];
+    const { databaseId, databaseGids } = this.app.options;
+    return !!databaseId && !!databaseGids && !!databaseGids[sheet];
   }
 
 }

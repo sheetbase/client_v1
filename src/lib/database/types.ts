@@ -3,7 +3,7 @@ export interface DatabaseOptions extends DatabasePublicOptions {
 }
 
 export interface DatabasePublicOptions {
-    databasePublicId?: string;
+    databaseId?: string;
     databaseGids?: {
         [sheetName: string]: string;
     };

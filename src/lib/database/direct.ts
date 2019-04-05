@@ -51,9 +51,9 @@ export class DatabaseDirectService {
   }
 
   private csvUrl(sheet: string) {
-    const { databasePublicId, databaseGids } = this.app.options;
-    return `https://docs.google.com/spreadsheets/d/e/`
-      + databasePublicId +
+    const { databaseId, databaseGids } = this.app.options;
+    return `https://docs.google.com/spreadsheets/d/`
+      + databaseId +
       `/pub?gid=`
       + databaseGids[sheet] +
       `&single=true&output=csv`;

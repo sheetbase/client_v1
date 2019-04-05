@@ -1,6 +1,6 @@
 {
   "name": "@sheetbase/client",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "JS client for Sheetbase app.",
   "author": "Sheetbase",
   "homepage": "https://sheetbase.net",
