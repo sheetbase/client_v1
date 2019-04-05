@@ -180,6 +180,20 @@ export class DatabaseService {
     return await this.server().increase(sheet, key, increasing);
   }
 
+  async clearCacheAll(input: string | string[]) {
+    if (typeof input === 'string') {
+      input = [input];
+    }
+    for (let i = 0; i < input.length; i++) {
+      const sheet = input[i];
+      //
+    }
+  }
+
+  async clearCacheItem<Item>(sheet: string, item: Item) {
+    //
+  }
+
   private isDirect(sheet: string) {
     const { databaseId, databaseGids } = this.app.options;
     return !!databaseId && !!databaseGids && !!databaseGids[sheet];

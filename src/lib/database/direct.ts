@@ -10,7 +10,7 @@ export class DatabaseDirectService {
 
   private Cache: CacheService;
 
-  private app: AppService;
+  app: AppService;
 
   constructor(app: AppService) {
     this.app = app;
@@ -40,7 +40,7 @@ export class DatabaseDirectService {
     cacheTime = 0,
   ): Promise<{ content: string; }> {
     const content = await this.Cache.getRefresh<string>(
-      'content_' + url.replace('/pub', '').split('/').pop(),
+      'content_' + url.replace('/pub', '').split('/').pop() + '_' + styles,
       this.Cache.cacheTime(cacheTime),
       async () => {
         const response = await fetch(url + '?embedded=true');
