@@ -107,7 +107,7 @@ export class DatabaseService {
     styles: DocsContentStyles = 'clean',
     cacheTime = 0,
   ) {
-    if (this.isDocsContentSourceForServer(contentSource)) { // server
+    if (this.isDocsContentSourceNotDirectly(contentSource)) { // server
       return await this.server().content(contentSource, styles, cacheTime);
     } else { // direct
       return await this.direct().content(contentSource, styles, cacheTime);
@@ -127,7 +127,12 @@ export class DatabaseService {
       item = await this.item(sheet, finder, local, cacheTime);
     }
     // load content
-    if (this.isContentSourceFromDocs(item)) {
+    if (
+      !!item &&
+      !item['content'] &&
+      !!item['contentSource'] &&
+      this.isContentSourceFromDocs(item['contentSource'])
+    ) {
       // get content data
       const contentData = await this.content(item['contentSource'], styles, cacheTime);
       // merge content to item
@@ -176,16 +181,17 @@ export class DatabaseService {
     // clear all associated data
     await this.clearAll(sheet);
     // clear content
-    if (this.isContentSourceFromDocs(item)) {
-      let id = item['contentSource'];
-      if (this.isDocsContentSourceForServer(id)) {
-        id = id.replace('https://docs.google.com/document/d/', '').split('/').shift();
+    const input = item['contentSource'];
+    if (this.isContentSourceFromDocs(input)) {
+      let id = '';
+      if (this.isDocsContentSourceNotDirectly(input)) {
+        id = input.replace('https://docs.google.com/document/d/', '').split('/').shift();
       } else {
-        id = id.replace('/pub', '').split('/').pop();
+        id = input.replace('/pub', '').split('/').pop();
       }
-      await this.app.Cache.remove('content_' + id + 'clean');
-      await this.app.Cache.remove('content_' + id + 'full');
-      await this.app.Cache.remove('content_' + id + 'original');
+      await this.app.Cache.removeByPrefix('content_' + id + '_clean');
+      await this.app.Cache.removeByPrefix('content_' + id + '_full');
+      await this.app.Cache.removeByPrefix('content_' + id + '_original');
     }
   }
 
@@ -194,22 +200,17 @@ export class DatabaseService {
     return !!databaseId && !!databaseGids && !!databaseGids[sheet];
   }
 
-  private isContentSourceFromDocs<Item>(item: Item) {
+  private isContentSourceFromDocs(input: string) {
+    // must be: not custom | doc url | published url
     return (
-      !!item &&
-      !item['content'] &&
-      !!item['contentSource'] &&
-      // must be: not custom | doc url | published url
-      (
-        // not intended custom source
-        item['contentSource'].indexOf('from:') < 0 &&
-        // doc url | published url
-        item['contentSource'].indexOf('https://docs.google.com/document/d/') > -1
-      )
+      // not intended custom source
+      input.indexOf('from:') < 0 &&
+      // doc url | published url
+      input.indexOf('https://docs.google.com/document/d/') > -1
     );
   }
 
-  private isDocsContentSourceForServer(input: string) {
+  private isDocsContentSourceNotDirectly(input: string) {
     return (
       input.indexOf('https://docs.google.com/document/d/e/') < 0 &&
       input.indexOf('/pub') < 0

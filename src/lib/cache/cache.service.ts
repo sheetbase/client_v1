@@ -72,7 +72,8 @@ export class CacheService {
     } else {
       // get cached
       const { data: cachedData, expired } = await this.get<Data>(key, true) as {
-        data: Data; expired: boolean;
+        data: Data;
+        expired: boolean;
       };
       if (!expired) {
         data = cachedData;

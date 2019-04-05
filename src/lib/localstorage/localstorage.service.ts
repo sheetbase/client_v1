@@ -33,10 +33,7 @@ export class LocalstorageService {
   }
 
   async iterate<Data>(handler: LocalstorageIterateHandler<Data>) {
-    return await this.iterateKeys(async (key, i) => {
-      const value = await this.get<Data>(key);
-      await handler(value, key, i);
-    });
+    return await this.localforage.iterate(handler);
   }
 
   async iterateKeys(handler: LocalstorageIterateKeysHandler) {
