@@ -166,7 +166,7 @@ export class DatabaseService {
     return await this.server().increase(sheet, key, increasing);
   }
 
-  async clearAll(input: string | string[]) {
+  async clearCacheAll(input: string | string[]) {
     // turn string to string[]
     if (typeof input === 'string') {
       input = [input];
@@ -177,9 +177,9 @@ export class DatabaseService {
     }
   }
 
-  async clearItem<Item>(sheet: string, item: Item) {
+  async clearCacheItem<Item>(sheet: string, item: Item) {
     // clear all associated data
-    await this.clearAll(sheet);
+    await this.clearCacheAll(sheet);
     // clear content
     const input = item['contentSource'];
     if (this.isContentSourceFromDocs(input)) {

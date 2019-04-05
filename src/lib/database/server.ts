@@ -2,13 +2,11 @@ import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
-import { CacheService } from '../cache/cache.service';
 
 import { Query, DocsContentStyles } from './types';
 
 export class DatabaseServerService {
 
-    private Cache: CacheService;
     private Api: ApiService;
 
     app: AppService;
@@ -18,12 +16,10 @@ export class DatabaseServerService {
         this.Api = this.app.Api
             .extend()
             .setEndpoint(this.app.options.authEndpoint || 'database');
-        // cache
-        this.Cache = this.app.Cache;
     }
 
     async all<Item>(sheet: string, cacheTime = 0): Promise<Item[]> {
-        return await this.Cache.getRefresh(
+        return await this.app.Cache.getRefresh(
             'database_' + sheet,
             cacheTime,
             async () => await this.Api.get('/', { sheet }),
@@ -31,7 +27,7 @@ export class DatabaseServerService {
     }
 
     async query<Item>(sheet: string, query: Query, cacheTime = 0): Promise<Item[]> {
-        return await this.Cache.getRefresh(
+        return await this.app.Cache.getRefresh(
             'database_' + sheet + '_query_' + md5(JSON.stringify(query)),
             cacheTime,
             async () => await this.Api.get('/', { ... query, sheet }),
@@ -39,7 +35,7 @@ export class DatabaseServerService {
     }
 
     async item<Item>(sheet: string, key: string, cacheTime = 0): Promise<Item> {
-        return await this.Cache.getRefresh(
+        return await this.app.Cache.getRefresh(
             'database_' + sheet + '_' + key,
             cacheTime,
             async () => await this.Api.get('/', { sheet, key }),
@@ -56,7 +52,7 @@ export class DatabaseServerService {
             .replace('https://docs.google.com/document/d/', '')
             .split('/')
             .shift();
-        return await this.Cache.getRefresh(
+        return await this.app.Cache.getRefresh(
             'content_' + docId + '_' + styles,
             cacheTime,
             async () => await this.Api.get('/content', { docId, styles }),

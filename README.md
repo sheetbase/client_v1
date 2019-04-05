@@ -71,6 +71,8 @@ Configs object for `initializeApp()`
   authEndpoint?: string; // custom auth endpoint
   storageEndpoint?: string; // custom storage endpoint
   mailEndpoint?: string; // custom mail endpoint
+  databaseId?: string; // database for public accessing
+  databaseGids?: {} // gids map for public accessing
 }
 ```
 
@@ -103,17 +105,124 @@ class ApiService {
 }
 ```
 
+## Fetch
+
+### `app.fetch()`
+
+```ts
+class FetchService {
+    app: AppService;
+    fetch<Data>(input: RequestInfo, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+    get<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+    post<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+    put<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+    patch<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+    delete<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+}
+```
+
+## Localstorage
+
+### `app.localstorage()`
+
+```ts
+class LocalstorageService {
+    app: AppService;
+    localforage: LocalForage;
+    instance(storageConfigs: LocalstorageConfigs): LocalstorageService;
+    set<Data>(key: string, data: Data): Promise<Data>;
+    get<Data>(key: string): Promise<Data>;
+    iterate<Data>(handler: LocalstorageIterateHandler<Data>): Promise<any>;
+    iterateKeys(handler: LocalstorageIterateKeysHandler): Promise<void>;
+    remove(key: string): Promise<void>;
+    removeBulk(keys: string[]): Promise<void>;
+    removeByPrefix(prefix: string): Promise<void>;
+    removeBySuffix(suffix: string): Promise<void>;
+    clear(): Promise<void>;
+    keys(): Promise<string[]>;
+}
+```
+
+## Cache
+
+### `app.cache()`
+
+```ts
+class CacheService {
+    app: AppService;
+    instance(storageConfigs: LocalstorageConfigs): CacheService;
+    cacheTime(cacheTime: number): number;
+    set<Data>(key: string, data: Data, cacheTime?: number): Promise<Data>;
+    get<Data>(key: string, always?: boolean): Promise<Data | {
+        data: Data;
+        expired: boolean;
+    }>;
+    getRefresh<Data>(key: string, cacheTime?: number, refresher?: CacheRefresher<Data>): Promise<Data>;
+    iterate<Data>(handler: LocalstorageIterateHandler<Data>): Promise<any>;
+    iterateKeys(handler: LocalstorageIterateKeysHandler): Promise<void>;
+    remove(key: string): Promise<void>;
+    removeBulk(keys: string[]): Promise<void>;
+    removeByPrefix(prefix: string): Promise<void>;
+    removeBySuffix(suffix: string): Promise<void>;
+    flush(): Promise<void>;
+    flushExpired(): Promise<void>;
+}
+```
+
 ### `app.database()`
 
 ```ts
+// DatabaseService
 class DatabaseService {
     app: AppService;
+    direct(): DatabaseDirectService;
+    server(): DatabaseServerService;
     all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
-    query<Item>(sheet: string, filter: Filter, offline?: boolean, cacheTime?: number): Promise<Item[]>;
-    item<Item>(sheet: string, finder: string | Filter, offline?: boolean, cacheTime?: number): Promise<Item>;
+    query<Item>(sheet: string, filter: Filter, local?: boolean, cacheTime?: number): Promise<Item[]>;
+    items(sheet: string, filter?: Filter, local?: boolean, cacheTime?: number): Promise<{}[]>;
+    item<Item>(sheet: string, finder: string | Filter, local?: boolean, cacheTime?: number): Promise<Item>;
+    content(contentSource: string, // doc url | published url
+    styles?: DocsContentStyles, cacheTime?: number): Promise<{
+        content: string;
+    }>;
+    itemAndContent<Item>(sheet: string, finder: string | Filter, item?: Item, styles?: DocsContentStyles, local?: boolean, cacheTime?: number): Promise<Item>;
+    set<Data>(sheet: string, key: string, data: Data): Promise<any>;
     update<Data>(sheet: string, key: string, data: Data): Promise<any>;
     add<Data>(sheet: string, key: string, data: Data): Promise<any>;
     remove(sheet: string, key: string): Promise<any>;
+    increase(sheet: string, key: string, increasing: string | string[] | {
+        [path: string]: number;
+    }): Promise<any>;
+    clearCacheAll(input: string | string[]): Promise<void>;
+    clearCacheItem<Item>(sheet: string, item: Item): Promise<void>;
+}
+
+// DatabaseDirectService
+class DatabaseDirectService {
+    app: AppService;
+    all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
+    content(url: string, styles?: DocsContentStyles, cacheTime?: number): Promise<{
+        content: string;
+    }>;
+}
+
+// DatabaseServerService
+class DatabaseServerService {
+    app: AppService;
+    all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
+    query<Item>(sheet: string, query: Query, cacheTime?: number): Promise<Item[]>;
+    item<Item>(sheet: string, key: string, cacheTime?: number): Promise<Item>;
+    content(urlOrDocId: string, styles?: DocsContentStyles, cacheTime?: number): Promise<{
+        docId?: string;
+        content: string;
+    }>;
+    set<Data>(sheet: string, key: string, data: Data): Promise<any>;
+    update<Data>(sheet: string, key: string, data: Data): Promise<any>;
+    add<Data>(sheet: string, key: string, data: Data): Promise<any>;
+    remove(sheet: string, key: string): Promise<any>;
+    increase(sheet: string, key: string, increasing: string | string[] | {
+        [path: string]: number;
+    }): Promise<any>;
 }
 ```
 
@@ -123,6 +232,7 @@ class DatabaseService {
 // AuthService
 class AuthService {
     app: AppService;
+    currentUser: User;
     onAuthStateChanged(next: {
         (user: User): any;
     }): void;
@@ -139,10 +249,12 @@ class AuthService {
     signInAnonymously(): Promise<{
         user: User;
     }>;
-    signInWithLocalUser(): Promise<void>;
     sendPasswordResetEmail(email: string): Promise<any>;
     verifyPasswordResetCode(code: string): Promise<any>;
     confirmPasswordReset(code: string, newPassword: string): Promise<any>;
+    signInWithPopup(provider: AuthProvider): Promise<void>;
+    googleAuthProvider(): AuthProvider;
+    facebookAuthProvider(): AuthProvider;
     signOut(): Promise<void>;
 }
 

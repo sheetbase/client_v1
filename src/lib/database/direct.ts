@@ -1,25 +1,20 @@
 import { parse } from 'papaparse';
 
 import { AppService } from '../app/app.service';
-import { CacheService } from '../cache/cache.service';
 import { parseObject } from '../utils';
 
 import { DocsContentStyles } from './types';
 
 export class DatabaseDirectService {
 
-  private Cache: CacheService;
-
   app: AppService;
 
   constructor(app: AppService) {
     this.app = app;
-    // cache
-    this.Cache = this.app.Cache;
   }
 
   async all<Item>(sheet: string, cacheTime = 0) {
-    return await this.Cache.getRefresh<Item[]>(
+    return await this.app.Cache.getRefresh<Item[]>(
       'database_' + sheet,
       cacheTime,
       async () => {
@@ -48,7 +43,7 @@ export class DatabaseDirectService {
       .replace('/pub', '')
       .split('/')
       .pop();
-    const content = await this.Cache.getRefresh<string>(
+    const content = await this.app.Cache.getRefresh<string>(
       'content_' + publishedId + '_' + styles,
       cacheTime,
       async () => {
