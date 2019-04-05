@@ -24,7 +24,7 @@ export class CacheService {
   }
 
   cacheTime(cacheTime: number) {
-    // app cache time policy
+    // app caching time policy
     // cacheTime = -1 -> disable cache (0)
     // globalCacheTime = 0 and cacheTime = 0 -> disable cache (0)
     // globalCacheTime = 0 and cacheTime # 0 -> cacheTime
@@ -34,9 +34,9 @@ export class CacheService {
     return (cacheTime === -1) ? 0 : Math.abs(cacheTime || globalCacheTime || 0);
   }
 
-  async set<Data>(key: string, data: Data, expiration?: number) {
-    expiration = !!expiration ? expiration : 1; // default to 10 minutes
-    await this.Localstorage.set<number>(key + '_expiration', new Date().getTime() + (expiration * 60000));
+  async set<Data>(key: string, data: Data, cacheTime?: number) {
+    cacheTime = !!cacheTime ? cacheTime : 1; // default to 1 minute
+    await this.Localstorage.set<number>(key + '__expiration', new Date().getTime() + (cacheTime * 60000));
     return await this.Localstorage.set<Data>(key, data);
   }
 
@@ -44,7 +44,7 @@ export class CacheService {
     let expired = true;
     const cachedData = await this.Localstorage.get<Data>(key);
     if (!!cachedData) {
-      const cacheExpiration = await this.Localstorage.get<number>(key + '_expiration');
+      const cacheExpiration = await this.Localstorage.get<number>(key + '__expiration');
       if (!cacheExpiration || cacheExpiration > new Date().getTime()) {
         expired = false;
       }
@@ -56,9 +56,14 @@ export class CacheService {
     }
   }
 
-  async getRefresh<Data>(key: string, expiration?: number, refresher?: CacheRefresher<Data>) {
+  async getRefresh<Data>(
+    key: string,
+    cacheTime?: number,
+    refresher?: CacheRefresher<Data>,
+  ) {
     let data: Data = null;
-    if (expiration === 0) {
+    cacheTime = this.cacheTime(cacheTime); // get app caching time
+    if (cacheTime === 0) {
       data = await refresher(); // always fresh
     } else {
       // get cached
@@ -76,7 +81,7 @@ export class CacheService {
           // error
         }
         if (!!data) {
-          await this.set(key, data, expiration);
+          await this.set(key, data, cacheTime);
         } else {
           data = cachedData; // use expired value anyway
         }
@@ -87,7 +92,7 @@ export class CacheService {
   }
 
   async remove(key: string) {
-    await this.Localstorage.remove(key + '_expiration');
+    await this.Localstorage.remove(key + '__expiration');
     return await this.Localstorage.remove(key);
   }
 
@@ -99,13 +104,13 @@ export class CacheService {
     const keys = await this.Localstorage.keys();
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
-      if (key.indexOf('_expiration') > -1) {
+      if (key.indexOf('__expiration') > -1) {
         // retrieve expiration
         const cacheExpiration = await this.Localstorage.get(key);
         // remove if expired
         if (!!cacheExpiration && cacheExpiration <= new Date().getTime()) {
           await this.Localstorage.remove(key); // expiration
-          await this.Localstorage.remove(key.replace('_expiration', '')); // value
+          await this.Localstorage.remove(key.replace('__expiration', '')); // value
         }
       }
     }

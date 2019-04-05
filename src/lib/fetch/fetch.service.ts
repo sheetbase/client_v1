@@ -22,7 +22,7 @@ export class FetchService {
     // get data
     return this.Cache.getRefresh(
       'fetch_' + (!!cacheKey ? cacheKey : md5(input as string)),
-      this.Cache.cacheTime(cacheTime),
+      cacheTime,
       async () => {
         const response = await fetch(input, init);
         if (!response.ok) {

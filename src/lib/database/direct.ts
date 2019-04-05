@@ -21,7 +21,7 @@ export class DatabaseDirectService {
   async all<Item>(sheet: string, cacheTime = 0) {
     return await this.Cache.getRefresh<Item[]>(
       'data_' + sheet,
-      this.Cache.cacheTime(cacheTime),
+      cacheTime,
       async () => {
         const response = await fetch(this.csvUrl(sheet));
         const items = await this.parseCSV<Item>(await response.text());
@@ -41,7 +41,7 @@ export class DatabaseDirectService {
   ): Promise<{ content: string; }> {
     const content = await this.Cache.getRefresh<string>(
       'content_' + url.replace('/pub', '').split('/').pop() + '_' + styles,
-      this.Cache.cacheTime(cacheTime),
+      cacheTime,
       async () => {
         const response = await fetch(url + '?embedded=true');
         return await this.parseContent(await response.text(), styles);
