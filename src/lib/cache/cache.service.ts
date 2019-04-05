@@ -1,6 +1,10 @@
 import { AppService } from '../app/app.service';
 import { LocalstorageService } from '../localstorage/localstorage.service';
-import { LocalstorageConfigs } from '../localstorage/types';
+import {
+  LocalstorageConfigs,
+  LocalstorageIterateHandler,
+  LocalstorageIterateKeysHandler,
+} from '../localstorage/types';
 
 import { CacheRefresher } from './types';
 
@@ -91,9 +95,31 @@ export class CacheService {
     return data;
   }
 
+  async iterate<Data>(handler: LocalstorageIterateHandler<Data>) {
+    return await this.Localstorage.iterate(handler);
+  }
+
+  async iterateKeys(handler: LocalstorageIterateKeysHandler) {
+    return await this.Localstorage.iterateKeys(handler);
+  }
+
   async remove(key: string) {
     await this.Localstorage.remove(key + '__expiration');
     return await this.Localstorage.remove(key);
+  }
+
+  async removeBulk(keys: string[]) {
+    for (let i = 0; i < keys.length; i++) {
+      this.remove(keys[i]);
+    }
+  }
+
+  async removeByPrefix(prefix: string) {
+    return await this.Localstorage.removeByPrefix(prefix);
+  }
+
+  async removeBySuffix(suffix: string) {
+    return await this.Localstorage.removeBySuffix(suffix);
   }
 
   async flush() {
@@ -101,9 +127,7 @@ export class CacheService {
   }
 
   async flushExpired() {
-    const keys = await this.Localstorage.keys();
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
+    return await this.iterateKeys(async (key) => {
       if (key.indexOf('__expiration') > -1) {
         // retrieve expiration
         const cacheExpiration = await this.Localstorage.get(key);
@@ -113,7 +137,7 @@ export class CacheService {
           await this.Localstorage.remove(key.replace('__expiration', '')); // value
         }
       }
-    }
+    });
   }
 
 }

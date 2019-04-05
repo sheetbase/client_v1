@@ -47,10 +47,15 @@ export class DatabaseServerService {
     }
 
     async content(
-        docId: string,
+        urlOrDocId: string,
         styles: DocsContentStyles = 'clean',
         cacheTime = 0,
     ): Promise<{ docId?: string; content: string; }> {
+        // process content source
+        const docId = urlOrDocId
+            .replace('https://docs.google.com/document/d/', '')
+            .split('/')
+            .shift();
         return await this.Cache.getRefresh(
             'content_' + docId + '_' + styles,
             cacheTime,

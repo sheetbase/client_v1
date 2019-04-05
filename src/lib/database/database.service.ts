@@ -103,16 +103,14 @@ export class DatabaseService {
   }
 
   async content(
-    input: string, // id | doc url | published url
+    contentSource: string, // doc url | published url
     styles: DocsContentStyles = 'clean',
     cacheTime = 0,
   ) {
-    if (this.isDocsContentSourceForServer(input)) {
-      // process content source
-      const docId = input.replace('https://docs.google.com/document/d/', '').split('/')[0];
-      return await this.server().content(docId, styles, cacheTime);
+    if (this.isDocsContentSourceForServer(contentSource)) { // server
+      return await this.server().content(contentSource, styles, cacheTime);
     } else { // direct
-      return await this.direct().content(input, styles, cacheTime);
+      return await this.direct().content(contentSource, styles, cacheTime);
     }
   }
 
@@ -163,34 +161,31 @@ export class DatabaseService {
     return await this.server().increase(sheet, key, increasing);
   }
 
-  async clearCacheAll(input: string | string[]) {
+  async clearAll(input: string | string[]) {
+    // turn string to string[]
     if (typeof input === 'string') {
       input = [input];
     }
+    // clear data
     for (let i = 0; i < input.length; i++) {
-      // clear data
-      await this.app.Cache.remove('data_' + input[i]);
+      await this.app.Cache.removeByPrefix('data_' + input[i]);
     }
   }
 
-  async clearCacheItem<Item>(sheet: string, item: Item) {
-    // clear data
-    await this.clearCacheAll(sheet); // clear all
-    if (!this.isDirect(sheet)) {
-      const { $key: key } = item as any;
-      await this.app.Cache.remove('data_' + sheet + '_' + key); // clear server item
-    }
+  async clearItem<Item>(sheet: string, item: Item) {
+    // clear all associated data
+    await this.clearAll(sheet);
     // clear content
     if (this.isContentSourceFromDocs(item)) {
-      let input = item['contentSource'];
-      if (this.isDocsContentSourceForServer(input)) {
-        input = input.replace('https://docs.google.com/document/d/', '').split('/')[0];
+      let id = item['contentSource'];
+      if (this.isDocsContentSourceForServer(id)) {
+        id = id.replace('https://docs.google.com/document/d/', '').split('/').shift();
       } else {
-        input = input.replace('/pub', '').split('/').pop();
+        id = id.replace('/pub', '').split('/').pop();
       }
-      await this.app.Cache.remove('content_' + input + 'clean');
-      await this.app.Cache.remove('content_' + input + 'full');
-      await this.app.Cache.remove('content_' + input + 'original');
+      await this.app.Cache.remove('content_' + id + 'clean');
+      await this.app.Cache.remove('content_' + id + 'full');
+      await this.app.Cache.remove('content_' + id + 'original');
     }
   }
 
@@ -200,32 +195,24 @@ export class DatabaseService {
   }
 
   private isContentSourceFromDocs<Item>(item: Item) {
-    return (!!item &&
+    return (
+      !!item &&
       !item['content'] &&
       !!item['contentSource'] &&
-      // must be: doc id | doc url | published url
+      // must be: not custom | doc url | published url
       (
         // not intended custom source
-        item['contentSource'].indexOf('custom:') < 0 &&
-        (
-          // doc id
-          item['contentSource'].indexOf('http') < 0 ||
-          // doc url | published url
-          item['contentSource'].indexOf('https://docs.google.com/document/d/') > -1
-        )
+        item['contentSource'].indexOf('from:') < 0 &&
+        // doc url | published url
+        item['contentSource'].indexOf('https://docs.google.com/document/d/') > -1
       )
     );
   }
 
   private isDocsContentSourceForServer(input: string) {
     return (
-      // a doc id
-      input.indexOf('http') < 0 ||
-      // not a published url
-      (
-        input.indexOf('https://docs.google.com/document/d/e/') < 0 &&
-        input.indexOf('/pub') < 0
-      )
+      input.indexOf('https://docs.google.com/document/d/e/') < 0 &&
+      input.indexOf('/pub') < 0
     );
   }
 

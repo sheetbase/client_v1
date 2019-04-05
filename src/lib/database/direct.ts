@@ -39,8 +39,12 @@ export class DatabaseDirectService {
     styles: DocsContentStyles = 'clean',
     cacheTime = 0,
   ): Promise<{ content: string; }> {
+    const publishedId = url
+      .replace('/pub', '')
+      .split('/')
+      .pop();
     const content = await this.Cache.getRefresh<string>(
-      'content_' + url.replace('/pub', '').split('/').pop() + '_' + styles,
+      'content_' + publishedId + '_' + styles,
       cacheTime,
       async () => {
         const response = await fetch(url + '?embedded=true');
