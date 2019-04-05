@@ -2,7 +2,6 @@ import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
 import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
-import { CacheService } from '../cache/cache.service';
 import { ApiError } from '../utils';
 
 import { BeforeRequestHook, ApiInstanceData, ActionData } from './types';
@@ -13,8 +12,6 @@ export class ApiService {
     private predefinedQuery: {};
     private predefinedBody: {};
     private beforeRequestHooks: BeforeRequestHook[];
-
-    private Cache: CacheService;
 
     app: AppService;
 
@@ -29,9 +26,6 @@ export class ApiService {
         this.beforeRequestHooks = [];
         // set custom data
         this.setData(instanceData);
-
-        // cache service
-        this.Cache = this.app.Cache;
     }
 
     extend() {
@@ -164,7 +158,7 @@ export class ApiService {
             this.buildEndpoint(endpoint),
             this.buildQuery(query),
         );
-        return await this.Cache.getRefresh(
+        return await this.app.Cache.getRefresh(
             'api_' + md5(originalUrl),
             cacheTime,
             async () => await this.fetch(url, { method: 'GET' }),

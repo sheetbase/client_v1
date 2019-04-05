@@ -33,7 +33,7 @@ export class DatabaseService {
       try {
         items = await this.direct().all<Item>(sheet, cacheTime);
       } catch (error) {
-        //
+        // not published
       }
     }
     // load from server
@@ -43,7 +43,7 @@ export class DatabaseService {
     return items;
   }
 
-  async query<Item>(sheet: string, filter: Filter, offline = true, cacheTime = 0): Promise<Item[]> {
+  async query<Item>(sheet: string, filter: Filter, local = true, cacheTime = 0): Promise<Item[]> {
     // prepare query
     let query: Query;
     // advanced filter
@@ -54,7 +54,7 @@ export class DatabaseService {
       query = buildQuery(filter);
     }
     // query items
-    if (offline) {
+    if (local) {
       // turn simple query into advanced query
       if (!advancedFilter) {
         advancedFilter = buildAdvancedFilter(query);
@@ -74,18 +74,18 @@ export class DatabaseService {
       if (!advancedFilter) {
         return await this.server().query(sheet, query, cacheTime);
       } else {
-        throw new Error('Can only apply advanced query with offline data.');
+        throw new Error('Can only apply advanced query with local data.');
       }
     }
   }
 
-  async items(sheet: string, filter?: Filter, offline = true, cacheTime = 0) {
-    return !!filter ? this.query(sheet, filter, offline, cacheTime) : this.all(sheet, cacheTime);
+  async items(sheet: string, filter?: Filter, local = true, cacheTime = 0) {
+    return !!filter ? this.query(sheet, filter, local, cacheTime) : this.all(sheet, cacheTime);
   }
 
-  async item<Item>(sheet: string, finder: string | Filter, offline = true, cacheTime = 0) {
+  async item<Item>(sheet: string, finder: string | Filter, local = true, cacheTime = 0) {
     let item: Item = null;
-    if (typeof finder === 'string' && !offline) {
+    if (typeof finder === 'string' && !local) {
       item = await this.server().item(sheet, finder, cacheTime);
     } else {
       // turn string into finder
@@ -93,7 +93,7 @@ export class DatabaseService {
         finder = { $key: finder };
       }
       // query items
-      const items: Item[] = await this.query(sheet, finder, offline, cacheTime);
+      const items: Item[] = await this.query(sheet, finder, local, cacheTime);
       // extract item
       if ((items || []).length === 1) {
         item = items[0] as Item;
@@ -108,9 +108,9 @@ export class DatabaseService {
     cacheTime = 0,
   ) {
     if ( // server
-      // doc id
+      // a doc id
       input.indexOf('http') < 0 ||
-      // doc url
+      // not a published url
       (
         input.indexOf('https://docs.google.com/document/d/e/') < 0 &&
         input.indexOf('/pub') < 0
@@ -129,12 +129,12 @@ export class DatabaseService {
     finder: string | Filter,
     item?: Item, // loaded item where not sure there is content or not
     styles: DocsContentStyles = 'clean',
-    offline = true,
+    local = true,
     cacheTime = 0,
   ) {
     // load item
     if (!item) {
-      item = await this.item(sheet, finder, offline, cacheTime);
+      item = await this.item(sheet, finder, local, cacheTime);
     }
     // load content
     if (
@@ -143,8 +143,14 @@ export class DatabaseService {
       !!item['contentSource'] &&
       // must be: doc id | doc url | published url
       (
-        item['contentSource'].indexOf('http') < 0 ||
-        item['contentSource'].indexOf('https://docs.google.com/document/d/') > -1
+        // not intended custom source
+        item['contentSource'].indexOf('custom:') < 0 &&
+        (
+          // doc id
+          item['contentSource'].indexOf('http') < 0 ||
+          // doc url | published url
+          item['contentSource'].indexOf('https://docs.google.com/document/d/') > -1
+        )
       )
     ) {
       // get content data
@@ -185,8 +191,8 @@ export class DatabaseService {
       input = [input];
     }
     for (let i = 0; i < input.length; i++) {
-      const sheet = input[i];
-      //
+      // clear cache
+      await this.app.Cache.remove('data_' + input[i]);
     }
   }
 

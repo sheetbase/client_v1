@@ -3,7 +3,6 @@ import { UserInfo } from '@sheetbase/models';
 
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
-import { LocalstorageService } from '../localstorage/localstorage.service';
 import { isExpiredJWT, createPopup, getHost } from '../utils';
 
 import { AuthCredential } from './types';
@@ -17,7 +16,6 @@ export class AuthService {
     SHEETBASE_USER_CREDS = 'user_creds';
 
     private Api: ApiService;
-    private Localstorage: LocalstorageService;
 
     app: AppService;
     currentUser: User = null;
@@ -35,8 +33,6 @@ export class AuthService {
             })
             .extend()
             .setEndpoint(this.app.options.authEndpoint || 'auth');
-        // local storage
-        this.Localstorage = this.app.Localstorage;
         // initial change state (signin locally)
         setTimeout(() => this.signInWithLocalUser(), 1000);
     }
@@ -151,8 +147,8 @@ export class AuthService {
         // notify user change
         publish(this.SHEETBASE_USER_CHANGED, null);
         // remove user info & id token & refresh token from local
-        await this.Localstorage.remove(this.SHEETBASE_USER_INFO);
-        await this.Localstorage.remove(this.SHEETBASE_USER_CREDS);
+        await this.app.Localstorage.remove(this.SHEETBASE_USER_INFO);
+        await this.app.Localstorage.remove(this.SHEETBASE_USER_CREDS);
     }
 
     private async signIn(info: UserInfo, idToken: string, refreshToken: string) {
@@ -161,15 +157,15 @@ export class AuthService {
         // notify user change
         publish(this.SHEETBASE_USER_CHANGED, this.currentUser);
         // save user info & id token & refresh token to local
-        await this.Localstorage.set(this.SHEETBASE_USER_INFO, info);
-        await this.Localstorage.set(this.SHEETBASE_USER_CREDS, { uid, idToken, refreshToken });
+        await this.app.Localstorage.set(this.SHEETBASE_USER_INFO, info);
+        await this.app.Localstorage.set(this.SHEETBASE_USER_CREDS, { uid, idToken, refreshToken });
         return this.currentUser;
     }
 
     private async signInWithLocalUser() {
         // retrieve local creds and info
-        const creds: any = await this.Localstorage.get(this.SHEETBASE_USER_CREDS);
-        let info: UserInfo = await this.Localstorage.get(this.SHEETBASE_USER_INFO);
+        const creds: any = await this.app.Localstorage.get(this.SHEETBASE_USER_CREDS);
+        let info: UserInfo = await this.app.Localstorage.get(this.SHEETBASE_USER_INFO);
         // log user in
         if (!!creds && !!info && creds.uid === info.uid) {
             let idToken = creds.idToken;

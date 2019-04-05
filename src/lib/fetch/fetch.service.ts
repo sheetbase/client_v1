@@ -1,26 +1,21 @@
 import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
-import { CacheService } from '../cache/cache.service';
 
 import { FetchMeta } from './types';
 
 export class FetchService {
 
-  private Cache: CacheService;
-
   app: AppService;
 
   constructor(app: AppService) {
     this.app = app;
-    // cache
-    this.Cache = this.app.Cache;
   }
 
   async fetch<Data>(input: RequestInfo, init?: RequestInit, meta: FetchMeta = {}) {
     const { json = true, cacheTime = 0, cacheKey } = meta;
     // get data
-    return this.Cache.getRefresh(
+    return this.app.Cache.getRefresh(
       'fetch_' + (!!cacheKey ? cacheKey : md5(input as string)),
       cacheTime,
       async () => {
