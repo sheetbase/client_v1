@@ -1,4 +1,4 @@
-import { ResponseError } from '@sheetbase/core-server';
+import { ResponseError } from '@sheetbase/server';
 import { PopupConfigs } from './types';
 
 export function decodeJWTPayload(token: string) {

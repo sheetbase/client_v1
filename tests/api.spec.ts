@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
-import * as lscache from 'lscache';
 import { AppService } from '../src/lib/app/app.service';
 
 import { ApiService } from '../src/lib/api/api.service';
@@ -10,13 +9,11 @@ import { api } from '../src/lib/api/index';
 
 let apiService: ApiService;
 
-let cacheGetStub: sinon.SinonStub;
 let apiFetchStub: sinon.SinonStub;
 let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
 
 function buildStubs() {
-    cacheGetStub = sinon.stub(lscache, 'get');
     // @ts-ignore
     apiFetchStub = sinon.stub(apiService, 'fetch');
     apiGetStub = sinon.stub(apiService, 'get');
@@ -24,7 +21,6 @@ function buildStubs() {
 }
 
 function restoreStubs() {
-    cacheGetStub.restore();
     apiFetchStub.restore();
     apiGetStub.restore();
     apiPostStub.restore();
@@ -396,48 +392,6 @@ describe('(Api) Api service', () => {
         const result = await apiService.fetch('/');
 
         expect(result).to.eql({ a: 1, b: 2 });
-    });
-
-    it('#cache (no cache)', async () => {
-        // @ts-ignore
-        const result = await apiService.cache('xxx', 1, async () => 'xxx');
-        expect(result).to.equal('xxx');
-    });
-
-    it('#cache (cache, no local)', async () => {
-        cacheGetStub.onFirstCall().returns(null);
-        // @ts-ignore
-        const result = await apiService.cache('xxx', 1, async () => 'xxx');
-        expect(result).to.equal('xxx');
-    });
-
-    it('#cache (cache, has local, time)', async () => {
-        cacheGetStub.onFirstCall().returns({ a: 1 });
-        // @ts-ignore
-        const result = await apiService.cache('xxx', 1, async () => 'xxx');
-        expect(result).to.eql({ a: 1 });
-    });
-
-    it('#cache (cache, has local, cacheTime from options)', async () => {
-        cacheGetStub.onFirstCall().returns({ a: 1 });
-        apiService = new ApiService(
-            new AppService({ backendUrl: '', cacheTime: 1 }),
-        );
-
-        // @ts-ignore
-        const result = await apiService.cache('xxx', 0, async () => 'xxx');
-        expect(result).to.eql({ a: 1 });
-    });
-
-    it('#cache (no cache, cacheTime from options but overridden by time = -1)', async () => {
-        cacheGetStub.onFirstCall().returns({ a: 1 });
-        apiService = new ApiService(
-            new AppService({ backendUrl: '', cacheTime: 1 }),
-        );
-
-        // @ts-ignore
-        const result = await apiService.cache('xxx', -1, async () => 'xxx');
-        expect(result).to.equal('xxx');
     });
 
     it('#request', async () => {

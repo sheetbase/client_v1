@@ -1,4 +1,4 @@
-import { ResponseSuccess, ResponseError } from '@sheetbase/core-server';
+import { ResponseSuccess, ResponseError } from '@sheetbase/server';
 import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
