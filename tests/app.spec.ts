@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
+import * as localforage from 'localforage';
 
 import 'jsdom-global/register';
 
@@ -8,11 +9,21 @@ import { ApiService } from '../src/lib/api/api.service';
 import { FetchService } from '../src/lib/fetch/fetch.service';
 import { LocalstorageService } from '../src/lib/localstorage/localstorage.service';
 import { CacheService } from '../src/lib/cache/cache.service';
+import { DatabaseService } from '../src/lib/database/database.service';
+import { AuthService } from '../src/lib/auth/auth.service';
+import { MailService } from '../src/lib/mail/mail.service';
+import { StorageService } from '../src/lib/storage/storage.service';
 
 import { AppService, AppsService } from '../src/lib/app/app.service';
 import { initializeApp, defaultApp, app } from '../src/lib/app/index';
 
 const OPTIONS = { backendUrl: '' };
+
+// stub for AuthService
+const createInstance = sinon.stub(localforage, 'createInstance');
+createInstance.returns({
+  getItem: () => null,
+} as any);
 
 describe('(App) AppService', () => {
 
@@ -40,22 +51,22 @@ describe('(App) AppService', () => {
 
   it('should initialize other components', () => {
     window['$$$SHEETBASE_COMPONENTS'] = {
-      Auth: class Faked {},
-      Database: class Faked {},
-      Storage: class Faked {},
-      Mail: class Faked {},
+      Auth: AuthService,
+      Database: DatabaseService,
+      Storage: StorageService,
+      Mail: MailService,
     };
 
     const sheetbaseApp = new AppService(OPTIONS);
 
-    expect(!!sheetbaseApp.Auth).to.equal(true, '.Auth');
-    expect(!!sheetbaseApp.Database).to.equal(true, '.Database');
-    expect(!!sheetbaseApp.Storage).to.equal(true, '.Storage');
-    expect(!!sheetbaseApp.Mail).to.equal(true, '.Mail');
-    expect(!!sheetbaseApp.auth()).to.equal(true, '#auth');
-    expect(!!sheetbaseApp.database()).to.equal(true, '#database');
-    expect(!!sheetbaseApp.storage()).to.equal(true, '#storage');
-    expect(!!sheetbaseApp.mail()).to.equal(true, '#mail');
+    expect(sheetbaseApp.Auth instanceof AuthService).to.equal(true, '.Auth');
+    expect(sheetbaseApp.Database instanceof DatabaseService).to.equal(true, '.Database');
+    expect(sheetbaseApp.Storage instanceof StorageService).to.equal(true, '.Storage');
+    expect(sheetbaseApp.Mail instanceof MailService).to.equal(true, '.Mail');
+    expect(sheetbaseApp.auth() instanceof AuthService).to.equal(true, '#auth');
+    expect(sheetbaseApp.database() instanceof DatabaseService).to.equal(true, '#database');
+    expect(sheetbaseApp.storage() instanceof StorageService).to.equal(true, '#storage');
+    expect(sheetbaseApp.mail() instanceof MailService).to.equal(true, '#mail');
   });
 
 });

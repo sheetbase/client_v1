@@ -101,7 +101,7 @@ describe('(Storage) methods', () => {
 
   it('#storage (app has no .Storage)', () => {
     const result = storage(new AppService({ backendUrl: '' }));
-    expect(!!result).to.equal(true);
+    expect(result instanceof StorageService).to.equal(true);
   });
 
 });

@@ -108,7 +108,7 @@ describe('(Mail) methods', () => {
   it('#mail (app has no .Mail)', () => {
     const result = mail(new AppService({ backendUrl: '' }));
 
-    expect(!!result).to.equal(true);
+    expect(result instanceof MailService).to.equal(true);
   });
 
 });
