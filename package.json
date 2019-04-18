@@ -1,6 +1,6 @@
 {
   "name": "@sheetbase/client",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0",
   "description": "JS client for Sheetbase app.",
   "author": "Sheetbase",
   "homepage": "https://sheetbase.net",
@@ -47,17 +47,17 @@
     "url": "https://github.com/sheetbase/client/issues"
   },
   "dependencies": {
-    "@sheetbase/models": "^1.0.0-rc.0",
+    "@sheetbase/models": "^1.0.0",
     "localforage": "^1.7.3",
     "papaparse": "4.4.0",
     "pubsub-js": "^1.7.0"
   },
   "devDependencies": {
-    "@sheetbase/server": "^1.0.0-rc.0",
-    "@sheetbase/drive-server": "0.0.8",
-    "@sheetbase/gmail": "^1.0.0-rc.0",
-    "@sheetbase/sheets": "^1.0.0-rc.0",
-    "@sheetbase/user": "^1.0.0-rc.0",
+    "@sheetbase/server": "^1.0.0",
+    "@sheetbase/drive": "^1.0.0",
+    "@sheetbase/gmail": "^1.0.0",
+    "@sheetbase/sheets": "^1.0.0",
+    "@sheetbase/user": "^1.0.0",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.13.4",

@@ -1,4 +1,4 @@
-import { FileResource } from '@sheetbase/drive-server';
+import { FileResource } from '@sheetbase/drive';
 
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
