@@ -26,6 +26,15 @@ export class DatabaseService {
     return this.DatabaseServer;
   }
 
+  private isDirect(sheet: string) {
+    const { databaseId, databaseGids } = this.app.options;
+    return !!databaseId && !!databaseGids && !!databaseGids[sheet];
+  }
+
+  private isDoc(contentSource: string) {
+    return contentSource.indexOf('https://docs.google.com/document/d/') > -1;
+  }
+
   async all<Item>(sheet: string, cacheTime = 0) {
     let items: Item[] = [];
     // first load from direct
@@ -103,43 +112,46 @@ export class DatabaseService {
   }
 
   async content(
-    contentSource: string, // doc url | published url
+    docUrl: string,
     styles: DocsContentStyles = 'clean',
     cacheTime = 0,
   ) {
-    if (this.isDocsContentSourceNotDirectly(contentSource)) { // server
-      return await this.server().content(contentSource, styles, cacheTime);
-    } else { // direct
-      return await this.direct().content(contentSource, styles, cacheTime);
-    }
+    return await this.direct().content(docUrl, styles, cacheTime);
   }
 
-  async itemAndContent<Item>(
+  async contentForItem<Item>(
+    item: Item,
+    styles: DocsContentStyles = 'clean',
+    cacheTime = 0,
+  ) {
+    const { contentSource } = item as any;
+    // load content
+    if (
+      !!item &&
+      !item['content'] &&
+      !!contentSource &&
+      this.isDoc(contentSource)
+    ) {
+      // get content data
+      const { content } = await this.content(contentSource, styles, cacheTime);
+      // add content to item
+      item['content'] = content;
+    }
+    // return final item
+    return item as Item;
+  }
+
+  async itemWithContent<Item>(
     sheet: string,
     finder: string | Filter,
-    item?: Item, // loaded item where not sure there is content or not
     styles: DocsContentStyles = 'clean',
     local = true,
     cacheTime = 0,
   ) {
     // load item
-    if (!item) {
-      item = await this.item(sheet, finder, local, cacheTime);
-    }
-    // load content
-    if (
-      !!item &&
-      !item['content'] &&
-      !!item['contentSource'] &&
-      this.isContentSourceFromDocs(item['contentSource'])
-    ) {
-      // get content data
-      const contentData = await this.content(item['contentSource'], styles, cacheTime);
-      // merge content to item
-      item = { ... item, ... contentData };
-    }
+    const item = await this.item<Item>(sheet, finder, local, cacheTime);
     // return final item
-    return item as Item;
+    return this.contentForItem<Item>(item, styles, cacheTime);
   }
 
   async set<Data>(sheet: string, key: string, data: Data) {
@@ -166,7 +178,7 @@ export class DatabaseService {
     return await this.server().increase(sheet, key, increasing);
   }
 
-  async clearCacheAll(input: string | string[]) {
+  async clearCachedAll(input: string | string[]) {
     // turn string to string[]
     if (typeof input === 'string') {
       input = [input];
@@ -177,44 +189,20 @@ export class DatabaseService {
     }
   }
 
-  async clearCacheItem<Item>(sheet: string, item: Item) {
+  async clearCachedItem<Item>(sheet: string, item: Item) {
     // clear all associated data
-    await this.clearCacheAll(sheet);
+    await this.clearCachedAll(sheet);
     // clear content
-    const input = item['contentSource'];
-    if (this.isContentSourceFromDocs(input)) {
-      let id = '';
-      if (this.isDocsContentSourceNotDirectly(input)) {
-        id = input.replace('https://docs.google.com/document/d/', '').split('/').shift();
-      } else {
-        id = input.replace('/pub', '').split('/').pop();
-      }
-      await this.app.Cache.removeByPrefix('content_' + id + '_clean');
-      await this.app.Cache.removeByPrefix('content_' + id + '_full');
-      await this.app.Cache.removeByPrefix('content_' + id + '_original');
+    const { contentSource } = item as any;
+    if (this.isDoc(contentSource)) {
+      const docId = contentSource
+        .replace('https://docs.google.com/document/d/', '')
+        .split('/')
+        .shift();
+      await this.app.Cache.removeByPrefix('content_' + docId + '_clean');
+      await this.app.Cache.removeByPrefix('content_' + docId + '_full');
+      await this.app.Cache.removeByPrefix('content_' + docId + '_original');
     }
-  }
-
-  private isDirect(sheet: string) {
-    const { databaseId, databaseGids } = this.app.options;
-    return !!databaseId && !!databaseGids && !!databaseGids[sheet];
-  }
-
-  private isContentSourceFromDocs(input: string) {
-    // must be: not custom | doc url | published url
-    return (
-      // not intended custom source
-      input.indexOf('from:') < 0 &&
-      // doc url | published url
-      input.indexOf('https://docs.google.com/document/d/') > -1
-    );
-  }
-
-  private isDocsContentSourceNotDirectly(input: string) {
-    return (
-      input.indexOf('https://docs.google.com/document/d/e/') < 0 &&
-      input.indexOf('/pub') < 0
-    );
   }
 
 }

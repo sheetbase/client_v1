@@ -35,27 +35,29 @@ export class DatabaseDirectService {
   }
 
   async content(
-    url: string,
+    docUrl: string,
     styles: DocsContentStyles = 'clean',
     cacheTime = 0,
-  ): Promise<{ content: string; }> {
-    const publishedId = url
-      .replace('/pub', '')
+  ): Promise<{ docId?: string; content: string; }> {
+    // get doc id
+    const docId = docUrl
+      .replace('https://docs.google.com/document/d/', '')
       .split('/')
-      .pop();
+      .shift();
+    // get data
     const content = await this.app.Cache.getRefresh<string>(
-      'content_' + publishedId + '_' + styles,
+      'content_' + docId + '_' + styles,
       cacheTime,
       async () => {
         // fetch html content
         const html: string = await this.app.Fetch.get(
-          url + '?embedded=true', {}, { json: false },
+          'https://docs.google.com/document/d/' + docId + '/pub?embedded=true', {}, { json: false },
         );
         // parse
         return await this.parseContent(html, styles);
       },
     );
-    return { content };
+    return { docId, content };
   }
 
   private csvUrl(sheet: string) {
