@@ -1,5 +1,5 @@
 export interface ApiOptions {
-    backendUrl: string;
+    backendUrl?: string;
     apiKey?: string;
     cacheTime?: number;
 }
