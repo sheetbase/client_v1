@@ -45,8 +45,7 @@ export class DatabaseService {
   }
 
   private contentId(contentSource: string) {
-    return !this.isDocUrl(contentSource) ?
-      md5(contentSource) :
+    return !this.isDocUrl(contentSource) ? md5(contentSource) :
       contentSource.replace('https://docs.google.com/document/d/', '')
       .split('/')
       .shift();
@@ -65,10 +64,10 @@ export class DatabaseService {
   }
 
   /**
-   * get data
+   * general get
    */
 
-  async all<Item>(sheet: string, cacheTime = 0) {
+  async all<Item>(sheet: string, cacheTime = 1440) {
     let items: Item[] = [];
     // first load from direct
     if (this.isDirect(sheet)) {
@@ -85,7 +84,7 @@ export class DatabaseService {
     return items;
   }
 
-  async query<Item>(sheet: string, filter: Filter, useCached = true, cacheTime = 0): Promise<Item[]> {
+  async query<Item>(sheet: string, filter: Filter, useCached = true, cacheTime = 1440): Promise<Item[]> {
     // prepare query
     let query: Query;
     // advanced filter
@@ -121,7 +120,7 @@ export class DatabaseService {
     }
   }
 
-  async items<Item>(sheet: string, filter?: Filter, useCached = true, cacheTime = 0) {
+  async items<Item>(sheet: string, filter?: Filter, useCached = true, cacheTime = 1440) {
     return !!filter ?
       this.query<Item>(sheet, filter, useCached, cacheTime) :
       this.all<Item>(sheet, cacheTime);
@@ -131,7 +130,7 @@ export class DatabaseService {
     sheet: string,
     finder: string | Filter,
     useCached = true,
-    cacheTime = 0,
+    cacheTime = 1440,
     docsStyle: DocsContentStyles = 'original',
   ) {
     let item: Item;
@@ -165,7 +164,7 @@ export class DatabaseService {
 
   async content(
     url: string,
-    cacheTime = 0,
+    cacheTime = 1440,
     docsStyle: DocsContentStyles = 'original',
   ) {
     if (this.isDocUrl(url)) {
@@ -181,7 +180,7 @@ export class DatabaseService {
   }
 
   /**
-   * set value
+   * general set
    */
 
   async set<Data>(sheet: string, key: string, data: Data) {
@@ -237,7 +236,205 @@ export class DatabaseService {
   }
 
   /**
-   * data utils
+   * util get
    */
+
+  itemsOriginal<Item>(sheet: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !item['origin'] ||
+        (
+          !!item['origin'] &&
+          item['origin'] === item['$key']
+        )
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  async itemsByRelated<Item>(sheet: string, baseItem: Item, useCached = true, cacheTime = 1440) {
+    // retrieve category & tag
+    const { categories, tags } = baseItem as any;
+    const categoryKey = (!categories || typeof categories === 'string') ?
+      null : Object.keys(categories).shift();
+    const tagKey = (!tags || typeof tags === 'string') ?
+      null : Object.keys(tags).shift();
+    // get all items
+    const items = await this.items<Item>(sheet, null, useCached, cacheTime);
+    // process items
+    const matchedItems: Item[] = [];
+    const unmatchedItems: Item[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      // ignore the input item
+      if (item['$key'] === baseItem['$key']) {
+        continue;
+      }
+      // check other items
+      if (
+        (
+          !!categoryKey &&
+          !!item['categories'] &&
+          !!item['categories'][categoryKey]
+        ) ||
+        (
+          !!tagKey &&
+          !!item['tags'] &&
+          !!item['tags'][tagKey]
+        )
+      ) {
+        matchedItems.push(item);
+      } else {
+        unmatchedItems.push(item);
+      }
+    }
+    return [ ... matchedItems, ... unmatchedItems ];
+  }
+
+  itemsByType<Item>(sheet: string, type: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['type'] &&
+        item['type'] === type
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  itemsByStatus<Item>(sheet: string, status: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['status'] &&
+        item['status'] === status
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  itemsByAuthor<Item>(sheet: string, authorKey: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['authors'] &&
+        !!item['authors'][authorKey]
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  itemsByLocale<Item>(sheet: string, locale: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['locale'] &&
+        item['locale'] === locale
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  itemsByOrigin<Item>(sheet: string, origin: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['origin'] &&
+        item['origin'] === origin
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  itemsByParent<Item>(sheet: string, parentKey: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['parents'] &&
+        !!item['parents'][parentKey]
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  itemsByTerm<Item>(sheet: string, taxonomy: string, termKey: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item[taxonomy] &&
+        !!item[taxonomy][termKey]
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  itemsByCategory<Item>(sheet: string, categoryKey: string, useCached = true, cacheTime = 1440) {
+    return this.itemsByTerm<Item>(sheet, 'categories', categoryKey, useCached, cacheTime);
+  }
+
+  itemsByTag<Item>(sheet: string, tagKey: string, useCached = true, cacheTime = 1440) {
+    return this.itemsByTerm<Item>(sheet, 'tags', tagKey, useCached, cacheTime);
+  }
+
+  itemsByKeyword<Item>(sheet: string, keyword: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['keywords'] &&
+        item['keywords'].indexOf(keyword) > -1
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  itemsByMetaExists<Item>(sheet: string, metaKey: string, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['meta'] &&
+        !!item['meta'][metaKey]
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  itemsByMetaEquals<Item>(sheet: string, metaKey: string, equalTo: any, useCached = true, cacheTime = 1440) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['meta'] &&
+        item['meta'][metaKey] === equalTo
+      ),
+      useCached,
+      cacheTime,
+    );
+  }
+
+  /**
+   * util set
+   */
+
+  updateView(sheet: string, key: string) {
+    return this.increase(sheet, key, 'viewCount');
+  }
+
+  updateLike(sheet: string, key: string) {
+    return this.increase(sheet, key, 'likeCount');
+  }
+
+  updateComment(sheet: string, key: string) {
+    return this.increase(sheet, key, 'commentCount');
+  }
 
 }
