@@ -44,7 +44,7 @@ export class DatabaseServerService {
 
     async content(
         docUrl: string,
-        styles: DocsContentStyles = 'clean',
+        style: DocsContentStyles = 'clean',
         cacheTime = 0,
     ): Promise<{ docId?: string; content: string; }> {
         // get doc id
@@ -54,9 +54,9 @@ export class DatabaseServerService {
             .shift();
         // get data
         return await this.app.Cache.getRefresh(
-            'content_' + docId + '_' + styles,
+            'content_' + docId + '_' + style,
             cacheTime,
-            async () => await this.Api.get('/content', { docId, styles }),
+            async () => await this.Api.get('/content', { docId, styles: style }),
         );
     }
 

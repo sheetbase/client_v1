@@ -36,7 +36,7 @@ export class DatabaseDirectService {
 
   async content(
     docUrl: string,
-    styles: DocsContentStyles = 'clean',
+    style: DocsContentStyles = 'clean',
     cacheTime = 0,
   ): Promise<{ docId?: string; content: string; }> {
     // get doc id
@@ -46,7 +46,7 @@ export class DatabaseDirectService {
       .shift();
     // get data
     const content = await this.app.Cache.getRefresh<string>(
-      'content_' + docId + '_' + styles,
+      'content_' + docId + '_' + style,
       cacheTime,
       async () => {
         // fetch html content
@@ -54,7 +54,7 @@ export class DatabaseDirectService {
           'https://docs.google.com/document/d/' + docId + '/pub?embedded=true', {}, { json: false },
         );
         // parse
-        return await this.parseContent(html, styles);
+        return await this.parseContent(html, style);
       },
     );
     return { docId, content };
@@ -122,9 +122,9 @@ export class DatabaseDirectService {
     return { ... classGroups, ... classes };
   }
 
-  private parseContent(html: string, styles: DocsContentStyles = 'clean') {
+  private parseContent(html: string, style: DocsContentStyles = 'clean') {
     let content = html; // original
-    if (styles !== 'original') {
+    if (style !== 'original') {
 
       // extract content, between: </head></html>
       content = html.match(/\<\/head\>(.*)\<\/html\>/).pop();
@@ -150,7 +150,7 @@ export class DatabaseDirectService {
       }
 
       // styles
-      if (styles === 'full') { // full
+      if (style === 'full') { // full
         // move class styles to inline
         const classStyles = this.getContentClassStyles(html);
         for(const key of Object.keys(classStyles)) {

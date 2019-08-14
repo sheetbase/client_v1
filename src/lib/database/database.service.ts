@@ -18,13 +18,9 @@ export class DatabaseService {
     this.DatabaseServer = new DatabaseServerService(this.app);
   }
 
-  direct() {
-    return this.DatabaseDirect;
-  }
-
-  server() {
-    return this.DatabaseServer;
-  }
+  /**
+   * utils
+   */
 
   private isDirect(sheet: string) {
     const { databaseId, databaseGids } = this.app.options;
@@ -34,6 +30,22 @@ export class DatabaseService {
   private isDoc(contentSource: string) {
     return contentSource.indexOf('https://docs.google.com/document/d/') > -1;
   }
+
+  /**
+   * instances
+   */
+
+  direct() {
+    return this.DatabaseDirect;
+  }
+
+  server() {
+    return this.DatabaseServer;
+  }
+
+  /**
+   * get data
+   */
 
   async all<Item>(sheet: string, cacheTime = 0) {
     let items: Item[] = [];
@@ -52,7 +64,7 @@ export class DatabaseService {
     return items;
   }
 
-  async query<Item>(sheet: string, filter: Filter, local = true, cacheTime = 0): Promise<Item[]> {
+  async query<Item>(sheet: string, filter: Filter, useCached = true, cacheTime = 0): Promise<Item[]> {
     // prepare query
     let query: Query;
     // advanced filter
@@ -63,7 +75,7 @@ export class DatabaseService {
       query = buildQuery(filter);
     }
     // query items
-    if (local) {
+    if (useCached) {
       // turn simple query into advanced query
       if (!advancedFilter) {
         advancedFilter = buildAdvancedFilter(query);
@@ -83,49 +95,42 @@ export class DatabaseService {
       if (!advancedFilter) {
         return await this.server().query(sheet, query, cacheTime);
       } else {
-        throw new Error('Can only apply advanced query with local data.');
+        throw new Error('Can only apply advanced query with cached data.');
       }
     }
   }
 
-  async items(sheet: string, filter?: Filter, local = true, cacheTime = 0) {
-    return !!filter ? this.query(sheet, filter, local, cacheTime) : this.all(sheet, cacheTime);
+  async items<Item>(sheet: string, filter?: Filter, useCached = true, cacheTime = 0) {
+    return !!filter ?
+      this.query<Item>(sheet, filter, useCached, cacheTime) :
+      this.all<Item>(sheet, cacheTime);
   }
 
-  async item<Item>(sheet: string, finder: string | Filter, local = true, cacheTime = 0) {
+  async item<Item>(
+    sheet: string,
+    finder: string | Filter,
+    useCached = true,
+    cacheTime = 0,
+    contentStyle: DocsContentStyles = 'clean',
+  ) {
     let item: Item = null;
-    if (typeof finder === 'string' && !local) {
+    // get item
+    if (typeof finder === 'string' && !useCached) { // from server
       item = await this.server().item(sheet, finder, cacheTime);
-    } else {
+    } else { // from cached
       // turn string into finder
       if (typeof finder === 'string') {
         finder = { $key: finder };
       }
       // query items
-      const items: Item[] = await this.query(sheet, finder, local, cacheTime);
+      const items: Item[] = await this.query(sheet, finder, useCached, cacheTime);
       // extract item
       if ((items || []).length === 1) {
         item = items[0] as Item;
       }
     }
-    return item;
-  }
-
-  async content(
-    docUrl: string,
-    styles: DocsContentStyles = 'clean',
-    cacheTime = 0,
-  ) {
-    return await this.direct().content(docUrl, styles, cacheTime);
-  }
-
-  async contentForItem<Item>(
-    item: Item,
-    styles: DocsContentStyles = 'clean',
-    cacheTime = 0,
-  ) {
+    // get content from source
     const { contentSource } = item as any;
-    // load content
     if (
       !!item &&
       !item['content'] &&
@@ -133,26 +138,25 @@ export class DatabaseService {
       this.isDoc(contentSource)
     ) {
       // get content data
-      const { content } = await this.content(contentSource, styles, cacheTime);
+      const { content } = await this.content(contentSource, contentStyle, cacheTime);
       // add content to item
       item['content'] = content;
     }
     // return final item
-    return item as Item;
+    return item;
   }
 
-  async itemWithContent<Item>(
-    sheet: string,
-    finder: string | Filter,
-    styles: DocsContentStyles = 'clean',
-    local = true,
+  async content(
+    docUrl: string,
+    style: DocsContentStyles = 'clean',
     cacheTime = 0,
   ) {
-    // load item
-    const item = await this.item<Item>(sheet, finder, local, cacheTime);
-    // return final item
-    return this.contentForItem<Item>(item, styles, cacheTime);
+    return await this.direct().content(docUrl, style, cacheTime);
   }
+
+  /**
+   * set value
+   */
 
   async set<Data>(sheet: string, key: string, data: Data) {
     return await this.server().set(sheet, key, data);
@@ -178,6 +182,10 @@ export class DatabaseService {
     return await this.server().increase(sheet, key, increasing);
   }
 
+  /**
+   * manage cache
+   */
+
   async clearCachedAll(input: string | string[]) {
     // turn string to string[]
     if (typeof input === 'string') {
@@ -194,7 +202,10 @@ export class DatabaseService {
     await this.clearCachedAll(sheet);
     // clear content
     const { contentSource } = item as any;
-    if (this.isDoc(contentSource)) {
+    if (
+      !!contentSource &&
+      this.isDoc(contentSource)
+    ) {
       const docId = contentSource
         .replace('https://docs.google.com/document/d/', '')
         .split('/')
@@ -204,5 +215,9 @@ export class DatabaseService {
       await this.app.Cache.removeByPrefix('content_' + docId + '_original');
     }
   }
+
+  /**
+   * data utils
+   */
 
 }
