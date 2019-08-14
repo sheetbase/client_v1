@@ -1,3 +1,5 @@
+import { md5 } from '../../md5/md5';
+
 import { AppService } from '../app/app.service';
 
 import { Filter, AdvancedFilter, Query, DocsContentStyles } from './types';
@@ -27,8 +29,27 @@ export class DatabaseService {
     return !!databaseId && !!databaseGids && !!databaseGids[sheet];
   }
 
-  private isDoc(contentSource: string) {
+  private isContentUrl(contentSource: string) {
+    return (
+      !!contentSource &&
+      // must be an url (not implicit excluded - starts with @)
+      (
+        contentSource.substr(0, 4) === 'http' &&
+        contentSource.indexOf('://') > -1
+      )
+    );
+  }
+
+  private isDocUrl(contentSource: string) {
     return contentSource.indexOf('https://docs.google.com/document/d/') > -1;
+  }
+
+  private contentId(contentSource: string) {
+    return !this.isDocUrl(contentSource) ?
+      md5(contentSource) :
+      contentSource.replace('https://docs.google.com/document/d/', '')
+      .split('/')
+      .shift();
   }
 
   /**
@@ -111,9 +132,9 @@ export class DatabaseService {
     finder: string | Filter,
     useCached = true,
     cacheTime = 0,
-    contentStyle: DocsContentStyles = 'clean',
+    docsStyle: DocsContentStyles = 'original',
   ) {
-    let item: Item = null;
+    let item: Item;
     // get item
     if (typeof finder === 'string' && !useCached) { // from server
       item = await this.server().item(sheet, finder, cacheTime);
@@ -130,28 +151,33 @@ export class DatabaseService {
       }
     }
     // get content from source
-    const { contentSource } = item as any;
+    const contentSource: string = item['contentSource'];
     if (
       !!item &&
       !item['content'] &&
-      !!contentSource &&
-      this.isDoc(contentSource)
+      this.isContentUrl(contentSource)
     ) {
-      // get content data
-      const { content } = await this.content(contentSource, contentStyle, cacheTime);
-      // add content to item
-      item['content'] = content;
+      item['content'] = await this.content(contentSource, cacheTime, docsStyle);
     }
     // return final item
     return item;
   }
 
   async content(
-    docUrl: string,
-    style: DocsContentStyles = 'clean',
+    url: string,
     cacheTime = 0,
+    docsStyle: DocsContentStyles = 'original',
   ) {
-    return await this.direct().content(docUrl, style, cacheTime);
+    if (this.isDocUrl(url)) {
+      const { content } = await this.direct().docsContent(url, docsStyle, cacheTime);
+      return content;
+    } else {
+      return await this.app.Cache.getRefresh<string>(
+        'content_' + md5(url) + '_original',
+        cacheTime,
+        async () => await this.app.Fetch.get(url, {}, { json: false }),
+      );
+    }
   }
 
   /**
@@ -201,18 +227,12 @@ export class DatabaseService {
     // clear all associated data
     await this.clearCachedAll(sheet);
     // clear content
-    const { contentSource } = item as any;
-    if (
-      !!contentSource &&
-      this.isDoc(contentSource)
-    ) {
-      const docId = contentSource
-        .replace('https://docs.google.com/document/d/', '')
-        .split('/')
-        .shift();
-      await this.app.Cache.removeByPrefix('content_' + docId + '_clean');
-      await this.app.Cache.removeByPrefix('content_' + docId + '_full');
-      await this.app.Cache.removeByPrefix('content_' + docId + '_original');
+    const contentSource: string = item['contentSource'];
+    if (this.isContentUrl(contentSource)) {
+      const id = this.contentId(contentSource);
+      await this.app.Cache.removeByPrefix('content_' + id + '_clean');
+      await this.app.Cache.removeByPrefix('content_' + id + '_full');
+      await this.app.Cache.removeByPrefix('content_' + id + '_original');
     }
   }
 

@@ -34,9 +34,9 @@ export class DatabaseDirectService {
     );
   }
 
-  async content(
+  async docsContent(
     docUrl: string,
-    style: DocsContentStyles = 'clean',
+    style: DocsContentStyles = 'original',
     cacheTime = 0,
   ): Promise<{ docId?: string; content: string; }> {
     // get doc id
@@ -54,7 +54,7 @@ export class DatabaseDirectService {
           'https://docs.google.com/document/d/' + docId + '/pub?embedded=true', {}, { json: false },
         );
         // parse
-        return await this.parseContent(html, style);
+        return await this.parseDocsContent(html, style);
       },
     );
     return { docId, content };
@@ -78,7 +78,7 @@ export class DatabaseDirectService {
     });
   }
 
-  private getContentClassStyles(html: string) {
+  private getClassStyles(html: string) {
     // copy class to inline
     const classGroups = {};
     const classes = {};
@@ -122,7 +122,7 @@ export class DatabaseDirectService {
     return { ... classGroups, ... classes };
   }
 
-  private parseContent(html: string, style: DocsContentStyles = 'clean') {
+  private parseDocsContent(html: string, style: DocsContentStyles = 'original') {
     let content = html; // original
     if (style !== 'original') {
 
@@ -152,7 +152,7 @@ export class DatabaseDirectService {
       // styles
       if (style === 'full') { // full
         // move class styles to inline
-        const classStyles = this.getContentClassStyles(html);
+        const classStyles = this.getClassStyles(html);
         for(const key of Object.keys(classStyles)) {
           content = content.replace(
             new RegExp('class="' + key + '"', 'g'),
