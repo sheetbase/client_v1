@@ -14,6 +14,8 @@ export class StorageService {
         this.Api = this.app.Api
             .extend()
             .setEndpoint(this.app.options.authEndpoint || 'storage');
+        // not recommended
+        console.warn('NOT RECOMMENDED: May not use the Storage service now!');
     }
 
     async info(fileId: string) {
