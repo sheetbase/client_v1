@@ -596,4 +596,11 @@ export class DatabaseService {
     return this.increase(sheet, key, 'commentCount');
   }
 
+  rate(sheet: string, key: string, stars: number) {
+    return this.increase(sheet, key, {
+      'rating/count': 1,
+      'rating/total': stars,
+    });
+  }
+
 }
