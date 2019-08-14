@@ -3,7 +3,7 @@ import { md5 } from '../../md5/md5';
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
 
-import { Query, DocsContentStyles } from './types';
+import { Query, DocsContentStyles, DataSegment } from './types';
 
 export class DatabaseServerService {
 
@@ -26,11 +26,16 @@ export class DatabaseServerService {
         );
     }
 
-    async query<Item>(sheet: string, query: Query, cacheTime = 0): Promise<Item[]> {
+    async query<Item>(
+        sheet: string,
+        query: Query,
+        cacheTime = 0,
+        segment: DataSegment = null,
+    ): Promise<Item[]> {
         return await this.app.Cache.getRefresh(
             'database_' + sheet + '_query_' + md5(JSON.stringify(query)),
             cacheTime,
-            async () => await this.Api.get('/', { ... query, sheet }),
+            async () => await this.Api.get('/', { ... query, sheet, segment }),
         );
     }
 

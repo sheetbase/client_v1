@@ -2,15 +2,17 @@ import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
 
-import { Filter, AdvancedFilter, Query, DocsContentStyles } from './types';
+import { Filter, AdvancedFilter, Query, DocsContentStyles, DataSegment } from './types';
 import { DatabaseDirectService } from './direct';
 import { DatabaseServerService } from './server';
-import { buildQuery, buildAdvancedFilter } from './filter';
+import { buildQuery, buildAdvancedFilter, buildSegmentFilter } from './filter';
 
 export class DatabaseService {
 
   private DatabaseDirect: DatabaseDirectService;
   private DatabaseServer: DatabaseServerService;
+
+  private globalSegment: DataSegment;
 
   app: AppService;
 
@@ -18,6 +20,11 @@ export class DatabaseService {
     this.app = app;
     this.DatabaseDirect = new DatabaseDirectService(this.app);
     this.DatabaseServer = new DatabaseServerService(this.app);
+  }
+
+  setSegmentation(globalSegment: DataSegment): DatabaseService {
+    this.globalSegment = globalSegment;
+    return this;
   }
 
   /**
@@ -84,11 +91,17 @@ export class DatabaseService {
     return items;
   }
 
-  async query<Item>(sheet: string, filter: Filter, useCached = true, cacheTime = 1440): Promise<Item[]> {
-    // prepare query
-    let query: Query;
-    // advanced filter
-    let advancedFilter: AdvancedFilter;
+  async query<Item>(
+    sheet: string,
+    filter: Filter,
+    useCached = true,
+    cacheTime = 1440,
+    // use this, else use global
+    // bypass global: {} (empty object)
+    segment: DataSegment = null,
+  ): Promise<Item[]> {
+    let query: Query; // prepare query
+    let advancedFilter: AdvancedFilter; // advanced filter
     if (filter instanceof Function) {
       advancedFilter = filter;
     } else {
@@ -96,33 +109,44 @@ export class DatabaseService {
     }
     // query items
     if (useCached) {
-      // turn simple query into advanced query
+      // turn simple query into advanced filter
       if (!advancedFilter) {
         advancedFilter = buildAdvancedFilter(query);
       }
+      // build segment filter
+      const segmentFilter = buildSegmentFilter<Item>(segment || this.globalSegment);
       // load local items
-      const localItems = await this.all(sheet, cacheTime);
+      const allItems = await this.all(sheet, cacheTime);
       // query local items
       const items: Item[] = [];
-      for (let i = 0, length = localItems.length; i < length; i++) {
-        const item = localItems[i] as Item;
-        if (!!advancedFilter(item)) {
+      for (let i = 0, length = allItems.length; i < length; i++) {
+        const item = allItems[i] as Item;
+        if (
+          !!segmentFilter(item) &&
+          !!advancedFilter(item)
+        ) {
           items.push(item);
         }
       }
       return items;
     } else {
       if (!advancedFilter) {
-        return await this.server().query(sheet, query, cacheTime);
+        return await this.server().query(sheet, query, cacheTime, segment);
       } else {
         throw new Error('Can only apply advanced query with cached data.');
       }
     }
   }
 
-  async items<Item>(sheet: string, filter?: Filter, useCached = true, cacheTime = 1440) {
+  async items<Item>(
+    sheet: string,
+    filter?: Filter,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return !!filter ?
-      this.query<Item>(sheet, filter, useCached, cacheTime) :
+      this.query<Item>(sheet, filter, useCached, cacheTime, segment) :
       this.all<Item>(sheet, cacheTime);
   }
 
@@ -132,6 +156,7 @@ export class DatabaseService {
     useCached = true,
     cacheTime = 1440,
     docsStyle: DocsContentStyles = 'original',
+    segment: DataSegment = null,
   ) {
     let item: Item;
     // get item
@@ -143,7 +168,7 @@ export class DatabaseService {
         finder = { $key: finder };
       }
       // query items
-      const items: Item[] = await this.query(sheet, finder, useCached, cacheTime);
+      const items: Item[] = await this.query(sheet, finder, useCached, cacheTime, segment);
       // extract item
       if ((items || []).length === 1) {
         item = items[0] as Item;
@@ -239,7 +264,12 @@ export class DatabaseService {
    * util get
    */
 
-  itemsOriginal<Item>(sheet: string, useCached = true, cacheTime = 1440) {
+  itemsOriginal<Item>(
+    sheet: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -251,10 +281,74 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
-  async itemsByRelated<Item>(sheet: string, baseItem: Item, useCached = true, cacheTime = 1440) {
+  itemsDraft<Item>(
+    sheet: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !item['status'] ||
+        (
+          !!item['status'] &&
+          item['status'] === 'draft'
+        )
+      ),
+      useCached,
+      cacheTime,
+      segment,
+    );
+  }
+
+  itemsPublished<Item>(
+    sheet: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['status'] &&
+        item['status'] === 'published'
+      ),
+      useCached,
+      cacheTime,
+      segment,
+    );
+  }
+
+  itemsArchived<Item>(
+    sheet: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => (
+        !!item['status'] &&
+        item['status'] === 'archived'
+      ),
+      useCached,
+      cacheTime,
+      segment,
+    );
+  }
+
+  async itemsByRelated<Item>(
+    sheet: string,
+    baseItem: Item,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     // retrieve category & tag
     const { categories, tags } = baseItem as any;
     const categoryKey = (!categories || typeof categories === 'string') ?
@@ -262,7 +356,7 @@ export class DatabaseService {
     const tagKey = (!tags || typeof tags === 'string') ?
       null : Object.keys(tags).shift();
     // get all items
-    const items = await this.items<Item>(sheet, null, useCached, cacheTime);
+    const items = await this.items<Item>(sheet, null, useCached, cacheTime, segment);
     // process items
     const matchedItems: Item[] = [];
     const unmatchedItems: Item[] = [];
@@ -293,7 +387,13 @@ export class DatabaseService {
     return [ ... matchedItems, ... unmatchedItems ];
   }
 
-  itemsByType<Item>(sheet: string, type: string, useCached = true, cacheTime = 1440) {
+  itemsByType<Item>(
+    sheet: string,
+    type: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -302,22 +402,17 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
-  itemsByStatus<Item>(sheet: string, status: string, useCached = true, cacheTime = 1440) {
-    return this.items<Item>(
-      sheet,
-      (item: Item) => (
-        !!item['status'] &&
-        item['status'] === status
-      ),
-      useCached,
-      cacheTime,
-    );
-  }
-
-  itemsByAuthor<Item>(sheet: string, authorKey: string, useCached = true, cacheTime = 1440) {
+  itemsByAuthor<Item>(
+    sheet: string,
+    authorKey: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -326,10 +421,17 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
-  itemsByLocale<Item>(sheet: string, locale: string, useCached = true, cacheTime = 1440) {
+  itemsByLocale<Item>(
+    sheet: string,
+    locale: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -338,10 +440,17 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
-  itemsByOrigin<Item>(sheet: string, origin: string, useCached = true, cacheTime = 1440) {
+  itemsByOrigin<Item>(
+    sheet: string,
+    origin: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -350,10 +459,17 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
-  itemsByParent<Item>(sheet: string, parentKey: string, useCached = true, cacheTime = 1440) {
+  itemsByParent<Item>(
+    sheet: string,
+    parentKey: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -362,10 +478,18 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
-  itemsByTerm<Item>(sheet: string, taxonomy: string, termKey: string, useCached = true, cacheTime = 1440) {
+  itemsByTerm<Item>(
+    sheet: string,
+    taxonomy: string,
+    termKey: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -374,18 +498,37 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
-  itemsByCategory<Item>(sheet: string, categoryKey: string, useCached = true, cacheTime = 1440) {
-    return this.itemsByTerm<Item>(sheet, 'categories', categoryKey, useCached, cacheTime);
+  itemsByCategory<Item>(
+    sheet: string,
+    categoryKey: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
+    return this.itemsByTerm<Item>(sheet, 'categories', categoryKey, useCached, cacheTime, segment);
   }
 
-  itemsByTag<Item>(sheet: string, tagKey: string, useCached = true, cacheTime = 1440) {
-    return this.itemsByTerm<Item>(sheet, 'tags', tagKey, useCached, cacheTime);
+  itemsByTag<Item>(
+    sheet: string,
+    tagKey: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
+    return this.itemsByTerm<Item>(sheet, 'tags', tagKey, useCached, cacheTime, segment);
   }
 
-  itemsByKeyword<Item>(sheet: string, keyword: string, useCached = true, cacheTime = 1440) {
+  itemsByKeyword<Item>(
+    sheet: string,
+    keyword: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -394,10 +537,17 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
-  itemsByMetaExists<Item>(sheet: string, metaKey: string, useCached = true, cacheTime = 1440) {
+  itemsByMetaExists<Item>(
+    sheet: string,
+    metaKey: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -406,10 +556,18 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
-  itemsByMetaEquals<Item>(sheet: string, metaKey: string, equalTo: any, useCached = true, cacheTime = 1440) {
+  itemsByMetaEquals<Item>(
+    sheet: string,
+    metaKey: string,
+    equalTo: any,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -418,6 +576,7 @@ export class DatabaseService {
       ),
       useCached,
       cacheTime,
+      segment,
     );
   }
 
