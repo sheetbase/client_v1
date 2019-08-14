@@ -122,31 +122,37 @@ export function buildSegmentFilter<Item>(segment: DataSegment) {
       result = (
         // 1st
         (
-          !!first &&
+          !item[first] ||
           item[first] === segment[first]
         ) &&
         // 2nd
         (
           !second ||
-          (
-            !!second &&
-            item[second] === segment[second]
-          )
+          !item[second] ||
+          item[second] === segment[second]
         ) &&
         // 3rd
         (
           !third ||
-          (
-            !!third &&
-            item[third] === segment[third]
-          )
+          !item[third] ||
+          item[third] === segment[third]
         )
       );
     }
     // over 3
     else {
-      // TODO: loop
-      result = false;
+      result = true; // assumpt
+      for (let i = 0; i < segmentArr.length; i++) {
+        const seg = segmentArr[i];
+        // any not matched
+        if (
+          !!item[seg] &&
+          item[seg] !== segment[seg]
+        ) {
+          result = false;
+          break;
+        }
+      }
     }
     return result;
   };

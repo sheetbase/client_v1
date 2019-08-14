@@ -15,15 +15,16 @@ export class User {
     providerId: string;
     email: string;
     emailVerified: boolean;
+    type: string;
     createdAt: string;
     lastLogin: string;
     username: string;
-    phoneNumber: string;
+    phoneNumber: number | string;
     displayName: string;
     photoURL: string;
     bio: string;
     url: string;
-    address: string;
+    addresses: string | {[name: string]: any};
     additionalData: {[key: string]: any};
     claims: {[claim: string]: any};
     settings: UserProfileSettings;
@@ -48,6 +49,7 @@ export class User {
             providerId,
             email,
             emailVerified,
+            type,
             createdAt,
             lastLogin,
             username,
@@ -56,7 +58,7 @@ export class User {
             photoURL,
             bio,
             url,
-            address,
+            addresses,
             additionalData,
             claims,
             settings,
@@ -67,6 +69,7 @@ export class User {
         this.providerId = providerId;
         this.email = email;
         this.emailVerified = emailVerified;
+        this.type = type;
         this.createdAt = createdAt;
         this.lastLogin = lastLogin;
         this.username = username;
@@ -75,7 +78,7 @@ export class User {
         this.photoURL = photoURL;
         this.bio = bio;
         this.url = url;
-        this.address = address;
+        this.addresses = addresses;
         this.additionalData = additionalData;
         this.claims = claims;
         this.settings = settings;
@@ -89,6 +92,7 @@ export class User {
         const providerId = this.providerId;
         const email = this.email;
         const emailVerified = this.emailVerified;
+        const type = this.type;
         const createdAt = this.createdAt;
         const lastLogin = this.lastLogin;
         const username = this.username;
@@ -97,7 +101,7 @@ export class User {
         const photoURL = this.photoURL;
         const bio = this.bio;
         const url = this.url;
-        const address = this.address;
+        const addresses = this.addresses;
         const additionalData = this.additionalData;
         const claims = this.claims;
         const settings = this.settings;
@@ -108,6 +112,7 @@ export class User {
             providerId,
             email,
             emailVerified,
+            type,
             createdAt,
             lastLogin,
             username,
@@ -116,7 +121,7 @@ export class User {
             photoURL,
             bio,
             url,
-            address,
+            addresses,
             additionalData,
             claims,
             settings,

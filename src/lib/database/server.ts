@@ -61,7 +61,7 @@ export class DatabaseServerService {
         return await this.app.Cache.getRefresh(
             'content_' + docId + '_' + style,
             cacheTime,
-            async () => await this.Api.get('/content', { docId, styles: style }),
+            async () => await this.Api.get('/content', { docId, style }),
         );
     }
 

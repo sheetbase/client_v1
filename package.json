@@ -47,7 +47,7 @@
     "url": "https://github.com/sheetbase/client/issues"
   },
   "dependencies": {
-    "@sheetbase/models": "^1.0.0",
+    "@sheetbase/models": "^1.5.0",
     "localforage": "^1.7.3",
     "papaparse": "4.4.0",
     "pubsub-js": "^1.7.0"
@@ -56,8 +56,8 @@
     "@sheetbase/server": "^1.0.0",
     "@sheetbase/drive": "^1.0.0",
     "@sheetbase/gmail": "^1.0.0",
-    "@sheetbase/sheets": "^1.0.0",
-    "@sheetbase/user": "^1.0.0",
+    "@sheetbase/sheets": "^1.1.0",
+    "@sheetbase/user": "^1.1.0",
     "@types/chai": "^4.2.0",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.7.1",
