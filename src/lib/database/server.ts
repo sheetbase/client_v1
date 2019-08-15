@@ -49,7 +49,7 @@ export class DatabaseServerService {
 
     async docsContent(
         docUrl: string,
-        style: DocsContentStyles = 'original',
+        style: DocsContentStyles = 'full',
         cacheTime = 0,
     ): Promise<{ docId?: string; content: string; }> {
         // get doc id

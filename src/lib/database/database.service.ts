@@ -155,7 +155,7 @@ export class DatabaseService {
     finder: string | Filter,
     useCached = true,
     cacheTime = 1440,
-    docsStyle: DocsContentStyles = 'original',
+    docsStyle: DocsContentStyles = 'full',
     segment: DataSegment = null,
   ) {
     let item: Item;
@@ -190,7 +190,7 @@ export class DatabaseService {
   async content(
     url: string,
     cacheTime = 1440,
-    docsStyle: DocsContentStyles = 'original',
+    docsStyle: DocsContentStyles = 'full',
   ) {
     if (this.isDocUrl(url)) {
       const { content } = await this.direct().docsContent(url, docsStyle, cacheTime);
@@ -274,10 +274,7 @@ export class DatabaseService {
       sheet,
       (item: Item) => (
         !item['origin'] ||
-        (
-          !!item['origin'] &&
-          item['origin'] === item['$key']
-        )
+        item['origin'] === item['$key']
       ),
       useCached,
       cacheTime,
@@ -295,10 +292,7 @@ export class DatabaseService {
       sheet,
       (item: Item) => (
         !item['status'] ||
-        (
-          !!item['status'] &&
-          item['status'] === 'draft'
-        )
+        item['status'] === 'draft'
       ),
       useCached,
       cacheTime,

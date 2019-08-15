@@ -36,7 +36,7 @@ export class DatabaseDirectService {
 
   async docsContent(
     docUrl: string,
-    style: DocsContentStyles = 'original',
+    style: DocsContentStyles = 'full',
     cacheTime = 0,
   ): Promise<{ docId?: string; content: string; }> {
     // get doc id
@@ -122,7 +122,7 @@ export class DatabaseDirectService {
     return { ... classGroups, ... classes };
   }
 
-  private parseDocsContent(html: string, style: DocsContentStyles = 'original') {
+  private parseDocsContent(html: string, style: DocsContentStyles = 'full') {
     let content = html; // original
     if (style !== 'original') {
 
