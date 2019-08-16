@@ -7,10 +7,19 @@ import { DocsContentStyles } from './types';
 
 export class DatabaseDirectService {
 
+  private databaseId: string;
+  private databaseGids: {[sheet: string]: string};
+
   app: AppService;
 
-  constructor(app: AppService) {
+  constructor(
+    app: AppService,
+    databaseId: string,
+    databaseGids: {[sheet: string]: string},
+  ) {
     this.app = app;
+    this.databaseId = databaseId;
+    this.databaseGids = databaseGids;
   }
 
   async all<Item>(sheet: string, cacheTime = 0) {
@@ -61,11 +70,10 @@ export class DatabaseDirectService {
   }
 
   private csvUrl(sheet: string) {
-    const { databaseId, databaseGids } = this.app.options;
     return `https://docs.google.com/spreadsheets/d/`
-      + databaseId +
+      + this.databaseId +
       `/pub?gid=`
-      + databaseGids[sheet] +
+      + this.databaseGids[sheet] +
       `&single=true&output=csv`;
   }
 

@@ -12,14 +12,42 @@ export class DatabaseService {
   private DatabaseDirect: DatabaseDirectService;
   private DatabaseServer: DatabaseServerService;
 
+  private builtinPublicGids = {
+    categories: '101',
+    tags: '102',
+    pages: '103',
+    posts: '104',
+    threads: '105',
+    products: '107',
+    notifications: '112',
+    promotions: '113',
+    audios: '114',
+    videos: '115',
+    bundles: '116',
+    authors: '117',
+    options: '118',
+  };
   private globalSegment: DataSegment;
 
   app: AppService;
 
   constructor(app: AppService) {
+    const { databaseId, databaseGids, databaseEndpoint } = app.options;
+    // set app
     this.app = app;
-    this.DatabaseDirect = new DatabaseDirectService(this.app);
-    this.DatabaseServer = new DatabaseServerService(this.app);
+    // create instances
+    this.DatabaseDirect = new DatabaseDirectService(
+      this.app,
+      databaseId,
+      {
+        ... this.builtinPublicGids,
+        ... databaseGids,
+      },
+    );
+    this.DatabaseServer = new DatabaseServerService(
+      this.app,
+      databaseEndpoint,
+    );
   }
 
   setSegmentation(globalSegment: DataSegment): DatabaseService {
@@ -32,8 +60,14 @@ export class DatabaseService {
    */
 
   private isDirect(sheet: string) {
-    const { databaseId, databaseGids } = this.app.options;
-    return !!databaseId && !!databaseGids && !!databaseGids[sheet];
+    const { databaseId, databaseGids = {} } = this.app.options;
+    return (
+      !!databaseId &&
+      (
+        !!this.builtinPublicGids[sheet] ||
+        !!databaseGids[sheet]
+      )
+    );
   }
 
   private isContentUrl(contentSource: string) {

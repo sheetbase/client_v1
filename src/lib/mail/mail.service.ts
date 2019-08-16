@@ -13,7 +13,7 @@ export class MailService {
         this.app = app;
         this.Api = this.app.Api
             .extend()
-            .setEndpoint(this.app.options.authEndpoint || 'mail');
+            .setEndpoint(this.app.options.mailEndpoint || 'mail');
     }
 
     async quota() {

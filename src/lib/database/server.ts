@@ -11,11 +11,11 @@ export class DatabaseServerService {
 
     app: AppService;
 
-    constructor(app: AppService) {
+    constructor(app: AppService, endpoint = 'database') {
         this.app = app;
         this.Api = this.app.Api
             .extend()
-            .setEndpoint(this.app.options.authEndpoint || 'database');
+            .setEndpoint(endpoint);
     }
 
     async all<Item>(sheet: string, cacheTime = 0): Promise<Item[]> {

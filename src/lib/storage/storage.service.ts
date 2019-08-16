@@ -13,7 +13,7 @@ export class StorageService {
         this.app = app;
         this.Api = this.app.Api
             .extend()
-            .setEndpoint(this.app.options.authEndpoint || 'storage');
+            .setEndpoint(this.app.options.storageEndpoint || 'storage');
         // not recommended
         console.warn('NOT RECOMMENDED: May not use the Storage service now!');
     }
