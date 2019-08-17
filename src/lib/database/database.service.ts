@@ -18,14 +18,14 @@ export class DatabaseService {
     pages: '103',
     posts: '104',
     threads: '105',
-    products: '107',
-    notifications: '112',
-    promotions: '113',
-    audios: '114',
-    videos: '115',
-    bundles: '116',
-    authors: '117',
-    options: '118',
+    options: '107',
+    authors: '111',
+    bundles: '112',
+    audios: '113',
+    videos: '114',
+    products: '115',
+    notifications: '181',
+    promotions: '182',
   };
   private globalSegment: DataSegment;
 
@@ -434,6 +434,21 @@ export class DatabaseService {
     );
   }
 
+  itemsByTypeDefault<Item>(
+    sheet: string,
+    useCached = true,
+    cacheTime = 1440,
+    segment: DataSegment = null,
+  ) {
+    return this.items<Item>(
+      sheet,
+      (item: Item) => !item['type'],
+      useCached,
+      cacheTime,
+      segment,
+    );
+  }
+
   itemsByAuthor<Item>(
     sheet: string,
     authorKey: string,
@@ -628,6 +643,17 @@ export class DatabaseService {
     return this.increase(sheet, key, {
       'rating/count': 1,
       'rating/total': stars,
+    });
+  }
+
+  share(sheet: string, key: string, providers: string[] = []) {
+    const customData = {};
+    for (const provider of providers) {
+      customData['sharing/' + provider] = 1;
+    }
+    return this.increase(sheet, key, {
+      ... customData,
+      'sharing/total': 1,
     });
   }
 
