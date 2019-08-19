@@ -1,10 +1,15 @@
-import { ResponseSuccess, ResponseError } from '@sheetbase/server';
 import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
 import { ApiError } from '../utils';
 
-import { BeforeRequestHook, ApiInstanceData, ActionData } from './types';
+import {
+    BeforeRequestHook,
+    ApiInstanceData,
+    ActionData,
+    ResponseSuccess,
+    ResponseError,
+} from './types';
 
 export class ApiService {
 

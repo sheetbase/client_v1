@@ -53,11 +53,6 @@
     "pubsub-js": "^1.7.0"
   },
   "devDependencies": {
-    "@sheetbase/server": "^1.1.0",
-    "@sheetbase/drive": "^1.0.0",
-    "@sheetbase/gmail": "^1.1.0",
-    "@sheetbase/sheets": "^1.2.0",
-    "@sheetbase/user": "^1.2.0",
     "@types/chai": "^4.2.0",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.7.2",

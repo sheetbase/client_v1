@@ -1,5 +1,5 @@
-import { ResponseError } from '@sheetbase/server';
-import { PopupConfigs } from './types';
+import { ResponseError } from './api/types';
+import { PopupConfigs } from './app/types';
 
 export function decodeJWTPayload(token: string) {
   const [, payloadStr ] = token.split('.');
