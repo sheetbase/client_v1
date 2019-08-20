@@ -47,37 +47,6 @@ describe('(Storage) Storage service', () => {
     expect(storageService.Api instanceof ApiService).to.equal(true);
   });
 
-  it('#info', async () => {
-    const result = await storageService.info('xxx');
-    expect(result).to.eql({
-      method: 'GET',
-      endpoint: '/',
-      params: { id: 'xxx' },
-    });
-  });
-
-  it('#upload', async () => {
-    const result = await storageService.upload({
-      name: 'file1.txt',
-      size: 1000,
-      base64Data: '<base64Data>',
-    }, 'me', 'filex');
-    expect(result).to.eql({
-      method: 'POST',
-      endpoint: '/',
-      params: {},
-      body: {
-        fileResource: {
-          name: 'file1.txt',
-          size: 1000,
-          base64Data: '<base64Data>',
-        },
-        customFolder: 'me',
-        rename: 'filex',
-      },
-    });
-  });
-
 });
 
 describe('(Storage) methods', () => {

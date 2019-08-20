@@ -78,13 +78,13 @@ describe('(Api) Api service', () => {
     expect(apiService.beforeRequestHooks.length).to.equal(1);
   });
 
-  it('properties (query has apiKey)', () => {
+  it('properties (query has key)', () => {
     const apiService = new ApiService(
       new AppService({ backendUrl: '', apiKey: 'xxx' }),
     );
 
     // @ts-ignore
-    expect(apiService.predefinedQuery).to.eql({ apiKey: 'xxx' });
+    expect(apiService.predefinedQuery).to.eql({ key: 'xxx' });
   });
 
   it('#extend', () => {
