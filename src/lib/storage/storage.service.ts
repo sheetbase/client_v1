@@ -24,6 +24,13 @@ export class StorageService {
       .setEndpoint(this.app.options.storageEndpoint || 'storage');
   }
 
+  private base64Parser(base64Value: string) {
+    const [ header, body ] = base64Value.split(';base64,');
+    const mimeType = header.replace('data:', '');
+    const size = body.replace(/\=/g, '').length * 0.75; // bytes
+    return { mimeType, size, base64Body: body };
+  }
+
   private isValidType(mimeType: string) {
     const { storageAllowTypes: allowTypes } = this.app.options;
     return !allowTypes || allowTypes.indexOf(mimeType) > -1;
@@ -35,17 +42,7 @@ export class StorageService {
     return !maxSize || maxSize === 0 || sizeMB <= maxSize;
   }
 
-  private getBase64Props(base64Value: string): {
-    mimeType: string;
-    size: number;
-  } {
-    const [ header, body ] = base64Value.split(';base64,');
-    const mimeType = header.replace('data:', '');
-    const size = (body.replace(/\=/g, '').length * 0.75);
-    return { mimeType, size };
-  }
-
-  private checkUploadFile(fileData: UploadFile) {
+  private validateUploadFile(fileData: UploadFile) {
     let error: string;
     // check file data
     if (
@@ -56,12 +53,12 @@ export class StorageService {
       error = 'Missing upload data.';
     }
     // check type and size
-    const { mimeType, size } = this.getBase64Props(fileData.base64Value);
-    if (
-      !this.isValidType(mimeType) ||
-      !this.isValidSize(size)
-    ) {
-      error = 'Invalid file type or the file is too big.';
+    const { mimeType, size } = this.base64Parser(fileData.base64Value);
+    if (!this.isValidType(mimeType)) {
+      error = 'Invalid file type.';
+    }
+    if (!this.isValidSize(size)) {
+      error = 'Invalid file size.';
     }
     // throw error
     if (!!error) {
@@ -79,7 +76,7 @@ export class StorageService {
     renamePolicy?: RenamePolicy,
     sharing: FileSharing = 'PRIVATE',
   ): Promise<FileInfo> {
-    this.checkUploadFile(fileData);
+    this.validateUploadFile(fileData);
     // build the request body
     const body: any = { file: fileData };
     if (customFolder) {
@@ -97,7 +94,7 @@ export class StorageService {
   uploadMultiple(uploadResources: UploadResource[]): Promise<FileInfo[]> {
     for (let i = 0; i < uploadResources.length; i++) {
       const { file: fileData } = uploadResources[i];
-      this.checkUploadFile(fileData);
+      this.validateUploadFile(fileData);
     }
     return this.Api.put('/', {}, { files: uploadResources });
   }
@@ -110,15 +107,23 @@ export class StorageService {
     return this.Api.delete('/', {}, { id });
   }
 
-  read(file: File): Promise<FileReaderResult> {
+  read(_file: File): Promise<FileReaderResult> {
     return new Promise((resolve, reject) => {
+      // check errors
+      if (!this.isValidType(_file.type)) {
+        return reject('Invalid file type.');
+      }
+      if (!this.isValidSize(_file.size)) {
+        return reject('Invalid file size.');
+      }
+      // read the file
       const reader = new FileReader();
       reader.onload = (e: any) => {
+        const { name, size, type: mimeType, lastModified  } = _file;
         const base64Value = e.target.result;
-        const { name, size } = file;
-        resolve({ name, size, base64Value });
+        resolve({ _file, name, size, mimeType, lastModified, base64Value });
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(_file);
     });
   }
 

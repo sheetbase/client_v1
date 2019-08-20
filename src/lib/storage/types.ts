@@ -8,8 +8,12 @@ export interface StorageLimitOptions {
 }
 
 export interface FileReaderResult {
+  _file: File; // original file
+  // extract info
   name: string;
   size: number;
+  mimeType: string;
+  lastModified: number;
   base64Value: string;
 }
 
