@@ -64,15 +64,32 @@ Configs object for `initializeApp()`
 
 ```ts
 {
+  // api
   backendUrl: string; // backend url
   apiKey?: string; // built-in support for api key
-  cacheTime?: number; // global cache time for api GET
+
+  // fetch
+
+  // cache
+  cacheTime?: number; // global cache time
+
+  // localstorage
+
+  // database
   databaseEndpoint?: string; // custom database endpoint
-  authEndpoint?: string; // custom auth endpoint
-  storageEndpoint?: string; // custom storage endpoint
-  mailEndpoint?: string; // custom mail endpoint
   databaseId?: string; // database for public accessing
   databaseGids?: {} // gids map for public accessing
+
+  // auth
+  authEndpoint?: string; // custom auth endpoint
+
+  // storage
+  storageEndpoint?: string; // custom storage endpoint
+  storageAllowTypes?: string[]; // type limit
+  storageMaxSize?: number; // size limit
+
+  // mail
+  mailEndpoint?: string; // custom mail endpoint
 }
 ```
 
@@ -82,26 +99,25 @@ Configs object for `initializeApp()`
 
 ```ts
 class ApiService {
-    app: AppService;
-    extend(): ApiService;
-    setData(data: ApiInstanceData): ApiService;
-    setEndpoint(endpoint: string): ApiService;
-    addQuery(query: {}): ApiService;
-    addBody(body: {}): ApiService;
-    addBeforeHooks(hooks: BeforeRequestHook | BeforeRequestHook[]): ApiService;
-
-    request(inputs?: {
-        method?: string;
-        endpoint?: string;
-        query?: {};
-        body?: {};
-        cacheTime?: number;
-    }): Promise<any>;
-    get(endpoint?: string, query?: {}, cacheTime?: number): Promise<any>;
-    post(endpoint?: string, query?: {}, body?: {}): Promise<any>;
-    put(endpoint?: string, query?: {}, body?: {}): Promise<any>;
-    patch(endpoint?: string, query?: {}, body?: {}): Promise<any>;
-    delete(endpoint?: string, query?: {}, body?: {}): Promise<any>;
+  app: AppService;
+  extend(): ApiService;
+  setData(data: ApiInstanceData): ApiService;
+  setEndpoint(endpoint: string): ApiService;
+  addQuery(query: {}): ApiService;
+  addBody(body: {}): ApiService;
+  addBeforeHooks(hooks: BeforeRequestHook | BeforeRequestHook[]): ApiService;
+  request(inputs?: {
+    method?: string;
+    endpoint?: string;
+    query?: {};
+    body?: {};
+    cacheTime?: number;
+  }): Promise<any>;
+  get(endpoint?: string, query?: {}, cacheTime?: number): Promise<any>;
+  post(endpoint?: string, query?: {}, body?: {}): Promise<any>;
+  put(endpoint?: string, query?: {}, body?: {}): Promise<any>;
+  patch(endpoint?: string, query?: {}, body?: {}): Promise<any>;
+  delete(endpoint?: string, query?: {}, body?: {}): Promise<any>;
 }
 ```
 
@@ -111,13 +127,13 @@ class ApiService {
 
 ```ts
 class FetchService {
-    app: AppService;
-    fetch<Data>(input: RequestInfo, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-    get<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-    post<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-    put<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-    patch<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-    delete<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+  app: AppService;
+  fetch<Data>(input: RequestInfo, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+  get<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+  post<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+  put<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+  patch<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+  delete<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
 }
 ```
 
@@ -127,19 +143,19 @@ class FetchService {
 
 ```ts
 class LocalstorageService {
-    app: AppService;
-    localforage: LocalForage;
-    instance(storageConfigs: LocalstorageConfigs): LocalstorageService;
-    set<Data>(key: string, data: Data): Promise<Data>;
-    get<Data>(key: string): Promise<Data>;
-    iterate<Data>(handler: LocalstorageIterateHandler<Data>): Promise<any>;
-    iterateKeys(handler: LocalstorageIterateKeysHandler): Promise<void>;
-    remove(key: string): Promise<void>;
-    removeBulk(keys: string[]): Promise<void>;
-    removeByPrefix(prefix: string): Promise<void>;
-    removeBySuffix(suffix: string): Promise<void>;
-    clear(): Promise<void>;
-    keys(): Promise<string[]>;
+  app: AppService;
+  localforage: LocalForage;
+  instance(storageConfigs: LocalstorageConfigs): LocalstorageService;
+  set<Data>(key: string, data: Data): Promise<Data>;
+  get<Data>(key: string): Promise<Data>;
+  iterate<Data>(handler: LocalstorageIterateHandler<Data>): Promise<any>;
+  iterateKeys(handler: LocalstorageIterateKeysHandler): Promise<void>;
+  remove(key: string): Promise<void>;
+  removeBulk(keys: string[]): Promise<void>;
+  removeByPrefix(prefix: string): Promise<void>;
+  removeBySuffix(suffix: string): Promise<void>;
+  clear(): Promise<void>;
+  keys(): Promise<string[]>;
 }
 ```
 
@@ -149,23 +165,23 @@ class LocalstorageService {
 
 ```ts
 class CacheService {
-    app: AppService;
-    instance(storageConfigs: LocalstorageConfigs): CacheService;
-    cacheTime(cacheTime: number): number;
-    set<Data>(key: string, data: Data, cacheTime?: number): Promise<Data>;
-    get<Data>(key: string, always?: boolean): Promise<Data | {
-        data: Data;
-        expired: boolean;
-    }>;
-    getRefresh<Data>(key: string, cacheTime?: number, refresher?: CacheRefresher<Data>): Promise<Data>;
-    iterate<Data>(handler: LocalstorageIterateHandler<Data>): Promise<any>;
-    iterateKeys(handler: LocalstorageIterateKeysHandler): Promise<void>;
-    remove(key: string): Promise<void>;
-    removeBulk(keys: string[]): Promise<void>;
-    removeByPrefix(prefix: string): Promise<void>;
-    removeBySuffix(suffix: string): Promise<void>;
-    flush(): Promise<void>;
-    flushExpired(): Promise<void>;
+  app: AppService;
+  instance(storageConfigs: LocalstorageConfigs): CacheService;
+  cacheTime(cacheTime: number): number;
+  set<Data>(key: string, data: Data, cacheTime?: number): Promise<Data>;
+  get<Data>(key: string, always?: boolean): Promise<Data | {
+    data: Data;
+    expired: boolean;
+  }>;
+  getRefresh<Data>(key: string, cacheTime?: number, refresher?: CacheRefresher<Data>): Promise<Data>;
+  iterate<Data>(handler: LocalstorageIterateHandler<Data>): Promise<any>;
+  iterateKeys(handler: LocalstorageIterateKeysHandler): Promise<void>;
+  remove(key: string): Promise<void>;
+  removeBulk(keys: string[]): Promise<void>;
+  removeByPrefix(prefix: string): Promise<void>;
+  removeBySuffix(suffix: string): Promise<void>;
+  flush(): Promise<void>;
+  flushExpired(): Promise<void>;
 }
 ```
 
@@ -174,55 +190,75 @@ class CacheService {
 ```ts
 // DatabaseService
 class DatabaseService {
-    app: AppService;
-    direct(): DatabaseDirectService;
-    server(): DatabaseServerService;
-    all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
-    query<Item>(sheet: string, filter: Filter, local?: boolean, cacheTime?: number): Promise<Item[]>;
-    items(sheet: string, filter?: Filter, local?: boolean, cacheTime?: number): Promise<{}[]>;
-    item<Item>(sheet: string, finder: string | Filter, local?: boolean, cacheTime?: number): Promise<Item>;
-    content(contentSource: string, // doc url | published url
-    styles?: DocsContentStyles, cacheTime?: number): Promise<{
-        content: string;
-    }>;
-    itemAndContent<Item>(sheet: string, finder: string | Filter, item?: Item, styles?: DocsContentStyles, local?: boolean, cacheTime?: number): Promise<Item>;
-    set<Data>(sheet: string, key: string, data: Data): Promise<any>;
-    update<Data>(sheet: string, key: string, data: Data): Promise<any>;
-    add<Data>(sheet: string, key: string, data: Data): Promise<any>;
-    remove(sheet: string, key: string): Promise<any>;
-    increase(sheet: string, key: string, increasing: string | string[] | {
-        [path: string]: number;
-    }): Promise<any>;
-    clearCacheAll(input: string | string[]): Promise<void>;
-    clearCacheItem<Item>(sheet: string, item: Item): Promise<void>;
+  app: AppService;
+  setSegmentation(globalSegment: DataSegment): DatabaseService;
+  direct(): DatabaseDirectService;
+  server(): DatabaseServerService;
+  all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
+  query<Item>(sheet: string, filter: Filter, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  items<Item>(sheet: string, filter?: Filter, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  item<Item>(sheet: string, finder: string | Filter, useCached?: boolean, cacheTime?: number, docsStyle?: DocsContentStyles, segment?: DataSegment): Promise<Item>;
+  content(url: string, cacheTime?: number, docsStyle?: DocsContentStyles): Promise<string>;
+  set<Data>(sheet: string, key: string, data: Data): Promise<any>;
+  update<Data>(sheet: string, key: string, data: Data): Promise<any>;
+  add<Data>(sheet: string, key: string, data: Data): Promise<any>;
+  remove(sheet: string, key: string): Promise<any>;
+  increase(sheet: string, key: string, increasing: string | string[] | {
+    [path: string]: number;
+  }): Promise<any>;
+  clearCachedAll(input: string | string[]): Promise<void>;
+  clearCachedItem<Item>(sheet: string, item: Item): Promise<void>;
+  itemsOriginal<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsDraft<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsPublished<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsArchived<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByRelated<Item>(sheet: string, baseItem: Item, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByType<Item>(sheet: string, type: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByTypeDefault<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByAuthor<Item>(sheet: string, authorKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByLocale<Item>(sheet: string, locale: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByOrigin<Item>(sheet: string, origin: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByParent<Item>(sheet: string, parentKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByTerm<Item>(sheet: string, taxonomy: string, termKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByCategory<Item>(sheet: string, categoryKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByTag<Item>(sheet: string, tagKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByKeyword<Item>(sheet: string, keyword: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByMetaExists<Item>(sheet: string, metaKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  itemsByMetaEquals<Item>(sheet: string, metaKey: string, equalTo: any, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  viewing(sheet: string, key: string): Promise<any>;
+  liking(sheet: string, key: string): Promise<any>;
+  commenting(sheet: string, key: string): Promise<any>;
+  rating(sheet: string, key: string, stars: number): Promise<any>;
+  sharing(sheet: string, key: string, providers?: string[]): Promise<any>;
 }
 
 // DatabaseDirectService
 class DatabaseDirectService {
-    app: AppService;
-    all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
-    content(url: string, styles?: DocsContentStyles, cacheTime?: number): Promise<{
-        content: string;
-    }>;
+  app: AppService;
+  all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
+  docsContent(docUrl: string, style?: DocsContentStyles, cacheTime?: number): Promise<{
+    docId?: string;
+    content: string;
+  }>;
 }
 
 // DatabaseServerService
 class DatabaseServerService {
-    app: AppService;
-    all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
-    query<Item>(sheet: string, query: Query, cacheTime?: number): Promise<Item[]>;
-    item<Item>(sheet: string, key: string, cacheTime?: number): Promise<Item>;
-    content(urlOrDocId: string, styles?: DocsContentStyles, cacheTime?: number): Promise<{
-        docId?: string;
-        content: string;
-    }>;
-    set<Data>(sheet: string, key: string, data: Data): Promise<any>;
-    update<Data>(sheet: string, key: string, data: Data): Promise<any>;
-    add<Data>(sheet: string, key: string, data: Data): Promise<any>;
-    remove(sheet: string, key: string): Promise<any>;
-    increase(sheet: string, key: string, increasing: string | string[] | {
-        [path: string]: number;
-    }): Promise<any>;
+  app: AppService;
+  all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
+  query<Item>(sheet: string, query: Query, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  item<Item>(sheet: string, key: string, cacheTime?: number): Promise<Item>;
+  docsContent(docUrl: string, style?: DocsContentStyles, cacheTime?: number): Promise<{
+    docId?: string;
+    content: string;
+  }>;
+  set<Data>(sheet: string, key: string, data: Data): Promise<any>;
+  update<Data>(sheet: string, key: string, data: Data): Promise<any>;
+  add<Data>(sheet: string, key: string, data: Data): Promise<any>;
+  remove(sheet: string, key: string): Promise<any>;
+  increase(sheet: string, key: string, increasing: string | string[] | {
+    [path: string]: number;
+  }): Promise<any>;
 }
 ```
 
@@ -231,79 +267,105 @@ class DatabaseServerService {
 ```ts
 // AuthService
 class AuthService {
-    app: AppService;
-    currentUser: User;
-    onAuthStateChanged(next: {
-        (user: User): any;
-    }): void;
-    checkActionCode(code: string): Promise<any>;
-    createUserWithEmailAndPassword(email: string, password: string): Promise<{
-        user: User;
-    }>;
-    signInWithEmailAndPassword(email: string, password: string): Promise<{
-        user: User;
-    }>;
-    signInWithCustomToken(token: string): Promise<{
-        user: User;
-    }>;
-    signInAnonymously(): Promise<{
-        user: User;
-    }>;
-    sendPasswordResetEmail(email: string): Promise<any>;
-    verifyPasswordResetCode(code: string): Promise<any>;
-    confirmPasswordReset(code: string, newPassword: string): Promise<any>;
-    signInWithPopup(provider: AuthProvider): Promise<void>;
-    googleAuthProvider(): AuthProvider;
-    facebookAuthProvider(): AuthProvider;
-    signOut(): Promise<void>;
+  app: AppService;
+  currentUser: User;
+  onAuthStateChanged(next: {
+    (user: User): any;
+  }): void;
+  checkActionCode(code: string): Promise<any>;
+  createUserWithEmailAndPassword(email: string, password: string): Promise<{
+    user: User;
+  }>;
+  signInWithEmailAndPassword(email: string, password: string): Promise<{
+    user: User;
+  }>;
+  signInWithCustomToken(token: string): Promise<{
+    user: User;
+  }>;
+  signInAnonymously(): Promise<{
+    user: User;
+  }>;
+  sendPasswordResetEmail(email: string): Promise<any>;
+  verifyPasswordResetCode(code: string): Promise<any>;
+  confirmPasswordReset(code: string, newPassword: string): Promise<any>;
+  signInWithPopup(provider: AuthProvider): Promise<void>;
+  googleAuthProvider(): AuthProvider;
+  facebookAuthProvider(): AuthProvider;
+  signOut(): Promise<void>;
 }
 
 // User
 class User {
-    idToken: string;
-    refreshToken: string;
+  idToken: string;
+  refreshToken: string;
+  uid: string;
+  providerId: string;
+  email: string;
+  emailVerified: boolean;
+  type: string;
+  createdAt: string;
+  lastLogin: string;
+  username: string;
+  phoneNumber: number | string;
+  displayName: string;
+  photoURL: string;
+  bio: string;
+  url: string;
+  addresses: string | {
+    [name: string]: any;
+  };
+  additionalData: {
+    [key: string]: any;
+  };
+  claims: {
+    [claim: string]: any;
+  };
+  settings: UserProfileSettings;
+  isAnonymous: boolean;
+  isNewUser: boolean;
+  toJSON(): {
     uid: string;
     providerId: string;
-    providerData: any;
     email: string;
     emailVerified: boolean;
+    type: string;
     createdAt: string;
     lastLogin: string;
     username: string;
-    phoneNumber: string;
+    phoneNumber: string | number;
     displayName: string;
     photoURL: string;
-    claims: {
-        [claim: string]: any;
+    bio: string;
+    url: string;
+    addresses: string | {
+      [name: string]: any;
     };
+    additionalData: {
+      [key: string]: any;
+    };
+    claims: {
+      [claim: string]: any;
+    };
+    settings: UserProfileSettings;
     isAnonymous: boolean;
     isNewUser: boolean;
-    toJSON(): {
-        uid: string;
-        providerId: string;
-        providerData: any;
-        email: string;
-        emailVerified: boolean;
-        createdAt: string;
-        lastLogin: string;
-        username: string;
-        phoneNumber: string;
-        displayName: string;
-        photoURL: string;
-        claims: {
-            [claim: string]: any;
-        };
-        isAnonymous: boolean;
-        isNewUser: boolean;
-    };
-    getIdToken(forceRefresh?: boolean): Promise<string>;
-    getIdTokenResult(forceRefresh?: boolean): Promise<any>;
-    sendEmailVerification(): Promise<any>;
-    updateProfile(profile: UserProfile): Promise<UserInfo>;
-    setUsername(username: string): Promise<UserInfo>;
-    changePassword(currentPassword: string, newPassword: string): Promise<any>;
-    logout(): Promise<any>;
-    delete(): Promise<any>;
+  };
+  getIdToken(forceRefresh?: boolean): Promise<string>;
+  getIdTokenResult(forceRefresh?: boolean): Promise<any>;
+  sendEmailVerification(): Promise<any>;
+  updateProfile(profile: UserEditableProfile): Promise<UserInfo>;
+  setAdditionalData(data: {
+    [key: string]: any;
+  }): Promise<UserInfo>;
+  setSettings(data: {
+    [key: string]: any;
+  }): Promise<UserInfo>;
+  setProfilePublicly(props: string | string[]): Promise<UserInfo>;
+  setProfilePrivately(props: string | string[]): Promise<UserInfo>;
+  setUsername(username: string): Promise<UserInfo>;
+  changePassword(currentPassword: string, newPassword: string): Promise<any>;
+  logout(): Promise<any>;
+  delete(): Promise<any>;
 }
 ```
 
@@ -311,23 +373,28 @@ class User {
 
 ```ts
 class StorageService {
-    app: AppService;
-    info(fileId: string): Promise<any>;
-    upload(fileResource: FileResource, customFolder?: string, rename?: string): Promise<any>;
-    load(file: File): Promise<{}>;
+  app: AppService;
+  info(id: string): Promise<FileInfo>;
+  upload(fileData: UploadFile, customFolder?: string, renamePolicy?: RenamePolicy, sharing?: FileSharing): Promise<FileInfo>;
+  uploadMultiple(uploadResources: UploadResource[]): Promise<FileInfo[]>;
+  update(id: string, data: FileUpdateData): Promise<{
+    done: true;
+  }>;
+  remove(id: string): Promise<{
+    done: true;
+  }>;
+  read(_file: File): Promise<FileReaderResult>;
 }
-
 ```
 
 ### `app.mail()`
 
 ```ts
 class MailService {
-    app: AppService;
-    quota(): Promise<any>;
-    send(mailingData: MailingData, category?: string, template?: any, silent?: any): Promise<any>;
+  app: AppService;
+  quota(): Promise<any>;
+  send(mailingData: MailingData, category?: string, template?: any, silent?: any): Promise<any>;
 }
-
 ```
 
 ## Lisence
