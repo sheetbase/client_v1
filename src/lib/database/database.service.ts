@@ -287,10 +287,7 @@ export class DatabaseService {
     // clear content
     const contentSource: string = item['contentSource'];
     if (this.isContentUrl(contentSource)) {
-      const id = this.contentId(contentSource);
-      await this.app.Cache.removeByPrefix('content_' + id + '_clean');
-      await this.app.Cache.removeByPrefix('content_' + id + '_full');
-      await this.app.Cache.removeByPrefix('content_' + id + '_original');
+      await this.app.Cache.removeByPrefix('content_' + this.contentId(contentSource));
     }
   }
 
