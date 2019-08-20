@@ -295,7 +295,7 @@ export class DatabaseService {
   }
 
   /**
-   * util get
+   * convinient get
    */
 
   itemsOriginal<Item>(
@@ -624,29 +624,29 @@ export class DatabaseService {
   }
 
   /**
-   * util set
+   * convinient set
    */
 
-  updateView(sheet: string, key: string) {
+  viewing(sheet: string, key: string) {
     return this.increase(sheet, key, 'viewCount');
   }
 
-  updateLike(sheet: string, key: string) {
+  liking(sheet: string, key: string) {
     return this.increase(sheet, key, 'likeCount');
   }
 
-  updateComment(sheet: string, key: string) {
+  commenting(sheet: string, key: string) {
     return this.increase(sheet, key, 'commentCount');
   }
 
-  rate(sheet: string, key: string, stars: number) {
+  rating(sheet: string, key: string, stars: number) {
     return this.increase(sheet, key, {
       'rating/count': 1,
       'rating/total': stars,
     });
   }
 
-  share(sheet: string, key: string, providers: string[] = []) {
+  sharing(sheet: string, key: string, providers: string[] = []) {
     const customData = {};
     for (const provider of providers) {
       customData['sharing/' + provider] = 1;
