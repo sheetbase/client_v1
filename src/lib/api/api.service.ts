@@ -26,7 +26,7 @@ export class ApiService {
         // dafault instance data
         const { apiKey } = this.app.options;
         this.baseEndpoint = '';
-        this.predefinedQuery = !!apiKey ? { apiKey } : {};
+        this.predefinedQuery = !!apiKey ? { key: apiKey } : {};
         this.predefinedBody = {};
         this.beforeRequestHooks = [];
         // set custom data

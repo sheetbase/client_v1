@@ -1,7 +1,6 @@
 export interface ApiOptions {
     backendUrl?: string;
     apiKey?: string;
-    cacheTime?: number;
 }
 
 export interface ActionData {
