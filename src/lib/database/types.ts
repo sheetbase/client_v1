@@ -4,13 +4,11 @@ export interface DatabaseOptions extends DatabasePublicOptions, DatabaseParserOp
 
 export interface DatabasePublicOptions {
     databaseId?: string;
-    databaseGids?: {
-        [sheetName: string]: string;
-    };
+    databaseGids?: DatabaseGids;
 }
 
 export interface DatabaseParserOptions {
-    databaseDataParser?(value: any): any;
+    databaseDataParser?: DatabaseDataParser;
 }
 
 export type AdvancedFilter = (item: any) => boolean;
@@ -31,4 +29,12 @@ export interface Query {
 
 export type DocsContentStyles = 'clean' | 'full' | 'original';
 
-export type DataSegment = {[field: string]: any};
+export interface DataSegment {
+    [field: string]: any;
+}
+
+export interface DatabaseGids {
+    [sheet: string]: string;
+}
+
+export type DatabaseDataParser = (value: any) => any;

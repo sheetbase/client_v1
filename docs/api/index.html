@@ -91,6 +91,8 @@
 								<li class="tsd-kind-interface"><a href="interfaces/authoptions.html" class="tsd-kind-icon">Auth<wbr>Options</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/beforerequesthook.html" class="tsd-kind-icon">Before<wbr>Request<wbr>Hook</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/cacheoptions.html" class="tsd-kind-icon">Cache<wbr>Options</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/datasegment.html" class="tsd-kind-icon">Data<wbr>Segment</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/databasegids.html" class="tsd-kind-icon">Database<wbr>Gids</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/databaseoptions.html" class="tsd-kind-icon">Database<wbr>Options</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/databaseparseroptions.html" class="tsd-kind-icon">Database<wbr>Parser<wbr>Options</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/databasepublicoptions.html" class="tsd-kind-icon">Database<wbr>Public<wbr>Options</a></li>
@@ -118,7 +120,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-type-alias"><a href="index.html#advancedfilter" class="tsd-kind-icon">Advanced<wbr>Filter</a></li>
 								<li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="index.html#cacherefresher" class="tsd-kind-icon">Cache<wbr>Refresher</a></li>
-								<li class="tsd-kind-type-alias"><a href="index.html#datasegment" class="tsd-kind-icon">Data<wbr>Segment</a></li>
+								<li class="tsd-kind-type-alias"><a href="index.html#databasedataparser" class="tsd-kind-icon">Database<wbr>Data<wbr>Parser</a></li>
 								<li class="tsd-kind-type-alias"><a href="index.html#docscontentstyles" class="tsd-kind-icon">Docs<wbr>Content<wbr>Styles</a></li>
 								<li class="tsd-kind-type-alias"><a href="index.html#filesharing" class="tsd-kind-icon">File<wbr>Sharing</a></li>
 								<li class="tsd-kind-type-alias"><a href="index.html#filter" class="tsd-kind-icon">Filter</a></li>
@@ -157,7 +159,7 @@
 					<div class="tsd-signature tsd-kind-icon">Advanced<wbr>Filter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/database/types.ts#L16">lib/database/types.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/database/types.ts#L14">lib/database/types.ts:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -188,7 +190,7 @@
 					<div class="tsd-signature tsd-kind-icon">Cache<wbr>Refresher&lt;Data&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/cache/types.ts#L5">lib/cache/types.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/cache/types.ts#L5">lib/cache/types.ts:5</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -214,19 +216,32 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
-					<a name="datasegment" class="tsd-anchor"></a>
-					<h3>Data<wbr>Segment</h3>
-					<div class="tsd-signature tsd-kind-icon">Data<wbr>Segment<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<a name="databasedataparser" class="tsd-anchor"></a>
+					<h3>Database<wbr>Data<wbr>Parser</h3>
+					<div class="tsd-signature tsd-kind-icon">Database<wbr>Data<wbr>Parser<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/database/types.ts#L34">lib/database/types.ts:34</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/database/types.ts#L40">lib/database/types.ts:40</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
-							<li class="tsd-parameter-index-signature">
-								<h5><span class="tsd-signature-symbol">[</span>field: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></h5>
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>value: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+									</li>
+								</ul>
 							</li>
 						</ul>
 					</div>
@@ -237,7 +252,7 @@
 					<div class="tsd-signature tsd-kind-icon">Docs<wbr>Content<wbr>Styles<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"clean"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"full"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"original"</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/database/types.ts#L32">lib/database/types.ts:32</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/database/types.ts#L30">lib/database/types.ts:30</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -247,7 +262,7 @@
 					<div class="tsd-signature tsd-kind-icon">File<wbr>Sharing<span class="tsd-signature-symbol">:</span> <a href="index.html#sharingpreset" class="tsd-signature-type">SharingPreset</a><span class="tsd-signature-symbol"> | </span><a href="interfaces/sharingconfig.html" class="tsd-signature-type">SharingConfig</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/storage/types.ts#L45">lib/storage/types.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/storage/types.ts#L45">lib/storage/types.ts:45</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -257,7 +272,7 @@
 					<div class="tsd-signature tsd-kind-icon">Filter<span class="tsd-signature-symbol">:</span> <a href="index.html#shorthandequal" class="tsd-signature-type">ShorthandEqual</a><span class="tsd-signature-symbol"> | </span><a href="interfaces/query.html" class="tsd-signature-type">Query</a><span class="tsd-signature-symbol"> | </span><a href="index.html#advancedfilter" class="tsd-signature-type">AdvancedFilter</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/database/types.ts#L18">lib/database/types.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/database/types.ts#L16">lib/database/types.ts:16</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -267,7 +282,7 @@
 					<div class="tsd-signature tsd-kind-icon">Localstorage<wbr>Iterate<wbr>Handler&lt;Data&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/localstorage/types.ts#L10">lib/localstorage/types.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/localstorage/types.ts#L10">lib/localstorage/types.ts:10</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -310,7 +325,7 @@
 					<div class="tsd-signature tsd-kind-icon">Localstorage<wbr>Iterate<wbr>Keys<wbr>Handler<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/localstorage/types.ts#L16">lib/localstorage/types.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/localstorage/types.ts#L16">lib/localstorage/types.ts:16</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -344,7 +359,7 @@
 					<div class="tsd-signature tsd-kind-icon">Rename<wbr>Policy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"AUTO"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"HASH"</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/storage/types.ts#L43">lib/storage/types.ts:43</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/storage/types.ts#L43">lib/storage/types.ts:43</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -354,7 +369,7 @@
 					<div class="tsd-signature tsd-kind-icon">Sharing<wbr>Preset<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"PUBLIC"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"PRIVATE"</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/storage/types.ts#L46">lib/storage/types.ts:46</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/storage/types.ts#L46">lib/storage/types.ts:46</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -364,7 +379,7 @@
 					<div class="tsd-signature tsd-kind-icon">Shorthand<wbr>Equal<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/database/types.ts#L17">lib/database/types.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/database/types.ts#L15">lib/database/types.ts:15</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -389,7 +404,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/utils.ts#L4">lib/utils.ts:4</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/utils.ts#L4">lib/utils.ts:4</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -412,7 +427,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/utils.ts#L80">lib/utils.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/utils.ts#L80">lib/utils.ts:80</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -449,7 +464,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/database/filter.ts#L14">lib/database/filter.ts:14</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/database/filter.ts#L14">lib/database/filter.ts:14</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -490,7 +505,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/database/filter.ts#L3">lib/database/filter.ts:3</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/database/filter.ts#L3">lib/database/filter.ts:3</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -507,13 +522,13 @@
 					<a name="buildsegmentfilter" class="tsd-anchor"></a>
 					<h3>build<wbr>Segment<wbr>Filter</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">build<wbr>Segment<wbr>Filter&lt;Item&gt;<span class="tsd-signature-symbol">(</span>segment<span class="tsd-signature-symbol">: </span><a href="index.html#datasegment" class="tsd-signature-type">DataSegment</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">segmentFilter</span></li>
+						<li class="tsd-signature tsd-kind-icon">build<wbr>Segment<wbr>Filter&lt;Item&gt;<span class="tsd-signature-symbol">(</span>segment<span class="tsd-signature-symbol">: </span><a href="interfaces/datasegment.html" class="tsd-signature-type">DataSegment</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">segmentFilter</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/database/filter.ts#L112">lib/database/filter.ts:112</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/database/filter.ts#L112">lib/database/filter.ts:112</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -525,7 +540,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>segment: <a href="index.html#datasegment" class="tsd-signature-type">DataSegment</a></h5>
+									<h5>segment: <a href="interfaces/datasegment.html" class="tsd-signature-type">DataSegment</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">segmentFilter</span></h4>
@@ -542,7 +557,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/utils.ts#L26">lib/utils.ts:26</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/utils.ts#L26">lib/utils.ts:26</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -565,7 +580,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/utils.ts#L10">lib/utils.ts:10</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/utils.ts#L10">lib/utils.ts:10</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -588,7 +603,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/utils.ts#L47">lib/utils.ts:47</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/utils.ts#L47">lib/utils.ts:47</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -605,7 +620,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/utils.ts#L20">lib/utils.ts:20</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/utils.ts#L20">lib/utils.ts:20</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -631,7 +646,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/utils.ts#L15">lib/utils.ts:15</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/utils.ts#L15">lib/utils.ts:15</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -654,7 +669,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/utils.ts#L61">lib/utils.ts:61</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/utils.ts#L61">lib/utils.ts:61</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -692,7 +707,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/8401cd0/src/lib/utils.ts#L99">lib/utils.ts:99</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/dd1ffff/src/lib/utils.ts#L99">lib/utils.ts:99</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -781,6 +796,12 @@
 						<a href="interfaces/cacheoptions.html" class="tsd-kind-icon">Cache<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="interfaces/datasegment.html" class="tsd-kind-icon">Data<wbr>Segment</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/databasegids.html" class="tsd-kind-icon">Database<wbr>Gids</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="interfaces/databaseoptions.html" class="tsd-kind-icon">Database<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
@@ -847,7 +868,7 @@
 						<a href="index.html#cacherefresher" class="tsd-kind-icon">Cache<wbr>Refresher</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
-						<a href="index.html#datasegment" class="tsd-kind-icon">Data<wbr>Segment</a>
+						<a href="index.html#databasedataparser" class="tsd-kind-icon">Database<wbr>Data<wbr>Parser</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="index.html#docscontentstyles" class="tsd-kind-icon">Docs<wbr>Content<wbr>Styles</a>

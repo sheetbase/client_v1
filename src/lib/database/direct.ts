@@ -3,21 +3,23 @@ import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
 
-import { DocsContentStyles } from './types';
+import { DocsContentStyles, DatabaseGids, DatabaseDataParser } from './types';
 
 export class DatabaseDirectService {
 
+  private PARSING_URL_SCHEME = 'url:';
+
   private databaseId: string;
-  private databaseGids: {[sheet: string]: string};
-  private customDataParser: (value: any) => any;
+  private databaseGids: DatabaseGids;
+  private customDataParser: DatabaseDataParser;
 
   app: AppService;
 
   constructor(
     app: AppService,
     databaseId: string,
-    databaseGids: {[sheet: string]: string},
-    customDataParser: (value: any) => any,
+    databaseGids: DatabaseGids,
+    customDataParser: DatabaseDataParser,
   ) {
     this.app = app;
     this.databaseId = databaseId;
@@ -102,36 +104,48 @@ export class DatabaseDirectService {
 
   private parseItem<Item>(item: Item) {
     for (const key of Object.keys(item)) {
+      let value = item[key];
       // 1. basic
-      if (!item[key]) {
+      if (!value) {
         delete item[key];
-      } else if ((item[key] + '').toLowerCase() === 'true') { // TRUE
-        item[key] = true;
-      } else if ((item[key] + '').toLowerCase() === 'false') { // FALSE
-        item[key] = false;
-      } else if (!isNaN(item[key])) { // number
-        item[key] = Number(item[key]);
+      } else if ((value + '').toLowerCase() === 'true') { // TRUE
+        value = true;
+      } else if ((value + '').toLowerCase() === 'false') { // FALSE
+        value = false;
+      } else if (!isNaN(value)) { // number
+        value = Number(value);
       } else { // JSON
         try {
-          item[key] = JSON.parse(item[key]);
-        } catch (e) { /* invalid json string */ }
+          value = JSON.parse(value);
+        } catch (e) {
+          /* invalid json, keep value as is */
+        }
       }
       // 2. builtin
-      if (
-        typeof item[key] === 'string' &&
-        item[key].substr(0, 4) === 'url:'
-      ) {
-        item[key] = 'https://drive.google.com/uc?id=' + item[key];
-      }
+      value = this.builtinDataParser(value);
       // 3. custom
       if (
         !!this.customDataParser &&
         this.customDataParser instanceof Function
       ) {
-        item[key] = this.customDataParser(item[key]);
+        value = this.customDataParser(value);
       }
+      // finally, overwrite the value
+      item[key] = value;
     }
     return item;
+  }
+
+  private builtinDataParser(value: any) {
+    // uc url builder
+    if (
+      typeof value === 'string' &&
+      value.substr(0, this.PARSING_URL_SCHEME.length) === this.PARSING_URL_SCHEME
+    ) {
+      return 'https://drive.google.com/uc?id=' + value;
+    } else {
+      return value;
+    }
   }
 
   private getClassStyles(html: string) {

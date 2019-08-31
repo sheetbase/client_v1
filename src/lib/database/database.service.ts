@@ -33,7 +33,7 @@ export class DatabaseService {
   app: AppService;
 
   constructor(app: AppService) {
-    const { databaseId, databaseGids, databaseEndpoint, databaseDataParser } = app.options;
+    const { databaseEndpoint, databaseId, databaseGids, databaseDataParser } = app.options;
     // set app
     this.app = app;
     // create instances
@@ -108,7 +108,7 @@ export class DatabaseService {
       !this.isUrl(value) &&
       this.isFileId(value)
     ) {
-      value = 'https://drive.google.com/uc=?' + value;
+      value = 'https://drive.google.com/uc?id=' + value;
     }
     return value;
   }
@@ -137,6 +137,7 @@ export class DatabaseService {
         items = await this.direct().all<Item>(sheet, cacheTime);
       } catch (error) {
         // not published
+        // or any errors
       }
     }
     // load from server
