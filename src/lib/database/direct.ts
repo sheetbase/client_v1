@@ -1,4 +1,5 @@
 import { parse } from 'papaparse';
+import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
 import { parseObject } from '../utils';
@@ -43,30 +44,40 @@ export class DatabaseDirectService {
     );
   }
 
-  async docsContent(
-    docUrl: string,
+  // Google Docs html content
+  docsContent(
+    itemKey: string,
+    docId: string,
     style: DocsContentStyles = 'full',
     cacheTime = 0,
-  ): Promise<{ docId?: string; content: string; }> {
-    // get doc id
-    const docId = docUrl
-      .replace('https://docs.google.com/document/d/', '')
-      .split('/')
-      .shift();
-    // get data
-    const content = await this.app.Cache.getRefresh<string>(
-      'content_' + docId + '_' + style,
+  ) {
+    const url = 'https://docs.google.com/document/d/' + docId + '/pub?embedded=true';
+    return this.app.Cache.getRefresh<string>(
+      'content_' + itemKey + '_' + docId + '_' + style,
       cacheTime,
-      async () => {
-        // fetch html content
-        const html: string = await this.app.Fetch.get(
-          'https://docs.google.com/document/d/' + docId + '/pub?embedded=true', {}, { json: false },
-        );
-        // parse
-        return await this.parseDocsContent(html, style);
-      },
+      async () => this.parseDocsContent(
+        await this.app.Fetch.get(url, {}, { json: false }),
+        style,
+      ),
     );
-    return { docId, content };
+  }
+
+  // text-based content (txt, html, md, ...)
+  textContent(itemKey: string, url: string, cacheTime = 0) {
+    return this.app.Cache.getRefresh<string>(
+      'content_' + itemKey + '_' + md5(url),
+      cacheTime,
+      async () => await this.app.Fetch.get(url, {}, { json: false }),
+    );
+  }
+
+  // json content
+  jsonContent<Data>(itemKey: string, url: string, cacheTime = 0) {
+    return this.app.Cache.getRefresh<Data>(
+      'content_' + itemKey + '_' + md5(url),
+      cacheTime,
+      async () => await this.app.Fetch.get(url) as Data,
+    );
   }
 
   private csvUrl(sheet: string) {

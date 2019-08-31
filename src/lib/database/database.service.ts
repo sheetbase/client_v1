@@ -1,5 +1,3 @@
-import { md5 } from '../../md5/md5';
-
 import { AppService } from '../app/app.service';
 
 import { Filter, AdvancedFilter, Query, DocsContentStyles, DataSegment } from './types';
@@ -9,10 +7,7 @@ import { buildQuery, buildAdvancedFilter, buildSegmentFilter } from './filter';
 
 export class DatabaseService {
 
-  private DatabaseDirect: DatabaseDirectService;
-  private DatabaseServer: DatabaseServerService;
-
-  private builtinPublicGids = {
+  private BUILTIN_PUBLIC_GIDS = {
     categories: '101',
     tags: '102',
     pages: '103',
@@ -27,6 +22,12 @@ export class DatabaseService {
     notifications: '181',
     promotions: '182',
   };
+  private AUTO_LOADED_JSON_SCHEME = 'json://';
+  private AUTO_LOADED_TEXT_SCHEME = 'content://';
+
+  private DatabaseDirect: DatabaseDirectService;
+  private DatabaseServer: DatabaseServerService;
+
   private globalSegment: DataSegment;
 
   app: AppService;
@@ -40,7 +41,7 @@ export class DatabaseService {
       this.app,
       databaseId,
       {
-        ... this.builtinPublicGids,
+        ... this.BUILTIN_PUBLIC_GIDS,
         ... databaseGids,
       },
     );
@@ -59,37 +60,56 @@ export class DatabaseService {
    * utils
    */
 
-  private isDirect(sheet: string) {
+  // is this sheet available for direct access
+  private hasDirectAccess(sheet: string) {
     const { databaseId, databaseGids = {} } = this.app.options;
     return (
       !!databaseId &&
       (
-        !!this.builtinPublicGids[sheet] ||
+        !!this.BUILTIN_PUBLIC_GIDS[sheet] ||
         !!databaseGids[sheet]
       )
     );
   }
 
-  private isContentUrl(contentSource: string) {
+  // possibly a url
+  private isUrl(value: string) {
     return (
-      !!contentSource &&
-      // must be an url (not implicit excluded - starts with @)
-      (
-        contentSource.substr(0, 4) === 'http' &&
-        contentSource.indexOf('://') > -1
-      )
+      value.substr(0, 7) === 'http://' ||
+      value.substr(0, 8) === 'https://'
     );
   }
 
-  private isDocUrl(contentSource: string) {
-    return contentSource.indexOf('https://docs.google.com/document/d/') > -1;
+  private isFileId(id: string) {
+    // example: 17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W
+    // usually an 33 characters id, and starts with 1
+    return (
+      id.substr(0, 1) === '1' &&
+      id.length > 31 &&
+      id.length < 35
+    );
   }
 
-  private contentId(contentSource: string) {
-    return !this.isDocUrl(contentSource) ? md5(contentSource) :
-      contentSource.replace('https://docs.google.com/document/d/', '')
-      .split('/')
-      .shift();
+  private isDocId(id: string) {
+    // example: 1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc
+    // usually an 44 characters id, and starts with 1
+    return (
+      id.substr(0, 1) === '1' &&
+      id.length > 42 &&
+      id.length < 46
+    );
+  }
+
+  // return url to resource or a doc id
+  private buildAutoLoadedValue(rawValue: string, scheme: string) {
+    let value = rawValue.replace(scheme, '');
+    if (
+      !this.isUrl(value) &&
+      this.isFileId(value)
+    ) {
+      value = 'https://drive.google.com/uc=?' + value;
+    }
+    return value;
   }
 
   /**
@@ -111,7 +131,7 @@ export class DatabaseService {
   async all<Item>(sheet: string, cacheTime = 1440) {
     let items: Item[] = [];
     // first load from direct
-    if (this.isDirect(sheet)) {
+    if (this.hasDirectAccess(sheet)) {
       try {
         items = await this.direct().all<Item>(sheet, cacheTime);
       } catch (error) {
@@ -189,6 +209,7 @@ export class DatabaseService {
     finder: string | Filter,
     useCached = true,
     cacheTime = 1440,
+    autoLoaded = true,
     docsStyle: DocsContentStyles = 'full',
     segment: DataSegment = null,
   ) {
@@ -208,34 +229,53 @@ export class DatabaseService {
         item = items[0] as Item;
       }
     }
-    // get content from source
-    const contentSource: string = item['contentSource'];
-    if (
-      !!item &&
-      !item['content'] &&
-      this.isContentUrl(contentSource)
-    ) {
-      item['content'] = await this.content(contentSource, cacheTime, docsStyle);
+    // load auto-loaded values
+    if (!!autoLoaded) {
+      // must associated with this item
+      const itemKey = item['$key'];
+      // check all props and load values
+      for (const prop of Object.keys(item)) {
+        const propValue = item[prop];
+        // auto-loaded json://
+        if (
+          typeof propValue === 'string' &&
+          propValue.substr(0, this.AUTO_LOADED_JSON_SCHEME.length) === this.AUTO_LOADED_JSON_SCHEME
+        ) {
+          // load and overwrite the data
+          const autoLoadedValue = this.buildAutoLoadedValue(propValue, this.AUTO_LOADED_JSON_SCHEME);
+          item[prop] = await this.jsonContent(itemKey, autoLoadedValue, cacheTime);
+        }
+        // auto-loaded content://
+        if (
+          typeof propValue === 'string' &&
+          propValue.substr(0, this.AUTO_LOADED_TEXT_SCHEME.length) === this.AUTO_LOADED_TEXT_SCHEME
+        ) {
+          const autoLoadedValue = this.buildAutoLoadedValue(propValue, this.AUTO_LOADED_TEXT_SCHEME);
+          item[prop] = this.isDocId(autoLoadedValue) ?
+          await this.docsContent(itemKey, autoLoadedValue, docsStyle, cacheTime) :
+          await this.textContent(itemKey, autoLoadedValue, cacheTime);
+        }
+      }
     }
     // return final item
     return item;
   }
 
-  async content(
-    url: string,
-    cacheTime = 1440,
+  docsContent(
+    itemKey: string,
+    docId: string,
     docsStyle: DocsContentStyles = 'full',
+    cacheTime = 1440,
   ) {
-    if (this.isDocUrl(url)) {
-      const { content } = await this.direct().docsContent(url, docsStyle, cacheTime);
-      return content;
-    } else {
-      return await this.app.Cache.getRefresh<string>(
-        'content_' + md5(url) + '_original',
-        cacheTime,
-        async () => await this.app.Fetch.get(url, {}, { json: false }),
-      );
-    }
+    return this.direct().docsContent(itemKey, docId, docsStyle, cacheTime);
+  }
+
+  textContent(itemKey: string, url: string, cacheTime = 1440) {
+    return this.direct().textContent(itemKey, url, cacheTime);
+  }
+
+  jsonContent(itemKey: string, url: string, cacheTime = 1440) {
+    return this.direct().jsonContent(itemKey, url, cacheTime);
   }
 
   /**
@@ -281,14 +321,9 @@ export class DatabaseService {
     }
   }
 
-  async clearCachedItem<Item>(sheet: string, item: Item) {
-    // clear all associated data
-    await this.clearCachedAll(sheet);
-    // clear content
-    const contentSource: string = item['contentSource'];
-    if (this.isContentUrl(contentSource)) {
-      await this.app.Cache.removeByPrefix('content_' + this.contentId(contentSource));
-    }
+  async clearCachedItem(sheet: string, itemKey: string) {
+    await this.clearCachedAll(sheet); // clear database_<sheet>
+    await this.app.Cache.removeByPrefix('content_' + itemKey); // clear content_<itemKey>
   }
 
   /**
