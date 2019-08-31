@@ -33,7 +33,7 @@ export class DatabaseService {
   app: AppService;
 
   constructor(app: AppService) {
-    const { databaseId, databaseGids, databaseEndpoint } = app.options;
+    const { databaseId, databaseGids, databaseEndpoint, databaseDataParser } = app.options;
     // set app
     this.app = app;
     // create instances
@@ -44,6 +44,7 @@ export class DatabaseService {
         ... this.BUILTIN_PUBLIC_GIDS,
         ... databaseGids,
       },
+      databaseDataParser,
     );
     this.DatabaseServer = new DatabaseServerService(
       this.app,

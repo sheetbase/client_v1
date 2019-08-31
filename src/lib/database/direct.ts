@@ -2,7 +2,6 @@ import { parse } from 'papaparse';
 import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
-import { parseObject } from '../utils';
 
 import { DocsContentStyles } from './types';
 
@@ -10,6 +9,7 @@ export class DatabaseDirectService {
 
   private databaseId: string;
   private databaseGids: {[sheet: string]: string};
+  private customDataParser: (value: any) => any;
 
   app: AppService;
 
@@ -17,10 +17,12 @@ export class DatabaseDirectService {
     app: AppService,
     databaseId: string,
     databaseGids: {[sheet: string]: string},
+    customDataParser: (value: any) => any,
   ) {
     this.app = app;
     this.databaseId = databaseId;
     this.databaseGids = databaseGids;
+    this.customDataParser = customDataParser;
   }
 
   async all<Item>(sheet: string, cacheTime = 0) {
@@ -28,18 +30,19 @@ export class DatabaseDirectService {
       'database_' + sheet,
       cacheTime,
       async () => {
-        // fetch csv file
-        const csvText: string = await this.app.Fetch.get(
-          this.csvUrl(sheet), {}, { json: false },
-        );
-        // parse
+        const url = this.csvUrl(sheet);
+        const csvText: string = await this.app.Fetch.get(url, {}, { json: false });
         const items = await this.parseCSV<Item>(csvText);
         // process items
+        const result: Item[] = [];
         for (let i = 0, l = items.length; i < l; i++) {
-          items[i]['_row'] = i + 2;
-          parseObject(items[i]);
+          const item = this.parseItem(items[i]);
+          if (!!Object.keys(item).length) {
+            item['_row'] = i + 2;
+            result.push(item);
+          }
         }
-        return items;
+        return result;
       },
     );
   }
@@ -92,9 +95,43 @@ export class DatabaseDirectService {
     return new Promise<Item[]>((resolve, reject) => {
       parse(csv, {
         header: true,
-        complete: (result) => !result.errors.length ? resolve(result.data) : reject(result.errors),
+        complete: result => !result.errors.length ? resolve(result.data) : reject(result.errors),
       });
     });
+  }
+
+  private parseItem<Item>(item: Item) {
+    for (const key of Object.keys(item)) {
+      // 1. basic
+      if (!item[key]) {
+        delete item[key];
+      } else if ((item[key] + '').toLowerCase() === 'true') { // TRUE
+        item[key] = true;
+      } else if ((item[key] + '').toLowerCase() === 'false') { // FALSE
+        item[key] = false;
+      } else if (!isNaN(item[key])) { // number
+        item[key] = Number(item[key]);
+      } else { // JSON
+        try {
+          item[key] = JSON.parse(item[key]);
+        } catch (e) { /* invalid json string */ }
+      }
+      // 2. builtin
+      if (
+        typeof item[key] === 'string' &&
+        item[key].substr(0, 4) === 'url:'
+      ) {
+        item[key] = 'https://drive.google.com/uc?id=' + item[key];
+      }
+      // 3. custom
+      if (
+        !!this.customDataParser &&
+        this.customDataParser instanceof Function
+      ) {
+        item[key] = this.customDataParser(item[key]);
+      }
+    }
+    return item;
   }
 
   private getClassStyles(html: string) {

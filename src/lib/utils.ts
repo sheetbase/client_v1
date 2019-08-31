@@ -1,6 +1,12 @@
 import { ResponseError } from './api/types';
 import { PopupConfigs } from './app/types';
 
+export function ApiError(result: ResponseError) {
+  this.name = 'ApiError';
+  this.message = result.message;
+  this.error = result;
+}
+
 export function decodeJWTPayload(token: string) {
   const [, payloadStr ] = token.split('.');
   return JSON.parse(atob(payloadStr));
@@ -9,12 +15,6 @@ export function decodeJWTPayload(token: string) {
 export function isExpiredJWT(token: string) {
   const { exp } = decodeJWTPayload(token);
   return isExpiredInSeconds(exp || 0, 60); // exp or always, and 1 minute earlier
-}
-
-export function ApiError(result: ResponseError) {
-  this.name = 'ApiError';
-  this.message = result.message;
-  this.error = result;
 }
 
 export function isExpiredInSeconds(expiredTime: number, costMore = 0) {
@@ -56,60 +56,6 @@ export function getHost() {
     host = hrefSplit[0] + '//' + hrefSplit[1];
   }
   return host;
-}
-
-// convert string of data load from spreadsheet to correct data type
-export function parseData(data: any) {
-  if ((data + '').toLowerCase() === 'true') {
-    // boolean TRUE
-    data = true;
-  } else if ((data + '').toLowerCase() === 'false') {
-    // boolean FALSE
-    data = false;
-  } else if (!isNaN(data)) {
-    // number
-    data = Number(data);
-  } else if (
-    (data.substr(0, 1) === '{' && data.substr(-1) === '}') ||
-    (data.substr(0, 1) === '[' && data.substr(-1) === ']')
-  ) {
-    // JSON
-    try {
-      data = JSON.parse(data);
-    } catch (e) {
-      // continue
-    }
-  }
-  return data;
-}
-
-export function parseObject(obj: {}) {
-  for (const key of Object.keys(obj)) {
-    if (obj[key] === '' || obj[key] === null || obj[key] === undefined) {
-      // delete null key
-      delete obj[key];
-    } else if ((obj[key] + '').toLowerCase() === 'true') {
-      // boolean TRUE
-      obj[key] = true;
-    } else if ((obj[key] + '').toLowerCase() === 'false') {
-      // boolean FALSE
-      obj[key] = false;
-    } else if (!isNaN(obj[key])) {
-      // number
-      obj[key] = Number(obj[key]);
-    } else if (
-      (obj[key].substr(0, 1) === '{' && obj[key].substr(-1) === '}') ||
-      (obj[key].substr(0, 1) === '[' && obj[key].substr(-1) === ']')
-    ) {
-      // JSON
-      try {
-        obj[key] = JSON.parse(obj[key]);
-      } catch (e) {
-        // continue
-      }
-    }
-  }
-  return obj;
 }
 
 export function o2a<Obj, K extends keyof Obj, P extends Obj[K]>(

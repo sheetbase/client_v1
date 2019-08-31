@@ -1,4 +1,4 @@
-export interface DatabaseOptions extends DatabasePublicOptions {
+export interface DatabaseOptions extends DatabasePublicOptions, DatabaseParserOptions {
     databaseEndpoint?: string;
 }
 
@@ -7,6 +7,10 @@ export interface DatabasePublicOptions {
     databaseGids?: {
         [sheetName: string]: string;
     };
+}
+
+export interface DatabaseParserOptions {
+    databaseDataParser?(value: any): any;
 }
 
 export type AdvancedFilter = (item: any) => boolean;

@@ -11,6 +11,7 @@ import { DatabaseServerService } from '../src/lib/database/server';
 import { database } from '../src/lib/database/index';
 
 let databaseServerService: DatabaseServerService;
+let databaseDirectService: DatabaseDirectService;
 
 let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
@@ -19,6 +20,9 @@ let databaseQueryStub: sinon.SinonStub;
 let databaseUpdateStub: sinon.SinonStub;
 
 function before() {
+  /**
+   * server
+   */
   databaseServerService = new DatabaseServerService(
     new AppService({ backendUrl: '' }),
   );
@@ -36,6 +40,15 @@ function before() {
   apiPostStub.callsFake(async (endpoint, query, body) => {
     return { method: 'POST', endpoint, query, body };
   });
+  /**
+   * client
+   */
+  databaseDirectService = new DatabaseDirectService(
+    new AppService({ backendUrl: '' }),
+    'xxx',
+    {},
+    null,
+  );
 }
 
 function after() {
@@ -56,6 +69,27 @@ describe('(Database) Database server service', () => {
     // @ts-ignore
     expect(databaseServerService.Api instanceof ApiService).to.equal(true);
   });
+
+});
+
+describe('(Database) Database direct service', () => {
+
+  beforeEach(before);
+  afterEach(after);
+
+  it('properties', () => {
+    expect(databaseDirectService.app instanceof AppService).to.equal(true);
+  });
+
+  // it('#parseCSV', async () => {
+  //   // @ts-ignore
+  //   const result = await databaseDirectService.parseCSV(
+  //     'a,b,c\n' +
+  //     '1,2,3\n' +
+  //     '1,2,3',
+  //   );
+  //   expect(result).to.eql([]);
+  // });
 
 });
 
