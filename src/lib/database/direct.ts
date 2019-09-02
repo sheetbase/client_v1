@@ -106,32 +106,38 @@ export class DatabaseDirectService {
     for (const key of Object.keys(item)) {
       let value = item[key];
       // 1. basic
-      if (!value) {
-        delete item[key];
-      } else if ((value + '').toLowerCase() === 'true') { // TRUE
-        value = true;
-      } else if ((value + '').toLowerCase() === 'false') { // FALSE
-        value = false;
-      } else if (!isNaN(value)) { // number
-        value = Number(value);
-      } else { // JSON
-        try {
-          value = JSON.parse(value);
-        } catch (e) {
-          /* invalid json, keep value as is */
-        }
-      }
-      // 2. builtin
-      value = this.builtinDataParser(value);
-      // 3. custom
       if (
-        !!this.customDataParser &&
-        this.customDataParser instanceof Function
+        value === '' ||
+        value === undefined ||
+        value === null
       ) {
-        value = this.customDataParser(value);
+        delete item[key];
+      } else {
+        if ((value + '').toLowerCase() === 'true') { // TRUE
+          value = true;
+        } else if ((value + '').toLowerCase() === 'false') { // FALSE
+          value = false;
+        } else if (!isNaN(value)) { // number
+          value = Number(value);
+        } else { // JSON
+          try {
+            value = JSON.parse(value);
+          } catch (e) {
+            /* invalid json, keep value as is */
+          }
+        }
+        // 2. builtin
+        value = this.builtinDataParser(value);
+        // 3. custom
+        if (
+          !!this.customDataParser &&
+          this.customDataParser instanceof Function
+        ) {
+          value = this.customDataParser(value);
+        }
+        // finally, overwrite the value
+        item[key] = value;
       }
-      // finally, overwrite the value
-      item[key] = value;
     }
     return item;
   }
@@ -142,7 +148,7 @@ export class DatabaseDirectService {
       typeof value === 'string' &&
       value.substr(0, this.PARSING_URL_SCHEME.length) === this.PARSING_URL_SCHEME
     ) {
-      return 'https://drive.google.com/uc?id=' + value;
+      return 'https://drive.google.com/uc?id=' + value.replace(this.PARSING_URL_SCHEME, '');
     } else {
       return value;
     }
