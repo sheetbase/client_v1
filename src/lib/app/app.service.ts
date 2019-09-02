@@ -21,7 +21,7 @@ class AppService {
     Storage: StorageService;
     Mail: MailService;
 
-    constructor(options: AppOptions) {
+    constructor(options?: AppOptions) {
         this.options = options;
         this.Localstorage = new LocalstorageService(this);
         this.Cache = new CacheService(this);
@@ -77,7 +77,7 @@ class AppsService {
 
     constructor() {}
 
-    createApp(options: AppOptions, name = 'DEFAULT') {
+    createApp(options?: AppOptions, name = 'DEFAULT') {
         if (!!this.apps[name]) {
             throw new Error(`An app exists with the name "${name}".`);
         }

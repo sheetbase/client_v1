@@ -3,7 +3,7 @@ import { AppsService, AppService } from './app.service';
 
 const SHEETBASE_APPS = new AppsService();
 
-function initializeApp(options: AppOptions, name?: string) {
+function initializeApp(options?: AppOptions, name?: string) {
     return SHEETBASE_APPS.createApp(options, name);
 }
 
