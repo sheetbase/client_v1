@@ -22,7 +22,7 @@ class AppService {
     Mail: MailService;
 
     constructor(options?: AppOptions) {
-        this.options = options;
+        this.options = options || {};
         this.Localstorage = new LocalstorageService(this);
         this.Cache = new CacheService(this);
         this.Api = new ApiService(this);
