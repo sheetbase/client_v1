@@ -4,7 +4,7 @@ import * as sinon from 'sinon';
 
 import { AppService } from '../src/lib/app/app.service';
 
-import { ApiService } from '../src/lib/api/api.service';
+import { ApiError, ApiService } from '../src/lib/api/api.service';
 import { api } from '../src/lib/api/index';
 
 let apiService: ApiService;
@@ -13,14 +13,24 @@ let apiFetchStub: sinon.SinonStub;
 let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
 
-function buildStubs() {
+function before() {
+  apiService = new ApiService(
+    new AppService({ backendUrl: '' }),
+  );
   // @ts-ignore
   apiFetchStub = sinon.stub(apiService, 'fetch');
   apiGetStub = sinon.stub(apiService, 'get');
   apiPostStub = sinon.stub(apiService, 'post');
+  //
+  apiGetStub.callsFake(async (endpoint, query) => {
+    return { method: 'GET', endpoint, query };
+  });
+  apiPostStub.callsFake(async (endpoint, query, body) => {
+    return { method: 'POST', endpoint, query, body };
+  });
 }
 
-function restoreStubs() {
+function after() {
   apiFetchStub.restore();
   apiGetStub.restore();
   apiPostStub.restore();
@@ -28,20 +38,16 @@ function restoreStubs() {
 
 describe('(Api) Api service', () => {
 
-  beforeEach(() => {
-    apiService = new ApiService(
-      new AppService({ backendUrl: '' }),
-    );
-    buildStubs();
-    apiGetStub.callsFake(async (endpoint, query) => {
-      return { method: 'GET', endpoint, query };
-    });
-    apiPostStub.callsFake(async (endpoint, query, body) => {
-      return { method: 'POST', endpoint, query, body };
-    });
-  });
+  beforeEach(before);
+  afterEach(after);
 
-  afterEach(() => restoreStubs());
+  it('ApiError', () => {
+    const error = { error: true, code: 'xxx', message: 'Route error ...' };
+    const result = new ApiError(error);
+    expect(result.name).to.equal('ApiError');
+    expect(result.message).to.equal('Route error ...');
+    expect(result.error).to.eql(error);
+  });
 
   const INSTANCE_DATA = {
     endpoint: 'xxx',

@@ -1,7 +1,6 @@
 import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
-import { ApiError } from '../utils';
 
 import {
     BeforeRequestHook,
@@ -10,6 +9,12 @@ import {
     ResponseSuccess,
     ResponseError,
 } from './types';
+
+export function ApiError (result: ResponseError) {
+    this.name = 'ApiError';
+    this.message = result.message;
+    this.error = result;
+}
 
 export class ApiService {
 
