@@ -1,11 +1,4 @@
-import { ResponseError } from './api/types';
 import { PopupConfigs } from './app/types';
-
-export function ApiError(result: ResponseError) {
-  this.name = 'ApiError';
-  this.message = result.message;
-  this.error = result;
-}
 
 export function decodeJWTPayload(token: string) {
   const [, payloadStr ] = token.split('.');
@@ -38,7 +31,7 @@ export function createPopup(config: PopupConfigs) {
   const oauthInterval = window.setInterval(() => {
     if (oauthWindow.closed) {
       window.clearInterval(oauthInterval);
-      callback();
+      return callback();
     }
   }, 1000);
 }
@@ -46,86 +39,14 @@ export function createPopup(config: PopupConfigs) {
 // get app host
 export function getHost() {
   let host: string;
-  // get from base tag
-  // else from window.location.href
-  const baseHref = ((document.getElementsByTagName('base')[0] || {})['href'] || '').slice(0, -1);
-  if (!!baseHref) {
-    host = baseHref;
+  // get from base tag if it exists
+  const baseTags = document.getElementsByTagName('base');
+  if (!!baseTags.length) {
+    host = baseTags[0].href;
   } else {
-    const hrefSplit = window.location.href.split('/').filter(Boolean);
-    host = hrefSplit[0] + '//' + hrefSplit[1];
+    // else from window.location.href
+    const [ scheme, domain ] = window.location.href.split('/').filter(Boolean);
+    host = scheme + '//' + domain;
   }
   return host;
-}
-
-export function o2a<Obj, K extends keyof Obj, P extends Obj[K]>(
-  object: Obj,
-  keyName = '$key',
-): Array<(P extends {[key: string]: any} ? P: {value: P}) & {$key: string}> {
-  const data = [];
-  for (const key of Object.keys(object || {})) {
-    if (object[key] instanceof Object) {
-      object[key][keyName] = key;
-    } else {
-      const value = object[key];
-      object[key] = {};
-      object[key][keyName] = key;
-      object[key]['value'] = value;
-    }
-    data.push(object[key]);
-  }
-  return data;
-}
-
-export function a2o<Obj>(
-  array: Obj[],
-  keyName = '$key',
-): {[key: string]: Obj} {
-  const obj = {};
-  for (let i = 0, l = (array || []).length; i < l; i++) {
-    const item = array[i];
-    obj[
-      item[keyName] ||
-      item['$key'] ||
-      item['slug'] ||
-      (item['id'] ? '' + item['id'] : null) ||
-      (item['#'] ? '' + item['#'] : null) ||
-      ('' + Math.random() * 1E20)
-    ] = item;
-  }
-  return obj;
-}
-
-export function uniqueId(
-  length = 12,
-  startWith = '-',
-): string {
-  const maxLoop = length - 8;
-  const ASCII_CHARS = startWith + '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
-  let lastPushTime = 0;
-  const lastRandChars = [];
-  let now = new Date().getTime();
-  const duplicateTime = (now === lastPushTime);
-  lastPushTime = now;
-  const timeStampChars = new Array(8);
-  let i;
-  for (i = 7; i >= 0; i--) {
-    timeStampChars[i] = ASCII_CHARS.charAt(now % 64);
-    now = Math.floor(now / 64);
-  }
-  let uid = timeStampChars.join('');
-  if (!duplicateTime) {
-    for (i = 0; i < maxLoop; i++) {
-      lastRandChars[i] = Math.floor(Math.random() * 64);
-    }
-  } else {
-    for (i = maxLoop - 1; i >= 0 && lastRandChars[i] === 63; i--) {
-      lastRandChars[i] = 0;
-    }
-    lastRandChars[i]++;
-  }
-  for (i = 0; i < maxLoop; i++) {
-    uid += ASCII_CHARS.charAt(lastRandChars[i]);
-  }
-  return uid;
 }

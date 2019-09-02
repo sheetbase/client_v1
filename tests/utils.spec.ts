@@ -1,7 +1,14 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
+import * as sinon from 'sinon';
 
-import { decodeJWTPayload, isExpiredJWT, ApiError, isExpiredInSeconds } from '../src/lib/utils';
+import {
+  decodeJWTPayload,
+  isExpiredJWT,
+  isExpiredInSeconds,
+  createPopup,
+  getHost,
+} from '../src/lib/utils';
 
 global['atob'] = (b64: string) => Buffer.from(b64, 'base64').toString();
 
@@ -47,14 +54,6 @@ describe('utils', () => {
     expect(result3).to.equal(false, 'not expired');
   });
 
-  it('#ApiError', () => {
-    const error = { error: true, code: 'xxx', message: 'Route error ...' };
-    const result = new ApiError(error);
-    expect(result.name).to.equal('ApiError');
-    expect(result.message).to.equal('Route error ...');
-    expect(result.error).to.eql(error);
-  });
-
   it('#isExpiredInSeconds', () => {
     const nowSecs = Math.ceil(new Date().getTime() / 1000);
     const result1 = isExpiredInSeconds(nowSecs);
@@ -63,6 +62,73 @@ describe('utils', () => {
     expect(result1).to.equal(true, 'expire now');
     expect(result2).to.equal(false, 'expire in 10 secs later');
     expect(result3).to.equal(true, 'expire in 10 secs later, but also cost 10 secs');
+  });
+
+  it('#createPopup (default configs)', () => {
+    let openArgs: any;
+    const oauthWindow: any = {};
+
+    const openStub = sinon.stub(window, 'open');
+    openStub.callsFake((...args) => {
+      openArgs = args;
+      // simulate 1s response
+      setTimeout(() => {
+        oauthWindow.closed = true;
+      }, 1000);
+      return oauthWindow;
+    });
+
+    const result = createPopup({ url: null });
+    expect(openArgs).eql([
+      '/',
+      'SheetbaseOAuthLogin',
+      'location=0,status=0,width=1024,height=768',
+    ]);
+    // reset
+    openStub.restore();
+  });
+
+  it('#createPopup (custom configs)', () => {
+    let openArgs: any;
+    const oauthWindow: any = {};
+
+    const openStub = sinon.stub(window, 'open');
+    openStub.callsFake((...args) => {
+      openArgs = args;
+      // simulate 1s response
+      setTimeout(() => {
+        oauthWindow.closed = true;
+      }, 1000);
+      return oauthWindow;
+    });
+
+    const result = createPopup({
+      url: '/oauth',
+      name: 'XXX',
+      options: 'xxx',
+    });
+    expect(openArgs).eql([
+      '/oauth',
+      'XXX',
+      'xxx',
+    ]);
+    // reset
+    openStub.restore();
+  });
+
+  it('#getHost (no base tag)', () => {
+    const result = getHost();
+    expect(result).equal('about:blank//undefined');
+  });
+
+  it('#getHost (has base tag)', () => {
+    const getElementsByTagNameStub = sinon.stub(document, 'getElementsByTagName');
+    getElementsByTagNameStub.callsFake(() => [{ href: 'https://xxx.xxx' }] as any);
+
+    const result = getHost();
+    expect(result).equal('https://xxx.xxx');
+    // reset
+    getElementsByTagNameStub.restore();
   });
 
 });
