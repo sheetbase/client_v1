@@ -51,14 +51,14 @@ export class StorageService {
       !fileData.name
     ) {
       error = 'Missing upload data.';
-    }
-    // check type and size
-    const { mimeType, size } = this.base64Parser(fileData.base64Value);
-    if (!this.isValidType(mimeType)) {
-      error = 'Invalid file type.';
-    }
-    if (!this.isValidSize(size)) {
-      error = 'Invalid file size.';
+    } else {
+      const { mimeType, size } = this.base64Parser(fileData.base64Value);
+      // check type and size
+      if (!this.isValidType(mimeType)) {
+        error = 'Invalid file type.';
+      } else if (!this.isValidSize(size)) {
+        error = 'Invalid file size.';
+      }
     }
     // throw error
     if (!!error) {
