@@ -9,42 +9,54 @@ import { MailService } from '../src/lib/mail/mail.service';
 import { mail } from '../src/lib/mail/index';
 
 const mailService = new MailService(
-  new AppService({ backendUrl: '' }),
+  new AppService(),
 );
 
 let apiGetStub: sinon.SinonStub;
 let apiPostStub: sinon.SinonStub;
 
-function buildStubs() {
+function before() {
   // @ts-ignore
   apiGetStub = sinon.stub(mailService.Api, 'get');
   // @ts-ignore
   apiPostStub = sinon.stub(mailService.Api, 'post');
+  //
+  apiGetStub.callsFake(async (endpoint, params) => {
+    return { method: 'GET', endpoint, params };
+  });
+  apiPostStub.callsFake(async (endpoint, params, body) => {
+    return { method: 'POST', endpoint, params, body };
+  });
 }
 
-function restoreStubs() {
+function after() {
   apiGetStub.restore();
   apiPostStub.restore();
 }
 
 describe('(Mail) Mail service', () => {
 
-  beforeEach(() => {
-    buildStubs();
-    apiGetStub.callsFake(async (endpoint, params) => {
-      return { method: 'GET', endpoint, params };
-    });
-    apiPostStub.callsFake(async (endpoint, params, body) => {
-      return { method: 'POST', endpoint, params, body };
-    });
-  });
-
-  afterEach(() => restoreStubs());
+  beforeEach(before);
+  afterEach(after);
 
   it('properties', () => {
     expect(mailService.app instanceof AppService).to.equal(true);
     // @ts-ignore
     expect(mailService.Api instanceof ApiService).to.equal(true);
+  });
+
+  it('endpoint', () => {
+    // default
+    // @ts-ignore
+    expect(mailService.Api.baseEndpoint).to.equal('mail');
+    // custom
+    const mailService2 = new MailService(
+      new AppService({
+        mailEndpoint: 'xxx',
+      }),
+    );
+    // @ts-ignore
+    expect(mailService2.Api.baseEndpoint).to.equal('xxx');
   });
 
   it('#quota', async () => {
