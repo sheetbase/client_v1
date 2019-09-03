@@ -66,8 +66,8 @@ export class StorageService {
     }
   }
 
-  info(id: string): Promise<FileInfo> {
-    return this.Api.get('/', { id });
+  info(id: string, cacheTime = 1440): Promise<FileInfo> {
+    return this.Api.get('/', { id }, cacheTime);
   }
 
   upload(
