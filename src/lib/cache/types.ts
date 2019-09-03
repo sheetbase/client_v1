@@ -3,3 +3,8 @@ export interface CacheOptions {
 }
 
 export type CacheRefresher<Data> = () => Promise<Data>;
+
+export interface AlwaysCachedResult<Data> {
+  data: Data;
+  expired: boolean;
+}

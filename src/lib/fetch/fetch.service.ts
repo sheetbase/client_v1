@@ -12,12 +12,11 @@ export class FetchService {
     this.app = app;
   }
 
-  async fetch<Data>(input: RequestInfo, init?: RequestInit, meta: FetchMeta = {}) {
+  fetch<Data>(input: RequestInfo, init?: RequestInit, meta: FetchMeta = {}) {
     const { json = true, cacheTime = 0, cacheKey } = meta;
     // get data
     return this.app.Cache.getRefresh(
       'fetch_' + (!!cacheKey ? cacheKey : md5(input as string)),
-      cacheTime,
       async () => {
         const response = await fetch(input, init);
         if (!response.ok) {
@@ -32,27 +31,28 @@ export class FetchService {
         }
         return result;
       },
+      cacheTime,
     );
   }
 
-  async get<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
-    return await this.fetch<Data>(url, { ... init, method: 'GET' }, meta);
+  get<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
+    return this.fetch<Data>(url, { ... init, method: 'GET' }, meta);
   }
 
-  async post<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
-    return await this.fetch<Data>(url, { ... init, method: 'POST' }, meta);
+  post<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
+    return this.fetch<Data>(url, { ... init, method: 'POST' }, meta);
   }
 
-  async put<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
-    return await this.fetch<Data>(url, { ... init, method: 'PUT' }, meta);
+  put<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
+    return this.fetch<Data>(url, { ... init, method: 'PUT' }, meta);
   }
 
-  async patch<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
-    return await this.fetch<Data>(url, { ... init, method: 'PATCH' }, meta);
+  patch<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
+    return this.fetch<Data>(url, { ... init, method: 'PATCH' }, meta);
   }
 
-  async delete<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
-    return await this.fetch<Data>(url, { ... init, method: 'DELETE' }, meta);
+  delete<Data>(url: string, init?: RequestInit, meta: FetchMeta = {}) {
+    return this.fetch<Data>(url, { ... init, method: 'DELETE' }, meta);
   }
 
 }

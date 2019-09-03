@@ -135,7 +135,7 @@ export class ApiService {
         return result.data;
     }
 
-    async request(inputs: {
+    request(inputs: {
         method?: string,
         endpoint?: string,
         query?: {},
@@ -168,10 +168,10 @@ export class ApiService {
             this.buildEndpoint(endpoint),
             this.buildQuery(query),
         );
-        return await this.app.Cache.getRefresh(
+        return this.app.Cache.getRefresh(
             'api_' + md5(originalUrl),
+            () => this.fetch(url, { method: 'GET' }),
             cacheTime,
-            async () => await this.fetch(url, { method: 'GET' }),
         );
     }
 
@@ -188,7 +188,7 @@ export class ApiService {
             this.buildQuery(query),
         );
         // send request
-        return await this.fetch(url, {
+        return this.fetch(url, {
             method: 'POST',
             body: JSON.stringify(
                 this.buildBody(body),
@@ -199,16 +199,16 @@ export class ApiService {
         });
     }
 
-    async put(endpoint?: string, query = {}, body = {}) {
-        return await this.post(endpoint, { ... query, method: 'PUT' }, body);
+    put(endpoint?: string, query = {}, body = {}) {
+        return this.post(endpoint, { ... query, method: 'PUT' }, body);
     }
 
-    async patch(endpoint?: string, query = {}, body = {}) {
-        return await this.post(endpoint, { ... query, method: 'PATCH' }, body);
+    patch(endpoint?: string, query = {}, body = {}) {
+        return this.post(endpoint, { ... query, method: 'PATCH' }, body);
     }
 
-    async delete(endpoint?: string, query = {}, body = {}) {
-        return await this.post(endpoint, { ... query, method: 'DELETE' }, body);
+    delete(endpoint?: string, query = {}, body = {}) {
+        return this.post(endpoint, { ... query, method: 'DELETE' }, body);
     }
 
 }

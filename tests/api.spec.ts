@@ -430,7 +430,7 @@ describe('(Api) Api service', () => {
     apiGetStub.restore();
 
     const result = await apiService.get();
-    expect(result).to.eql({ a: 1, b: 2 });
+    expect(result[1]).to.eql({ a: 1, b: 2 });
   });
 
   it('#post', async () => {

@@ -27,10 +27,9 @@ export class DatabaseDirectService {
     this.customDataParser = customDataParser;
   }
 
-  async all<Item>(sheet: string, cacheTime = 0) {
-    return await this.app.Cache.getRefresh<Item[]>(
+  all<Item>(sheet: string, cacheTime = 0) {
+    return this.app.Cache.getRefresh<Item[]>(
       'database_' + sheet,
-      cacheTime,
       async () => {
         const url = this.csvUrl(sheet);
         const csvText: string = await this.app.Fetch.get(url, {}, { json: false });
@@ -46,6 +45,7 @@ export class DatabaseDirectService {
         }
         return result;
       },
+      cacheTime,
     );
   }
 
@@ -59,11 +59,11 @@ export class DatabaseDirectService {
     const url = 'https://docs.google.com/document/d/' + docId + '/pub?embedded=true';
     return this.app.Cache.getRefresh<string>(
       'content_' + itemKey + '_' + docId + '_' + style,
-      cacheTime,
       async () => this.parseDocsContent(
         await this.app.Fetch.get(url, {}, { json: false }),
         style,
       ),
+      cacheTime,
     );
   }
 
@@ -71,8 +71,8 @@ export class DatabaseDirectService {
   textContent(itemKey: string, url: string, cacheTime = 0) {
     return this.app.Cache.getRefresh<string>(
       'content_' + itemKey + '_' + md5(url),
+      () => this.app.Fetch.get(url, {}, { json: false }),
       cacheTime,
-      async () => await this.app.Fetch.get(url, {}, { json: false }),
     );
   }
 
@@ -80,8 +80,8 @@ export class DatabaseDirectService {
   jsonContent<Data>(itemKey: string, url: string, cacheTime = 0) {
     return this.app.Cache.getRefresh<Data>(
       'content_' + itemKey + '_' + md5(url),
+      () => this.app.Fetch.get(url) as Promise<Data>,
       cacheTime,
-      async () => await this.app.Fetch.get(url) as Data,
     );
   }
 
