@@ -122,7 +122,7 @@ describe('(Cache) Cache service', () => {
 
     const result = await cacheService.set('xxx', { a: 1 });
     expect(expirationResult[0]).equal('xxx__expiration');
-    expect((new Date().getTime() - expirationResult[1]) < 10).equal(true);
+    expect(typeof expirationResult[1] === 'number').equal(true);
     expect(valueResult).eql(['xxx', { a: 1 }]);
     expect(result).eql(['xxx', { a: 1 }]);
   });

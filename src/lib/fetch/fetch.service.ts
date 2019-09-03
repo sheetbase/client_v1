@@ -16,11 +16,11 @@ export class FetchService {
     const { json = true, cacheTime = 0, cacheKey } = meta;
     // get data
     return this.app.Cache.getRefresh(
-      'fetch_' + (!!cacheKey ? cacheKey : md5(input as string)),
+      !!cacheKey ? cacheKey : ('fetch_' + md5(input as string)),
       async () => {
         const response = await fetch(input, init);
         if (!response.ok) {
-          throw new Error('API fetch failed.');
+          throw new Error('Fetch failed!');
         }
         // get result
         let result: string | Data;
