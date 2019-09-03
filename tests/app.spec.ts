@@ -1,9 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import * as sinon from 'sinon';
-import * as localforage from 'localforage';
-
-import 'jsdom-global/register';
+import { localforageCreateInstanceStub } from './_lib.spec';
 
 import { ApiService } from '../src/lib/api/api.service';
 import { FetchService } from '../src/lib/fetch/fetch.service';
@@ -17,11 +14,7 @@ import { StorageService } from '../src/lib/storage/storage.service';
 import { AppService, AppsService } from '../src/lib/app/app.service';
 import { initializeApp, defaultApp, app } from '../src/lib/app/index';
 
-const OPTIONS = { backendUrl: '' };
-
-// stub for AuthService
-const createInstance = sinon.stub(localforage, 'createInstance');
-createInstance.returns({
+localforageCreateInstanceStub.returns({
   getItem: () => null,
 } as any);
 
@@ -30,9 +23,9 @@ describe('(App) AppService', () => {
   it('should be created', () => {
     window['$$$SHEETBASE_COMPONENTS'] = {};
 
-    const sheetbaseApp = new AppService(OPTIONS);
+    const sheetbaseApp = new AppService();
 
-    expect(sheetbaseApp.options).to.eql(OPTIONS);
+    expect(sheetbaseApp.options).to.eql({});
     // built-in
     expect(sheetbaseApp.Api instanceof ApiService).to.equal(true, '.Api');
     expect(sheetbaseApp.api() instanceof ApiService).to.equal(true, '#api');
@@ -57,7 +50,7 @@ describe('(App) AppService', () => {
       Mail: MailService,
     };
 
-    const sheetbaseApp = new AppService(OPTIONS);
+    const sheetbaseApp = new AppService();
 
     expect(sheetbaseApp.Auth instanceof AuthService).to.equal(true, '.Auth');
     expect(sheetbaseApp.Database instanceof DatabaseService).to.equal(true, '.Database');
@@ -105,7 +98,7 @@ describe('(App) AppsService', () => {
 describe('(App) methods', () => {
 
   it('#initializeApp', () => {
-    const sheetbaseApp = initializeApp(OPTIONS);
+    const sheetbaseApp = initializeApp();
     expect(sheetbaseApp instanceof AppService).to.equal(true);
   });
 
