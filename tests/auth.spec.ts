@@ -10,6 +10,7 @@ import { ApiService } from '../src/lib/api/api.service';
 import { AuthService } from '../src/lib/auth/auth.service';
 import { auth } from '../src/lib/auth/index';
 import { User } from '../src/lib/auth/user';
+import { AuthProvider } from '../src/lib/auth/provider';
 
 let authService: AuthService;
 
@@ -26,7 +27,7 @@ let signInStub: sinon.SinonStub;
 
 function before() {
   authService = new AuthService(
-    new AppService({ backendUrl: '' }),
+    new AppService(),
   );
   // build stubs
   publishStub = sinon.stub(pubsub, 'publish');
@@ -72,7 +73,7 @@ function after() {
   signInStub.restore();
 }
 
-describe('Auth service', () => {
+describe('(Auth) Auth service', () => {
 
   beforeEach(before);
   afterEach(after);
@@ -334,7 +335,7 @@ describe('Auth service', () => {
 
 });
 
-describe('User', () => {
+describe('(Auth) User', () => {
 
   const APP = new AppService({ backendUrl: '' });
   const INFO = {
@@ -643,6 +644,49 @@ describe('User', () => {
         refreshToken: 'xxx',
       },
     });
+  });
+
+});
+
+describe('(Auth) providers', () => {
+
+  const provider = new AuthProvider('google.com', 'endpoint', 'scope1');
+
+  it('properties', () => {
+    expect(provider.providerId).equal('google.com');
+    expect(provider.endpoint).equal('endpoint');
+    expect(provider.scopes).equal('scope1');
+    expect(provider.customParameters).eql({});
+  });
+
+  it('#addScope', () => {
+    provider.addScope('scope2');
+    expect(provider.scopes).equal('scope1 scope2');
+  });
+
+  it('#setCustomParameters', () => {
+    provider.setCustomParameters({ a: 1 });
+    expect(provider.customParameters).eql({ a: 1 });
+  });
+
+  it('#url (no params)', () => {
+    provider.scopes = 'scope';
+    provider.customParameters = {};
+
+    const result = provider.url('xxx', 'xxx');
+    expect(result).equal(
+      'endpoint?response_type=token&client_id=xxx&redirect_uri=xxx&scope=scope',
+    );
+  });
+
+  it('#url (has params)', () => {
+    provider.scopes = 'scope';
+    provider.customParameters = { a: 1, b: 2 };
+
+    const result = provider.url('xxx', 'xxx');
+    expect(result).equal(
+      'endpoint?response_type=token&client_id=xxx&redirect_uri=xxx&scope=scope&a=1&b=2',
+    );
   });
 
 });

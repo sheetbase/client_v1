@@ -5,7 +5,7 @@ export class AuthProvider {
   providerId: UserProviderId;
   endpoint: string;
   scopes: string;
-  customParameters: {};
+  customParameters = {};
 
   constructor(providerId: UserProviderId, endpoint: string, scopes: string) {
     this.providerId = providerId;
@@ -23,10 +23,8 @@ export class AuthProvider {
 
   url(clientId: string, redirectUri: string) {
     let params = '';
-    if (!!this.customParameters) {
-      for (const key of Object.keys(this.customParameters)) {
-        params += '&' + key + '=' + this.customParameters[key];
-      }
+    for (const key of Object.keys(this.customParameters)) {
+      params += '&' + key + '=' + this.customParameters[key];
     }
     return this.endpoint + '?' +
       `response_type=token&` +
