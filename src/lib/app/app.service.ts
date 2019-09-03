@@ -12,12 +12,12 @@ class AppService {
 
     options: AppOptions;
 
-    Api: ApiService;
-    Fetch: FetchService;
     Localstorage: LocalstorageService;
     Cache: CacheService;
-    Auth: AuthService;
+    Fetch: FetchService;
+    Api: ApiService;
     Database: DatabaseService;
+    Auth: AuthService;
     Storage: StorageService;
     Mail: MailService;
 
@@ -25,20 +25,12 @@ class AppService {
         this.options = options || {};
         this.Localstorage = new LocalstorageService(this);
         this.Cache = new CacheService(this);
-        this.Api = new ApiService(this);
         this.Fetch = new FetchService(this);
+        this.Api = new ApiService(this);
         // initiate other components when available
         for (const key of Object.keys(window['$$$SHEETBASE_COMPONENTS'])) {
             this[key] = new window['$$$SHEETBASE_COMPONENTS'][key](this);
         }
-    }
-
-    api() {
-        return this.Api;
-    }
-
-    fetch() {
-        return this.Fetch;
     }
 
     localstorage() {
@@ -49,14 +41,22 @@ class AppService {
         return this.Cache;
     }
 
-    auth() {
-        if (!this.Auth) { throw new Error('No auth component.'); }
-        return this.Auth;
+    fetch() {
+        return this.Fetch;
+    }
+
+    api() {
+        return this.Api;
     }
 
     database() {
         if (!this.Database) { throw new Error('No database component.'); }
         return this.Database;
+    }
+
+    auth() {
+        if (!this.Auth) { throw new Error('No auth component.'); }
+        return this.Auth;
     }
 
     storage() {
