@@ -3,7 +3,7 @@ import { md5 } from '../../md5/md5';
 
 import { AppService } from '../app/app.service';
 
-import { DocsContentStyles, DatabaseGids, DatabaseDataParser } from './types';
+import { DocsContentStyle, DatabaseGids, DatabaseDataParser } from './types';
 
 export class DatabaseDirectService {
 
@@ -53,7 +53,7 @@ export class DatabaseDirectService {
   docsContent(
     itemKey: string,
     docId: string,
-    style: DocsContentStyles = 'full',
+    style: DocsContentStyle = 'full',
     cacheTime = 0,
   ) {
     const url = 'https://docs.google.com/document/d/' + docId + '/pub?embedded=true';
@@ -198,7 +198,7 @@ export class DatabaseDirectService {
     return { ... classGroups, ... classes };
   }
 
-  private parseDocsContent(html: string, style: DocsContentStyles = 'full') {
+  private parseDocsContent(html: string, style: DocsContentStyle = 'full') {
     let content = html; // original
     if (style !== 'original') {
 

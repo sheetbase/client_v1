@@ -3,7 +3,7 @@ import { md5 } from '../../md5/md5';
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
 
-import { Query, DocsContentStyles, DataSegment } from './types';
+import { Query, DocsContentStyle, DataSegment } from './types';
 
 export class DatabaseServerService {
 
@@ -50,7 +50,7 @@ export class DatabaseServerService {
   async docsContent(
     itemKey: string,
     docId: string,
-    style: DocsContentStyles = 'full',
+    style: DocsContentStyle = 'full',
     cacheTime = 0,
   ) {
     const { content } = await this.app.Cache.getRefresh(
