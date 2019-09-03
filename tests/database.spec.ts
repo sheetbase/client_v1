@@ -133,36 +133,7 @@ describe('(Database) Database direct service', () => {
   });
 
   it('#all', async () => {
-    // @ts-ignore
-    const items = [
-      {
-        // basic
-        a0: '',
-        a1: null,
-        a2: undefined,
-        b1: 0,
-        b2: 1,
-        b3: '2',
-        c1: true,
-        c2: false,
-        c3: 'true',
-        c4: 'FALSE',
-        d: '{"a":1}',
-        // builtin
-        e: 'url:xxx',
-      },
-    ];
-      // process items
-    const result: any[] = [];
-    for (let i = 0, l = items.length; i < l; i++) {
-      // @ts-ignore
-      const item = databaseDirectService.parseItem(items[i]);
-      if (!!Object.keys(item).length) {
-        item['_row'] = i + 2;
-        result.push(item);
-      }
-    }
-    expect(result).to.eql([]);
+    //
   });
 
 });
