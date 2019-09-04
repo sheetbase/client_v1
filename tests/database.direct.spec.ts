@@ -33,9 +33,9 @@ describe('(Database) Database direct service', () => {
     // @ts-ignore
     expect(databaseDirectService.PARSING_URL_SCHEME).equal('url:');
     // @ts-ignore
-    expect(databaseDirectService.databaseId).equal(undefined);
+    expect(databaseDirectService.databaseId).equal('1Abc');
     // @ts-ignore
-    expect(databaseDirectService.databaseGids).eql({});
+    expect(databaseDirectService.databaseGids).eql({ xxx: '123' });
     // @ts-ignore
     expect(databaseDirectService.customDataParser).equal(undefined);
   });

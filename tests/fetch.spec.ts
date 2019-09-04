@@ -10,7 +10,7 @@ class MockedAppService {
   options = {};
   constructor() {}
   Cache = {
-    getRefresh: (...args) => args,
+    get: (...args) => args,
   } as any;
 }
 

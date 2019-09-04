@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
-import { AppService } from '../src/lib/app/app.service';
+import { MockedAppService } from './_mocks';
 
 import { DatabaseDirectService } from '../src/lib/database/direct';
 import { DatabaseServerService } from '../src/lib/database/server';
@@ -19,7 +19,7 @@ let databaseService: DatabaseService;
 
 function before() {
   databaseService = new DatabaseService(
-    new AppService(),
+    new MockedAppService() as any,
   );
 }
 
@@ -31,7 +31,7 @@ describe('(Database) Database service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(databaseService.app instanceof AppService).equal(true, 'app instance');
+    expect(databaseService.app instanceof MockedAppService).equal(true, 'app instance');
     // @ts-ignore
     expect(databaseService.DatabaseDirect instanceof DatabaseDirectService).equal(true, 'direct instance');
     // @ts-ignore
@@ -412,7 +412,7 @@ describe('(Database) methods', () => {
   });
 
   it('#database (app has no .Database)', () => {
-    const result = database(new AppService({ backendUrl: '' }));
+    const result = database(new MockedAppService() as any);
 
     expect(result instanceof DatabaseService).equal(true);
   });

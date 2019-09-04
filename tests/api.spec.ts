@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
-import { AppService } from '../src/lib/app/app.service';
+import { MockedAppService } from './_mocks';
 
 import { ApiError, ApiService } from '../src/lib/api/api.service';
 import { api } from '../src/lib/api/index';
@@ -15,17 +15,16 @@ let apiPostStub: sinon.SinonStub;
 
 function before() {
   apiService = new ApiService(
-    new AppService({ backendUrl: '' }),
+    new MockedAppService() as any,
   );
   // @ts-ignore
   apiFetchStub = sinon.stub(apiService, 'fetch');
-  apiGetStub = sinon.stub(apiService, 'get');
-  apiPostStub = sinon.stub(apiService, 'post');
-  //
-  apiGetStub.callsFake(async (endpoint, query) => {
+  apiGetStub = sinon.stub(apiService, 'get')
+  .callsFake(async (endpoint, query) => {
     return { method: 'GET', endpoint, query };
   });
-  apiPostStub.callsFake(async (endpoint, query, body) => {
+  apiPostStub = sinon.stub(apiService, 'post')
+  .callsFake(async (endpoint, query, body) => {
     return { method: 'POST', endpoint, query, body };
   });
 }
@@ -57,7 +56,7 @@ describe('(Api) Api service', () => {
   };
 
   it('properties', () => {
-    expect(apiService.app instanceof AppService).equal(true, '.app');
+    expect(apiService.app instanceof MockedAppService).equal(true, '.app');
     // @ts-ignore
     expect(apiService.baseEndpoint).equal('', '.baseEndpoint');
     // @ts-ignore
@@ -70,7 +69,7 @@ describe('(Api) Api service', () => {
 
   it('properties (custom data)', () => {
     const apiService = new ApiService(
-      new AppService({ backendUrl: '' }),
+      new MockedAppService() as any,
       INSTANCE_DATA,
     );
 
@@ -86,7 +85,7 @@ describe('(Api) Api service', () => {
 
   it('properties (query has key)', () => {
     const apiService = new ApiService(
-      new AppService({ backendUrl: '', apiKey: 'xxx' }),
+      new MockedAppService({ apiKey: 'xxx' }) as any,
     );
 
     // @ts-ignore
@@ -95,21 +94,20 @@ describe('(Api) Api service', () => {
 
   it('#extend', () => {
     const apiService = new ApiService(
-      new AppService({ backendUrl: 'xxx' }),
+      new MockedAppService({ backendUrl: 'xxx' }) as any,
     );
 
     const result = apiService.extend();
-
     expect(result instanceof ApiService).equal(true, 'instance of api service');
     expect(
-      result.app instanceof AppService &&
+      result.app instanceof MockedAppService &&
       result.app.options.backendUrl === 'xxx',
     ).equal(true, 'inherit .app');
   });
 
   it('#extend (also inherit data)', () => {
     const apiService = new ApiService(
-      new AppService({ backendUrl: '' }),
+      new MockedAppService() as any,
       INSTANCE_DATA,
     );
 
@@ -207,10 +205,10 @@ describe('(Api) Api service', () => {
   });
 
   it('#buildEndpoint (has baseEndpoint)', () => {
-    const apiService1 = new ApiService(new AppService({ backendUrl: '' }));
-    const apiService2 = new ApiService(new AppService({ backendUrl: '' }));
-    const apiService3 = new ApiService(new AppService({ backendUrl: '' }));
-    const apiService4 = new ApiService(new AppService({ backendUrl: '' }));
+    const apiService1 = new ApiService(new MockedAppService() as any);
+    const apiService2 = new ApiService(new MockedAppService() as any);
+    const apiService3 = new ApiService(new MockedAppService() as any);
+    const apiService4 = new ApiService(new MockedAppService() as any);
     apiService1.setData({ endpoint: '123' });
     apiService2.setData({ endpoint: '/123' });
     apiService3.setData({ endpoint: '123/' });
@@ -252,7 +250,7 @@ describe('(Api) Api service', () => {
 
   it('#buildQuery (has predefinedQuery)', () => {
     const apiService = new ApiService(
-      new AppService({ backendUrl: '' }),
+      new MockedAppService() as any,
     )
       .setData({
         query: { a: 1 },
@@ -285,7 +283,7 @@ describe('(Api) Api service', () => {
 
   it('#buildBody (has predefinedBody)', () => {
     const apiService = new ApiService(
-      new AppService({ backendUrl: '' }),
+      new MockedAppService() as any,
     ).setData({
       body: { a: 1 },
     });
@@ -320,7 +318,7 @@ describe('(Api) Api service', () => {
 
   it('#runHooks', async () => {
     const apiService = new ApiService(
-      new AppService({ backendUrl: '' }),
+      new MockedAppService() as any,
       {
         beforeHooks: [
           async data => {
@@ -426,11 +424,15 @@ describe('(Api) Api service', () => {
   });
 
   it('#get', async () => {
-    apiFetchStub.onFirstCall().returns({ a: 1, b: 2 });
     apiGetStub.restore();
 
-    const result = await apiService.get();
-    expect(result[1]).eql({ a: 1, b: 2 });
+    apiFetchStub.returns({ a: 1, b: 2 });
+
+    const cacheGetArgs = await apiService.get();
+    const result = await cacheGetArgs[1]();
+    expect(cacheGetArgs[0]).equal('api_37d56450d19e402bbb121be9779d6a54');
+    expect(cacheGetArgs[2]).equal(0);
+    expect(result).eql({ a: 1, b: 2 });
   });
 
   it('#post', async () => {

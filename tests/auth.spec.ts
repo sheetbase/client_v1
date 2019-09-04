@@ -4,8 +4,7 @@ import * as sinon from 'sinon';
 
 import * as pubsub from 'pubsub-js';
 
-import { AppService } from '../src/lib/app/app.service';
-import { ApiService } from '../src/lib/api/api.service';
+import { MockedAppService, MockedApiService } from './_mocks';
 
 import { AuthService } from '../src/lib/auth/auth.service';
 import { auth } from '../src/lib/auth/index';
@@ -27,7 +26,7 @@ let signInStub: sinon.SinonStub;
 
 function before() {
   authService = new AuthService(
-    new AppService(),
+    new MockedAppService() as any,
   );
   // build stubs
   publishStub = sinon.stub(pubsub, 'publish');
@@ -79,9 +78,9 @@ describe('(Auth) Auth service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(authService.app instanceof AppService).equal(true);
+    expect(authService.app instanceof MockedAppService).equal(true);
     // @ts-ignore
-    expect(authService.Api instanceof ApiService).equal(true);
+    expect(authService.Api instanceof MockedApiService).equal(true);
   });
 
   it('#onAuthStateChanged (no user)', () => {
@@ -337,7 +336,7 @@ describe('(Auth) Auth service', () => {
 
 describe('(Auth) User', () => {
 
-  const APP = new AppService({ backendUrl: '' });
+  const APP = new MockedAppService();
   const INFO = {
     uid: 'xxx',
     providerId: 'password',
@@ -355,7 +354,7 @@ describe('(Auth) User', () => {
     isNewUser: false,
   };
 
-  const user = new User(APP.Api, INFO as any, 'xxx', 'xxx');
+  const user = new User(APP.Api as any, INFO as any, 'xxx', 'xxx');
 
   let apiGetStub: sinon.SinonStub;
   let apiPostStub: sinon.SinonStub;
@@ -407,14 +406,14 @@ describe('(Auth) User', () => {
 
   it('properties', () => {
     // @ts-ignore
-    expect(user.Api instanceof ApiService).equal(true, '.Api');
+    expect(user.Api instanceof MockedApiService).equal(true, '.Api');
 
     expect(user.idToken).equal('xxx', '.idToken');
     expect(user.refreshToken).equal('xxx', '.refreshToken');
   });
 
   it('#setInfo', () => {
-    const user = new User(APP.Api, {}, 'xxx', 'xxx');
+    const user = new User(APP.Api as any, {}, 'xxx', 'xxx');
     setInfoStub.restore();
 
     // before
@@ -711,7 +710,7 @@ describe('(Auth) methods', () => {
   });
 
   it('#auth (app has no .Auth)', () => {
-    const result = auth(new AppService({ backendUrl: '' }));
+    const result = auth(new MockedAppService() as any);
 
     expect(result instanceof AuthService).equal(true);
   });

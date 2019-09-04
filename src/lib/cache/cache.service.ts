@@ -6,7 +6,7 @@ import {
   LocalstorageIterateKeysHandler,
 } from '../localstorage/types';
 
-import { AlwaysCachedResult, CacheRefresher } from './types';
+import { CacheRefresher } from './types';
 
 export class CacheService {
 
@@ -28,70 +28,90 @@ export class CacheService {
   }
 
   cacheTime(cacheTime: number) {
-    // app caching time policy
-    // cacheTime < 0 -> disable cache (0)
-    // globalCacheTime = 0 and cacheTime = 0 -> disable cache (0)
-    // globalCacheTime = 0 and cacheTime # 0 -> cacheTime
-    // globalCacheTime # 0 and cacheTime = 0 -> globalCacheTime
-    // globalCacheTime # 0 and cacheTime # 0 -> cacheTime
-    const { cacheTime: globalCacheTime } = this.app.options;
-    return (cacheTime < 0) ? 0 : (cacheTime || globalCacheTime || 0);
+    const { cacheTime: globalCacheTime = 0 } = this.app.options;
+    return (cacheTime < 0) ? 0 : (cacheTime || globalCacheTime);
   }
 
   async set<Data>(key: string, data: Data, cacheTime = 0) {
-    cacheTime = this.cacheTime(cacheTime); // get app caching time
-    // expiration
+    cacheTime = this.cacheTime(cacheTime);
+    if (cacheTime === 0) {
+      throw new Error('Not caching when time is 0. Set time globally or use the argument.');
+    }
+    // save expiration
     await this.Localstorage.set<number>(
       key + '__expiration',
       new Date().getTime() + (cacheTime * 60000),
     );
-    // value
+    // return value
     return await this.Localstorage.set<Data>(key, data);
   }
 
-  async get<Data>(key: string, alwaysData = false): Promise<
-    Data | AlwaysCachedResult<Data>
-  > {
-    let expired = true; // assumpt expired
-    const cachedData = await this.Localstorage.get<Data>(key);
-    if (!!cachedData) {
-      const cacheExpiration = await this.Localstorage.get<number>(key + '__expiration');
-      if (!!cacheExpiration && cacheExpiration > new Date().getTime()) {
-        expired = false;
-      }
-    }
-    if (alwaysData) {
-      return { data: cachedData, expired };
-    } else {
-      return expired ? null : cachedData;
-    }
-  }
-
-  async getRefresh<Data>(
+  async get<Data>(
     key: string,
-    refresher: CacheRefresher<Data>,
+    refresher?: CacheRefresher<Data>,
     cacheTime = 0,
   ) {
     // retrieve cached
-    const { expired, data: cachedData } = await this.get<Data>(key, true) as AlwaysCachedResult<Data>;
-    // get data
-    let data: Data;
-    if (!expired) { // no expired
-      data = cachedData;
-    } else { // expired or no cached
-      try {
-        data = await refresher();
-      } catch (error) {
-        // no refresher
-        // or error while refreshing
-      }
-      data = !!data ?
-        await this.set(key, data, cacheTime) : // set & use
-        cachedData; // use expired value anyway
+    const expiration = await this.Localstorage.get<number>(key + '__expiration');
+    const isExpired = (!expiration || expiration <= new Date().getTime());
+    // not expired
+    if (!isExpired) {
+      return await this.Localstorage.get<Data>(key);
     }
-    // return data
-    return data;
+    // expired or no cached
+    try {
+      const freshData = await refresher(); // refresh
+      return await this.set(key, freshData, cacheTime); // save cache
+    } catch (error) {
+      // no refresher or error while refreshing
+      // use cached any value or null
+      return !!refresher ? await this.Localstorage.get<Data>(key) : null;
+    }
   }
+
+  // async get<Data>(key: string, alwaysData = false): Promise<
+  //   Data | AlwaysCachedResult<Data>
+  // > {
+  //   let expired = true; // assumpt expired
+  //   const cachedData = await this.Localstorage.get<Data>(key);
+  //   if (!!cachedData) {
+  //     const cacheExpiration = await this.Localstorage.get<number>(key + '__expiration');
+  //     if (!!cacheExpiration && cacheExpiration > new Date().getTime()) {
+  //       expired = false;
+  //     }
+  //   }
+  //   if (alwaysData) {
+  //     return { data: cachedData, expired };
+  //   } else {
+  //     return expired ? null : cachedData;
+  //   }
+  // }
+
+  // async getRefresh<Data>(
+  //   key: string,
+  //   refresher: CacheRefresher<Data>,
+  //   cacheTime = 0,
+  // ) {
+  //   // retrieve cached
+  //   const { expired, data: cachedData } = await this.get<Data>(key, true) as AlwaysCachedResult<Data>;
+  //   // get data
+  //   let data: Data;
+  //   if (!expired) { // no expired
+  //     data = cachedData;
+  //   } else { // expired or no cached
+  //     try {
+  //       data = await refresher();
+  //     } catch (error) {
+  //       // no refresher
+  //       // or error while refreshing
+  //     }
+  //     data = !!data ?
+  //       await this.set(key, data, cacheTime) : // set & use
+  //       cachedData; // use expired value anyway
+  //   }
+  //   // return data
+  //   return data;
+  // }
 
   iterate<Data>(handler: LocalstorageIterateHandler<Data>) {
     return this.Localstorage.iterate(handler);

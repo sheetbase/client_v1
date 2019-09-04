@@ -2,10 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
-import 'jsdom-global/register';
-
-import { AppService } from '../src/lib/app/app.service';
-import { ApiService } from '../src/lib/api/api.service';
+import { MockedAppService, MockedApiService } from './_mocks';
 
 import { StorageService } from '../src/lib/storage/storage.service';
 import { storage } from '../src/lib/storage/index';
@@ -22,7 +19,7 @@ let apiDeleteStub: sinon.SinonStub;
 
 function before() {
   storageService = new StorageService(
-    new AppService(),
+    new MockedAppService() as any,
   );
   // @ts-ignore
   isValidTypeStub = sinon.stub(storageService, 'isValidType');
@@ -68,9 +65,9 @@ describe('(Storage) Storage service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(storageService.app instanceof AppService).equal(true);
+    expect(storageService.app instanceof MockedAppService).equal(true);
     // @ts-ignore
-    expect(storageService.Api instanceof ApiService).equal(true);
+    expect(storageService.Api instanceof MockedApiService).equal(true);
   });
 
   it('endpoint', () => {
@@ -79,9 +76,9 @@ describe('(Storage) Storage service', () => {
     expect(storageService.Api.baseEndpoint).equal('storage');
     // custom
     const storageService2 = new StorageService(
-      new AppService({
+      new MockedAppService({
         storageEndpoint: 'xxx',
-      }),
+      }) as any,
     );
     // @ts-ignore
     expect(storageService2.Api.baseEndpoint).equal('xxx');
@@ -109,9 +106,9 @@ describe('(Storage) Storage service', () => {
     isValidTypeStub.restore();
 
     const storageService = new StorageService(
-      new AppService({
+      new MockedAppService({
         storageAllowTypes: ['text/plain'],
-      }),
+      }) as any,
     );
     // @ts-ignore
     const result = storageService.isValidType('text/rich');
@@ -122,9 +119,9 @@ describe('(Storage) Storage service', () => {
     isValidTypeStub.restore();
 
     const storageService = new StorageService(
-      new AppService({
+      new MockedAppService({
         storageAllowTypes: ['text/rich'],
-      }),
+      }) as any,
     );
     // @ts-ignore
     const result = storageService.isValidType('text/rich');
@@ -135,14 +132,14 @@ describe('(Storage) Storage service', () => {
     isValidSizeStub.restore();
 
     const storageService1 = new StorageService(
-      new AppService({
+      new MockedAppService({
         storageMaxSize: null,
-      }),
+      }) as any,
     );
     const storageService2 = new StorageService(
-      new AppService({
+      new MockedAppService({
         storageMaxSize: 0,
-      }),
+      }) as any,
     );
     // @ts-ignore
     const result1 = storageService1.isValidSize(100000000); // 100MB
@@ -156,9 +153,9 @@ describe('(Storage) Storage service', () => {
     isValidSizeStub.restore();
 
     const storageService = new StorageService(
-      new AppService({
+      new MockedAppService({
         storageMaxSize: 10,
-      }),
+      }) as any,
     );
     // @ts-ignore
     const result = storageService.isValidSize(11000000); // 11MB
@@ -169,9 +166,9 @@ describe('(Storage) Storage service', () => {
     isValidSizeStub.restore();
 
     const storageService = new StorageService(
-      new AppService({
+      new MockedAppService({
         storageMaxSize: 10,
-      }),
+      }) as any,
     );
     // @ts-ignore
     const result = storageService.isValidSize(10000000); // 10MB
@@ -415,7 +412,7 @@ describe('(Storage) methods', () => {
   });
 
   it('#storage (app has no .Storage)', () => {
-    const result = storage(new AppService({ backendUrl: '' }));
+    const result = storage(new MockedAppService() as any);
     expect(result instanceof StorageService).equal(true);
   });
 

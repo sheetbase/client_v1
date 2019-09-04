@@ -105,9 +105,9 @@ describe('(Database) Database server service', () => {
   });
 
   it('#docsContent', async () => {
-    const cacheGetRefreshStub = sinon.stub(databaseServerService.app.Cache, 'getRefresh');
+    const cacheGetStub = sinon.stub(databaseServerService.app.Cache, 'get');
     let cacheRefreshArgs;
-    cacheGetRefreshStub.callsFake((...args) => {
+    cacheGetStub.callsFake((...args) => {
       cacheRefreshArgs = args;
       return { content: 'xxx' } as any;
     });
@@ -132,7 +132,7 @@ describe('(Database) Database server service', () => {
       ],
     });
 
-    cacheGetRefreshStub.restore();
+    cacheGetStub.restore();
   });
 
   it('#set', async () => {

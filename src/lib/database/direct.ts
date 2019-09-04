@@ -146,7 +146,7 @@ export class DatabaseDirectService {
    */
 
   all<Item>(sheet: string, cacheTime = 0) {
-    return this.app.Cache.getRefresh<Item[]>(
+    return this.app.Cache.get<Item[]>(
       'database_' + sheet,
       async () => {
         const url = this.getPublishedUrl(sheet);
@@ -177,7 +177,7 @@ export class DatabaseDirectService {
     cacheTime = 0,
   ) {
     const url = 'https://docs.google.com/document/d/' + docId + '/pub?embedded=true';
-    return this.app.Cache.getRefresh<string>(
+    return this.app.Cache.get<string>(
       'content_' + itemKey + '_' + docId + '_' + style,
       async () => this.processDocsContent(
         await this.app.Fetch.get(url, {}, { json: false }),
@@ -189,7 +189,7 @@ export class DatabaseDirectService {
 
   // text-based content (txt, html, md, ...)
   textContent(itemKey: string, url: string, cacheTime = 0) {
-    return this.app.Cache.getRefresh<string>(
+    return this.app.Cache.get<string>(
       'content_' + itemKey + '_' + md5(url),
       () => this.app.Fetch.get(url, {}, { json: false }),
       cacheTime,
@@ -198,7 +198,7 @@ export class DatabaseDirectService {
 
   // json content
   jsonContent<Data>(itemKey: string, url: string, cacheTime = 0) {
-    return this.app.Cache.getRefresh<Data>(
+    return this.app.Cache.get<Data>(
       'content_' + itemKey + '_' + md5(url),
       () => this.app.Fetch.get(url) as Promise<Data>,
       cacheTime,

@@ -109,7 +109,7 @@ export class ApiService {
     }
 
     private buildUrl(endpoint = '', query = '') {
-        let { backendUrl: url } = this.app.options;
+        let { backendUrl: url = '' } = this.app.options;
         url += !!endpoint ? ('?e=' + endpoint) : (!!query ? '?' : '');
         return (!!query ? (url + '&' + query) : url).replace('?&', '?');
     }
@@ -167,7 +167,7 @@ export class ApiService {
             this.buildEndpoint(endpoint),
             this.buildQuery(query),
         );
-        return this.app.Cache.getRefresh(
+        return this.app.Cache.get(
             'api_' + md5(originalUrl),
             () => this.fetch(url, { method: 'GET' }),
             cacheTime,

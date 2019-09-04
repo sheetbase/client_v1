@@ -18,7 +18,7 @@ export class DatabaseServerService {
   }
 
   all<Item>(sheet: string, cacheTime = 0): Promise<Item[]> {
-    return this.app.Cache.getRefresh(
+    return this.app.Cache.get(
       'database_' + sheet,
       () => this.Api.get('/', { sheet }, -1),
       cacheTime,
@@ -31,7 +31,7 @@ export class DatabaseServerService {
     cacheTime = 0,
     segment: DataSegment = null,
   ): Promise<Item[]> {
-    return this.app.Cache.getRefresh(
+    return this.app.Cache.get(
       'database_' + sheet + '_query_' + md5(JSON.stringify(query)),
       () => this.Api.get('/', { ... query, sheet, segment }, -1),
       cacheTime,
@@ -39,7 +39,7 @@ export class DatabaseServerService {
   }
 
   item<Item>(sheet: string, key: string, cacheTime = 0): Promise<Item> {
-    return this.app.Cache.getRefresh(
+    return this.app.Cache.get(
       'database_' + sheet + '_item_' + key,
       () => this.Api.get('/', { sheet, key }, -1),
       cacheTime,
@@ -52,7 +52,7 @@ export class DatabaseServerService {
     style: DocsContentStyle = 'full',
     cacheTime = 0,
   ) {
-    const { content } = await this.app.Cache.getRefresh(
+    const { content } = await this.app.Cache.get(
       'content_' + itemKey + '_' + docId + '_' + style,
       () => this.Api.get('/content', { docId, style }, -1),
       cacheTime,

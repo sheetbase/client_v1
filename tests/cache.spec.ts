@@ -2,27 +2,11 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
+import { MockedAppService, MockedLocalstorageService } from './_mocks';
+
 import { CacheService } from '../src/lib/cache/cache.service';
 import { cache } from '../src/lib/cache/index';
 
-// mocked AppService
-class MockedAppService {
-  options = {};
-  constructor() {}
-  Localstorage = {
-    instance: () => this.Localstorage,
-    get: (...args) => args,
-    set: (...args) => args,
-    iterate: handler => handler,
-    iterateKeys: handler => handler,
-    remove: (...args) => args,
-    removeByPrefix: (...args) => args,
-    removeBySuffix: (...args) => args,
-    clear: () => '#clear',
-  } as any;
-}
-
-// CacheService
 let cacheService: CacheService;
 
 let localstorageGetStub: sinon.SinonStub;
@@ -36,9 +20,12 @@ function before() {
   cacheService = new CacheService(
     new MockedAppService() as any,
   );
-  localstorageGetStub = sinon.stub(cacheService.app.Localstorage, 'get');
-  localstorageSetStub = sinon.stub(cacheService.app.Localstorage, 'set');
-  localstorageRemoveStub = sinon.stub(cacheService.app.Localstorage, 'remove');
+  // @ts-ignore
+  localstorageGetStub = sinon.stub(cacheService.Localstorage, 'get');
+  // @ts-ignore
+  localstorageSetStub = sinon.stub(cacheService.Localstorage, 'set');
+  // @ts-ignore
+  localstorageRemoveStub = sinon.stub(cacheService.Localstorage, 'remove');
   getStub = sinon.stub(cacheService, 'get');
   setStub = sinon.stub(cacheService, 'set');
   removeStub = sinon.stub(cacheService, 'remove');
@@ -62,7 +49,9 @@ describe('(Cache) Cache service', () => {
     expect(
       cacheService.app instanceof MockedAppService,
     ).equal(true, 'has app service');
-    expect(!!cacheService.app.Localstorage).equal(true, 'has local storage');
+    expect(
+      cacheService.app.Localstorage instanceof MockedLocalstorageService,
+    ).equal(true, 'has local storage');
   });
 
   it('default localstorage configs', () => {
@@ -112,6 +101,19 @@ describe('(Cache) Cache service', () => {
     expect(result3).equal(3);
   });
 
+  it('#set (time = 0)', async () => {
+    setStub.restore();
+
+    let error: Error;
+    try {
+      await cacheService.set('xxx', { a: 1 });
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error.message).equal('Not caching when time is 0. Set time globally or use the argument.');
+  });
+
   it('#set', async () => {
     setStub.restore();
 
@@ -120,7 +122,7 @@ describe('(Cache) Cache service', () => {
     localstorageSetStub.onFirstCall().callsFake((...args) => expirationResult = args);
     localstorageSetStub.onSecondCall().callsFake((...args) => valueResult = args);
 
-    const result = await cacheService.set('xxx', { a: 1 });
+    const result = await cacheService.set('xxx', { a: 1 }, 10);
     expect(expirationResult[0]).equal('xxx__expiration');
     expect(typeof expirationResult[1] === 'number').equal(true);
     expect(valueResult).eql(['xxx', { a: 1 }]);
@@ -135,93 +137,70 @@ describe('(Cache) Cache service', () => {
       key = k;
       return null;
     });
-    const result = await cacheService.get('xxx');
-
-    expect(key).equal('xxx');
-    expect(result).equal(null);
-  });
-
-  it('#get (alwaysData)', async () => {
-    getStub.restore();
-
-    localstorageGetStub.returns(null);
-
-    const result = await cacheService.get('xxx', true);
-    expect(result).eql({ data: null, expired: true });
-  });
-
-  it('#get (has cached, expired - no expiration key/value)', async () => {
-    getStub.restore();
-
-    localstorageGetStub.onFirstCall().returns('abc');
-    let key;
-    localstorageGetStub.onSecondCall().callsFake(k => {
-      key = k;
-      return null; // no expiration key/value
-    });
 
     const result = await cacheService.get('xxx');
     expect(key).equal('xxx__expiration');
     expect(result).equal(null);
   });
 
-  it('#get (has cached, expired)', async () => {
+  it('#get (expired)', async () => {
     getStub.restore();
 
-    localstorageGetStub.onFirstCall().returns('abc');
-    localstorageGetStub.onSecondCall().returns(new Date().getTime() - 10); // expired 10s earlier
+    localstorageGetStub.onFirstCall().returns(
+      new Date().getTime() - 10, // expired 10s earlier
+    );
 
     const result = await cacheService.get('xxx');
     expect(result).equal(null);
   });
 
-  it('#get (has cached, not expired)', async () => {
+  it('#get (not expired)', async () => {
     getStub.restore();
 
-    localstorageGetStub.onFirstCall().returns('abc');
-    localstorageGetStub.onSecondCall().returns(new Date().getTime() + 10); // expired 10s later
+    localstorageGetStub.onFirstCall().returns(
+      new Date().getTime() + 10, // expired 10s later
+    );
+    localstorageGetStub.onSecondCall().returns('abc'); // value in cached
 
     const result = await cacheService.get('xxx');
     expect(result).equal('abc');
   });
 
-  it('#getRefresh ( no cached)', async () => {
-    let getResult;
-    getStub.callsFake((...args) => {
-      getResult = args;
-      return { expired: true, data: null };
-    });
+  it('#get (expired, with refresher but error)', async () => {
+    getStub.restore();
 
-    const result = await cacheService.getRefresh('xxx', null);
-    expect(getResult).eql(['xxx', true], 'correct args');
-    expect(result).equal(null);
+    localstorageGetStub.onFirstCall().returns(
+      new Date().getTime() - 10, // expired 10s earlier
+    );
+    localstorageGetStub.onSecondCall().returns('abc'); // value in cached
+
+    const result = await cacheService.get(
+      'xxx',
+      async () => {
+        throw new Error('...'); // simulate refreshing error
+      },
+    );
+    expect(result).equal('abc'); // return cached value anyway
   });
 
-  it('#getRefresh (has cached + not expired)', async () => {
-    getStub.returns({ expired: false, data: 'abc' });
+  it('#get (expired, with refresher)', async () => {
+    getStub.restore();
 
-    const result = await cacheService.getRefresh('xxx', null);
-    expect(result).equal('abc');
-  });
-
-  it('#getRefresh (has cached + expired, no refresher)', async () => {
-    getStub.returns({ expired: true, data: 'abc' });
-
-    const result = await cacheService.getRefresh('xxx', null);
-    expect(result).equal('abc', 'always use cached value anyway');
-  });
-
-  it('#getRefresh (has cached + expired, has refresher)', async () => {
-    getStub.returns({ expired: true, data: 'abc' });
-    let setResult;
+    localstorageGetStub.onFirstCall().returns(
+      new Date().getTime() - 10, // expired 10s earlier
+    );
+    localstorageGetStub.onSecondCall().returns('abc'); // value in cached
+    let setArgs;
     setStub.callsFake((...args) => {
-      setResult = args;
-      return args[1]; // return data
+      setArgs = args;
+      return args[1]; // value
     });
 
-    const result = await cacheService.getRefresh('xxx', async () => '123');
-    expect(setResult).eql(['xxx', '123', 0]);
-    expect(result).equal('123');
+    const result = await cacheService.get(
+      'xxx', async () => 'ABC', 10,
+    );
+    expect(result).equal('ABC');
+    expect(setArgs).eql([ 'xxx', 'ABC', 10 ]);
   });
 
   it('#iterate', async () => {

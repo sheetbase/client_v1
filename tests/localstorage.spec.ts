@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
-import { localforageCreateInstanceStub } from './_libs';
 
-import { AppService } from '../src/lib/app/app.service';
+import { localforageCreateInstanceStub } from './_libs';
+import { MockedAppService } from './_mocks';
 
 import { LocalstorageService } from '../src/lib/localstorage/localstorage.service';
 import { localstorage } from '../src/lib/localstorage/index';
@@ -42,7 +42,7 @@ let iterateKeysStub: sinon.SinonStub;
 let removeStub: sinon.SinonStub;
 function before() {
   localstorageService = new LocalstorageService(
-    new AppService(),
+    new MockedAppService() as any,
   );
   iterateKeysStub = sinon.stub(localstorageService, 'iterateKeys');
   removeStub = sinon.stub(localstorageService, 'remove');
@@ -58,7 +58,7 @@ describe('(Localstorage) Localstorage service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(localstorageService.app instanceof AppService).equal(true);
+    expect(localstorageService.app instanceof MockedAppService).equal(true);
     expect(localstorageService.localforage instanceof StubedLocalforageInstance).equal(true);
   });
 
@@ -72,7 +72,7 @@ describe('(Localstorage) Localstorage service', () => {
     const result = localstorageService.instance({
       name: 'xxx',
     });
-    expect(result.app instanceof AppService).equal(true);
+    expect(result.app instanceof MockedAppService).equal(true);
     expect(result.localforage instanceof StubedLocalforageInstance).equal(true);
     expect(localForageconfigs).eql({
       name: 'xxx',

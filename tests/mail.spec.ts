@@ -2,14 +2,13 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
-import { AppService } from '../src/lib/app/app.service';
-import { ApiService } from '../src/lib/api/api.service';
+import { MockedAppService, MockedApiService } from './_mocks';
 
 import { MailService } from '../src/lib/mail/mail.service';
 import { mail } from '../src/lib/mail/index';
 
 const mailService = new MailService(
-  new AppService(),
+  new MockedAppService() as any,
 );
 
 let apiGetStub: sinon.SinonStub;
@@ -40,9 +39,9 @@ describe('(Mail) Mail service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(mailService.app instanceof AppService).equal(true);
+    expect(mailService.app instanceof MockedAppService).equal(true);
     // @ts-ignore
-    expect(mailService.Api instanceof ApiService).equal(true);
+    expect(mailService.Api instanceof MockedApiService).equal(true);
   });
 
   it('endpoint', () => {
@@ -51,9 +50,9 @@ describe('(Mail) Mail service', () => {
     expect(mailService.Api.baseEndpoint).equal('mail');
     // custom
     const mailService2 = new MailService(
-      new AppService({
+      new MockedAppService({
         mailEndpoint: 'xxx',
-      }),
+      }) as any,
     );
     // @ts-ignore
     expect(mailService2.Api.baseEndpoint).equal('xxx');
@@ -118,7 +117,7 @@ describe('(Mail) methods', () => {
   });
 
   it('#mail (app has no .Mail)', () => {
-    const result = mail(new AppService({ backendUrl: '' }));
+    const result = mail(new MockedAppService() as any);
 
     expect(result instanceof MailService).equal(true);
   });
