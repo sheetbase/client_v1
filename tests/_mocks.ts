@@ -2,6 +2,7 @@ import { Options } from '../src/index';
 
 export class MockedAppService {
   options = {};
+  Fetch = new MockedFetchService();
   Api = new MockedApiService();
   Localstorage = new MockedLocalstorageService();
   Cache = new MockedCacheService();
@@ -35,6 +36,11 @@ export class MockedLocalstorageService {
 }
 
 export class MockedCacheService {
+  constructor() {}
+  async get(...args) { return args; }
+}
+
+export class MockedFetchService {
   constructor() {}
   async get(...args) { return args; }
 }

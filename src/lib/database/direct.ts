@@ -94,7 +94,8 @@ export class DatabaseDirectService {
     // not original
     if (style !== 'original') {
       // extract content, between: </head></html>
-      content = html.match(/\<\/head\>(.*)\<\/html\>/).pop();
+      const contentMatch = html.match(/\<\/head\>(.*)\<\/html\>/);
+      content = !!contentMatch ? contentMatch.pop() : content;
       // remove useless tags
       content = content
         .replace(/\<body(.*?)\>/, '') // replace: <body...>
