@@ -122,7 +122,7 @@ describe('(Cache) Cache service', () => {
     localstorageSetStub.onFirstCall().callsFake((...args) => expirationResult = args);
     localstorageSetStub.onSecondCall().callsFake((...args) => valueResult = args);
 
-    const result = await cacheService.set('xxx', { a: 1 }, 10);
+    const result = await cacheService.set('xxx', { a: 1 }, 10000);
     expect(expirationResult[0]).equal('xxx__expiration');
     expect(typeof expirationResult[1] === 'number').equal(true);
     expect(valueResult).eql(['xxx', { a: 1 }]);
@@ -147,7 +147,7 @@ describe('(Cache) Cache service', () => {
     getStub.restore();
 
     localstorageGetStub.onFirstCall().returns(
-      new Date().getTime() - 10, // expired 10s earlier
+      new Date().getTime() - 10000, // expired 10s earlier
     );
 
     const result = await cacheService.get('xxx');
@@ -158,7 +158,7 @@ describe('(Cache) Cache service', () => {
     getStub.restore();
 
     localstorageGetStub.onFirstCall().returns(
-      new Date().getTime() + 10, // expired 10s later
+      new Date().getTime() + 10000, // expired 10s later
     );
     localstorageGetStub.onSecondCall().returns('abc'); // value in cached
 
@@ -170,7 +170,7 @@ describe('(Cache) Cache service', () => {
     getStub.restore();
 
     localstorageGetStub.onFirstCall().returns(
-      new Date().getTime() - 10, // expired 10s earlier
+      new Date().getTime() - 10000, // expired 10s earlier
     );
     localstorageGetStub.onSecondCall().returns('abc'); // value in cached
 
@@ -187,7 +187,7 @@ describe('(Cache) Cache service', () => {
     getStub.restore();
 
     localstorageGetStub.onFirstCall().returns(
-      new Date().getTime() - 10, // expired 10s earlier
+      new Date().getTime() - 10000, // expired 10s earlier
     );
     localstorageGetStub.onSecondCall().returns('abc'); // value in cached
     let setArgs;
@@ -197,10 +197,10 @@ describe('(Cache) Cache service', () => {
     });
 
     const result = await cacheService.get(
-      'xxx', async () => 'ABC', 10,
+      'xxx', async () => 'ABC', 10000,
     );
     expect(result).equal('ABC');
-    expect(setArgs).eql([ 'xxx', 'ABC', 10 ]);
+    expect(setArgs).eql([ 'xxx', 'ABC', 10000 ]);
   });
 
   it('#iterate', async () => {
@@ -258,7 +258,7 @@ describe('(Cache) Cache service', () => {
     let key;
     localstorageGetStub.callsFake(k => {
       key = k;
-      return new Date().getTime() + 10; // 10s later
+      return new Date().getTime() + 10000; // 10s later
     });
     let removeResult = [];
     localstorageRemoveStub.onFirstCall().callsFake((...args) => removeResult[0] = args);
@@ -285,7 +285,7 @@ describe('(Cache) Cache service', () => {
   });
 
   it('#flushExpired (expired)', async () => {
-    localstorageGetStub.returns(new Date().getTime() - 10); // 10s earlier
+    localstorageGetStub.returns(new Date().getTime() - 10000); // 10s earlier
     let removeResult = [];
     localstorageRemoveStub.onFirstCall().callsFake((...args) => removeResult[0] = args);
     localstorageRemoveStub.onSecondCall().callsFake((...args) => removeResult[1] = args);

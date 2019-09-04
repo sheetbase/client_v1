@@ -38,6 +38,7 @@ export class MockedLocalstorageService {
 export class MockedCacheService {
   constructor() {}
   async get(...args) { return args; }
+  async removeByPrefix(...args) { return args; }
 }
 
 export class MockedFetchService {

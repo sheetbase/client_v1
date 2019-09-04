@@ -6,7 +6,7 @@ import {
   Query,
   DataSegment,
   DocsContentStyle,
-  DataMethodOptions,
+  DatabaseMethodOptions,
 } from './types';
 import { DatabaseDirectService } from './direct';
 import { DatabaseServerService } from './server';
@@ -72,7 +72,7 @@ export class DatabaseService {
     return this;
   }
 
-  getMethodOptions(options: DataMethodOptions) {
+  getMethodOptions(options: DatabaseMethodOptions) {
     const {
       useCached = true,
       cacheTime = 1440,
@@ -94,7 +94,7 @@ export class DatabaseService {
       orderBy,
       limit,
       offset,
-    } as DataMethodOptions;
+    } as DatabaseMethodOptions;
   }
 
   /**
@@ -157,31 +157,28 @@ export class DatabaseService {
    * general get
    */
 
-  async all<Item>(sheet: string, options: DataMethodOptions = {}) {
+  async all<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
     const { cacheTime } = this.getMethodOptions(options);
-    // get items
-    let items: Item[] = [];
-    // first load from direct
+    // load from direct
     if (this.hasDirectAccess(sheet)) {
       try {
-        items = await this.direct().all<Item>(sheet, cacheTime);
+        return await this.DatabaseDirect.all<Item>(sheet, cacheTime);
       } catch (error) {
         // not published
         // or any errors
-        console.error('Unable to access \'' + sheet + '\' directly, it may not be published.');
+        throw new Error('Unable to access \'' + sheet + '\' directly, it may not be published.');
       }
     }
     // load from server
-    if (!items) {
-      items = await this.server().all<Item>(sheet, cacheTime);
+    else {
+      return await this.DatabaseServer.all<Item>(sheet, cacheTime);
     }
-    return items;
   }
 
   async query<Item>(
     sheet: string,
     filter: Filter,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ): Promise<Item[]> {
     const {
       useCached,
@@ -220,7 +217,7 @@ export class DatabaseService {
       return items;
     } else {
       if (!advancedFilter) {
-        return await this.server().query(sheet, query, cacheTime, segment);
+        return await this.DatabaseServer.query(sheet, query, cacheTime, segment);
       } else {
         throw new Error('Can only apply advanced query with cached data.');
       }
@@ -230,7 +227,7 @@ export class DatabaseService {
   async items<Item>(
     sheet: string,
     filter?: Filter,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return !!filter ?
       this.query<Item>(sheet, filter, options) :
@@ -240,7 +237,7 @@ export class DatabaseService {
   async item<Item>(
     sheet: string,
     finder: string | Filter,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     const {
       useCached,
@@ -251,7 +248,7 @@ export class DatabaseService {
     // get item
     let item: Item;
     if (typeof finder === 'string' && !useCached) { // from server
-      item = await this.server().item(sheet, finder, cacheTime);
+      item = await this.DatabaseServer.item(sheet, finder, cacheTime);
     } else { // from cached
       // turn string into finder
       if (typeof finder === 'string') {
@@ -302,43 +299,43 @@ export class DatabaseService {
     docsStyle: DocsContentStyle = 'full',
     cacheTime = 1440,
   ) {
-    return this.direct().docsContent(itemKey, docId, docsStyle, cacheTime);
+    return this.DatabaseDirect.docsContent(itemKey, docId, docsStyle, cacheTime);
   }
 
   textContent(itemKey: string, url: string, cacheTime = 1440) {
-    return this.direct().textContent(itemKey, url, cacheTime);
+    return this.DatabaseDirect.textContent(itemKey, url, cacheTime);
   }
 
   jsonContent(itemKey: string, url: string, cacheTime = 1440) {
-    return this.direct().jsonContent(itemKey, url, cacheTime);
+    return this.DatabaseDirect.jsonContent(itemKey, url, cacheTime);
   }
 
   /**
    * general set
    */
 
-  async set<Data>(sheet: string, key: string, data: Data) {
-    return await this.server().set(sheet, key, data);
+  set<Data>(sheet: string, key: string, data: Data) {
+    return this.DatabaseServer.set(sheet, key, data);
   }
 
-  async update<Data>(sheet: string, key: string, data: Data) {
-    return await this.server().update(sheet, key, data);
+  update<Data>(sheet: string, key: string, data: Data) {
+    return this.DatabaseServer.update(sheet, key, data);
   }
 
-  async add<Data>(sheet: string, key: string, data: Data) {
-    return await this.update(sheet, key, data);
+  add<Data>(sheet: string, key: string, data: Data) {
+    return this.DatabaseServer.add(sheet, key, data);
   }
 
-  async remove(sheet: string, key: string) {
-    return await this.update(sheet, key, null);
+  remove(sheet: string, key: string) {
+    return this.DatabaseServer.remove(sheet, key);
   }
 
-  async increase(
+  increase(
     sheet: string,
     key: string,
     increasing: string | string[] | {[path: string]: number},
   ) {
-    return await this.server().increase(sheet, key, increasing);
+    return this.DatabaseServer.increase(sheet, key, increasing);
   }
 
   /**
@@ -365,7 +362,7 @@ export class DatabaseService {
    * convinient get
    */
 
-  itemsOriginal<Item>(sheet: string, options: DataMethodOptions = {}) {
+  itemsOriginal<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -376,7 +373,7 @@ export class DatabaseService {
     );
   }
 
-  itemsDraft<Item>(sheet: string, options: DataMethodOptions = {}) {
+  itemsDraft<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -387,7 +384,7 @@ export class DatabaseService {
     );
   }
 
-  itemsPublished<Item>(sheet: string, options: DataMethodOptions = {}) {
+  itemsPublished<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -398,7 +395,7 @@ export class DatabaseService {
     );
   }
 
-  itemsArchived<Item>(sheet: string, options: DataMethodOptions = {}) {
+  itemsArchived<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -412,7 +409,7 @@ export class DatabaseService {
   async itemsByRelated<Item>(
     sheet: string,
     baseItem: Item,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     // retrieve category & tag
     const { categories, tags } = baseItem as any;
@@ -428,7 +425,11 @@ export class DatabaseService {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       // ignore the input item
-      if (item['$key'] === baseItem['$key']) {
+      if (
+        !!item['$key'] &&
+        !!baseItem['$key'] &&
+        (item['$key'] === baseItem['$key'])
+      ) {
         continue;
       }
       // check other items
@@ -455,7 +456,7 @@ export class DatabaseService {
   itemsByType<Item>(
     sheet: string,
     type: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -467,7 +468,7 @@ export class DatabaseService {
     );
   }
 
-  itemsByTypeDefault<Item>(sheet: string, options: DataMethodOptions = {}) {
+  itemsByTypeDefault<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => !item['type'],
@@ -478,7 +479,7 @@ export class DatabaseService {
   itemsByAuthor<Item>(
     sheet: string,
     authorKey: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -493,7 +494,7 @@ export class DatabaseService {
   itemsByLocale<Item>(
     sheet: string,
     locale: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -508,7 +509,7 @@ export class DatabaseService {
   itemsByOrigin<Item>(
     sheet: string,
     origin: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -523,7 +524,7 @@ export class DatabaseService {
   itemsByParent<Item>(
     sheet: string,
     parentKey: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -539,7 +540,7 @@ export class DatabaseService {
     sheet: string,
     taxonomy: string,
     termKey: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -554,7 +555,7 @@ export class DatabaseService {
   itemsByCategory<Item>(
     sheet: string,
     categoryKey: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.itemsByTerm<Item>(
       sheet,
@@ -567,7 +568,7 @@ export class DatabaseService {
   itemsByTag<Item>(
     sheet: string,
     tagKey: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.itemsByTerm<Item>(
       sheet,
@@ -580,7 +581,7 @@ export class DatabaseService {
   itemsByKeyword<Item>(
     sheet: string,
     keyword: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -595,7 +596,7 @@ export class DatabaseService {
   itemsByMetaExists<Item>(
     sheet: string,
     metaKey: string,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -611,7 +612,7 @@ export class DatabaseService {
     sheet: string,
     metaKey: string,
     equalTo: any,
-    options: DataMethodOptions = {},
+    options: DatabaseMethodOptions = {},
   ) {
     return this.items<Item>(
       sheet,

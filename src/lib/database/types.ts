@@ -39,7 +39,7 @@ export interface DatabaseGids {
 
 export type DatabaseDataParser = (value: any) => any;
 
-export interface DataMethodOptions {
+export interface DatabaseMethodOptions {
   // caching
   useCached?: boolean;
   cacheTime?: number;
