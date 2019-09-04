@@ -30,8 +30,7 @@
   },
   "nyc": {
     "exclude": [
-      "**/tests",
-      "**/src/md5"
+      "**/tests"
     ]
   },
   "keywords": [

@@ -1,5 +1,7 @@
 import { PopupConfigs } from './app/types';
 
+export { md5 } from '../md5/md5';
+
 export function decodeJWTPayload(token: string) {
   const [, payloadStr ] = token.split('.');
   return JSON.parse(atob(payloadStr));

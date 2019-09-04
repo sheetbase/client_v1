@@ -8,6 +8,7 @@ import {
   isExpiredInSeconds,
   createPopup,
   getHost,
+  md5,
 } from '../src/lib/utils';
 
 global['atob'] = (b64: string) => Buffer.from(b64, 'base64').toString();
@@ -129,6 +130,15 @@ describe('utils', () => {
     expect(result).equal('https://xxx.xxx');
     // reset
     getElementsByTagNameStub.restore();
+  });
+
+  it('#md5', () => {
+    const result1 = md5('xxx');
+    const result2 = md5('xxx', 'abc');
+    const result3 = md5('xxx', null, true);
+    expect(result1).equal('f561aaf6ef0bf14d4208bb46a4ccb3ad');
+    expect(result2).equal('132daa7422d3d79dd078ce8bd9f4155c');
+    expect(result3).equal('õaªöï\u000bñMB\b»F¤Ì³­');
   });
 
 });

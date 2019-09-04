@@ -1,5 +1,4 @@
-import { md5 } from '../../md5/md5';
-
+import { md5 } from '../utils';
 import { AppService } from '../app/app.service';
 
 import {

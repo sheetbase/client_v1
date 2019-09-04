@@ -1,6 +1,6 @@
 import { parse } from 'papaparse';
-import { md5 } from '../../md5/md5';
 
+import { md5 } from '../utils';
 import { AppService } from '../app/app.service';
 
 import { DocsContentStyle, DatabaseGids, DatabaseDataParser } from './types';
