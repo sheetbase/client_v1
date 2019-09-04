@@ -25,21 +25,21 @@ describe('(App) AppService', () => {
 
     const sheetbaseApp = new AppService();
 
-    expect(sheetbaseApp.options).to.eql({});
+    expect(sheetbaseApp.options).eql({});
     // built-in
-    expect(sheetbaseApp.Api instanceof ApiService).to.equal(true, '.Api');
-    expect(sheetbaseApp.api() instanceof ApiService).to.equal(true, '#api');
-    expect(sheetbaseApp.Fetch instanceof FetchService).to.equal(true, '.Fetch');
-    expect(sheetbaseApp.fetch() instanceof FetchService).to.equal(true, '#fetch');
-    expect(sheetbaseApp.Localstorage instanceof LocalstorageService).to.equal(true, '.Localstorage');
-    expect(sheetbaseApp.localstorage() instanceof LocalstorageService).to.equal(true, '#localstorage');
-    expect(sheetbaseApp.Cache instanceof CacheService).to.equal(true, '.Cache');
-    expect(sheetbaseApp.cache() instanceof CacheService).to.equal(true, '#cache');
+    expect(sheetbaseApp.Api instanceof ApiService).equal(true, '.Api');
+    expect(sheetbaseApp.api() instanceof ApiService).equal(true, '#api');
+    expect(sheetbaseApp.Fetch instanceof FetchService).equal(true, '.Fetch');
+    expect(sheetbaseApp.fetch() instanceof FetchService).equal(true, '#fetch');
+    expect(sheetbaseApp.Localstorage instanceof LocalstorageService).equal(true, '.Localstorage');
+    expect(sheetbaseApp.localstorage() instanceof LocalstorageService).equal(true, '#localstorage');
+    expect(sheetbaseApp.Cache instanceof CacheService).equal(true, '.Cache');
+    expect(sheetbaseApp.cache() instanceof CacheService).equal(true, '#cache');
     // custom
-    expect(sheetbaseApp.auth.bind(sheetbaseApp)).to.throw('No auth component.', '#auth');
-    expect(sheetbaseApp.database.bind(sheetbaseApp)).to.throw('No database component.', '#database');
-    expect(sheetbaseApp.storage.bind(sheetbaseApp)).to.throw('No storage component.', '#storage');
-    expect(sheetbaseApp.mail.bind(sheetbaseApp)).to.throw('No mail component.', '#mail');
+    expect(sheetbaseApp.auth.bind(sheetbaseApp)).throw('No auth component.', '#auth');
+    expect(sheetbaseApp.database.bind(sheetbaseApp)).throw('No database component.', '#database');
+    expect(sheetbaseApp.storage.bind(sheetbaseApp)).throw('No storage component.', '#storage');
+    expect(sheetbaseApp.mail.bind(sheetbaseApp)).throw('No mail component.', '#mail');
   });
 
   it('should initialize other components', () => {
@@ -52,14 +52,14 @@ describe('(App) AppService', () => {
 
     const sheetbaseApp = new AppService();
 
-    expect(sheetbaseApp.Auth instanceof AuthService).to.equal(true, '.Auth');
-    expect(sheetbaseApp.Database instanceof DatabaseService).to.equal(true, '.Database');
-    expect(sheetbaseApp.Storage instanceof StorageService).to.equal(true, '.Storage');
-    expect(sheetbaseApp.Mail instanceof MailService).to.equal(true, '.Mail');
-    expect(sheetbaseApp.auth() instanceof AuthService).to.equal(true, '#auth');
-    expect(sheetbaseApp.database() instanceof DatabaseService).to.equal(true, '#database');
-    expect(sheetbaseApp.storage() instanceof StorageService).to.equal(true, '#storage');
-    expect(sheetbaseApp.mail() instanceof MailService).to.equal(true, '#mail');
+    expect(sheetbaseApp.Auth instanceof AuthService).equal(true, '.Auth');
+    expect(sheetbaseApp.Database instanceof DatabaseService).equal(true, '.Database');
+    expect(sheetbaseApp.Storage instanceof StorageService).equal(true, '.Storage');
+    expect(sheetbaseApp.Mail instanceof MailService).equal(true, '.Mail');
+    expect(sheetbaseApp.auth() instanceof AuthService).equal(true, '#auth');
+    expect(sheetbaseApp.database() instanceof DatabaseService).equal(true, '#database');
+    expect(sheetbaseApp.storage() instanceof StorageService).equal(true, '#storage');
+    expect(sheetbaseApp.mail() instanceof MailService).equal(true, '#mail');
   });
 
 });
@@ -73,24 +73,24 @@ describe('(App) AppsService', () => {
     appsService.createApp({ backendUrl: '' }, 'app1');
     appsService.createApp({ backendUrl: '' }, 'app2');
     // @ts-ignore
-    expect(Object.keys(appsService.apps)).to.eql(['DEFAULT', 'app1', 'app2']);
+    expect(Object.keys(appsService.apps)).eql(['DEFAULT', 'app1', 'app2']);
   });
 
   it('#createApp should throw error, app exists', () => {
     expect(
       appsService.createApp.bind(appsService, { backendUrl: '' }),
-    ).to.throw('An app exists with the name "DEFAULT".');
+    ).throw('An app exists with the name "DEFAULT".');
   });
 
   it('#getApp', () => {
     const app2 = appsService.getApp('app2');
-    expect(!!app2).to.equal(true);
+    expect(!!app2).equal(true);
   });
 
   it('#getApp should throw error, app not exists', () => {
     expect(
       appsService.getApp.bind(appsService, 'app3'),
-    ).to.throw('No app exists with the name "app3". Please run initializeApp() first.');
+    ).throw('No app exists with the name "app3". Please run initializeApp() first.');
   });
 
 });
@@ -99,17 +99,17 @@ describe('(App) methods', () => {
 
   it('#initializeApp', () => {
     const sheetbaseApp = initializeApp();
-    expect(sheetbaseApp instanceof AppService).to.equal(true);
+    expect(sheetbaseApp instanceof AppService).equal(true);
   });
 
   it('#defaultApp', () => {
     const sheetbaseApp = defaultApp();
-    expect(sheetbaseApp instanceof AppService).to.equal(true);
+    expect(sheetbaseApp instanceof AppService).equal(true);
   });
 
   it('#app', () => {
     const sheetbaseApp = app('DEFAULT');
-    expect(sheetbaseApp instanceof AppService).to.equal(true);
+    expect(sheetbaseApp instanceof AppService).equal(true);
   });
 
 });

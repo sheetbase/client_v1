@@ -68,15 +68,15 @@ describe('(Storage) Storage service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(storageService.app instanceof AppService).to.equal(true);
+    expect(storageService.app instanceof AppService).equal(true);
     // @ts-ignore
-    expect(storageService.Api instanceof ApiService).to.equal(true);
+    expect(storageService.Api instanceof ApiService).equal(true);
   });
 
   it('endpoint', () => {
     // default
     // @ts-ignore
-    expect(storageService.Api.baseEndpoint).to.equal('storage');
+    expect(storageService.Api.baseEndpoint).equal('storage');
     // custom
     const storageService2 = new StorageService(
       new AppService({
@@ -84,7 +84,7 @@ describe('(Storage) Storage service', () => {
       }),
     );
     // @ts-ignore
-    expect(storageService2.Api.baseEndpoint).to.equal('xxx');
+    expect(storageService2.Api.baseEndpoint).equal('xxx');
   });
 
   it('#base64Parser', async () => {
@@ -102,7 +102,7 @@ describe('(Storage) Storage service', () => {
 
     // @ts-ignore
     const result = storageService.isValidType('any');
-    expect(result).to.equal(true);
+    expect(result).equal(true);
   });
 
   it('#isValidType (has allowTypes, not allowed)', () => {
@@ -115,7 +115,7 @@ describe('(Storage) Storage service', () => {
     );
     // @ts-ignore
     const result = storageService.isValidType('text/rich');
-    expect(result).to.equal(false);
+    expect(result).equal(false);
   });
 
   it('#isValidType (has allowTypes, allowed)', () => {
@@ -128,7 +128,7 @@ describe('(Storage) Storage service', () => {
     );
     // @ts-ignore
     const result = storageService.isValidType('text/rich');
-    expect(result).to.equal(true);
+    expect(result).equal(true);
   });
 
   it('#isValidSize (no maxSize or 0, all allowed)', () => {
@@ -148,8 +148,8 @@ describe('(Storage) Storage service', () => {
     const result1 = storageService1.isValidSize(100000000); // 100MB
     // @ts-ignore
     const result2 = storageService2.isValidSize(100000000); // 100MB
-    expect(result1).to.equal(true, 'not setted');
-    expect(result2).to.equal(true, '=== 0');
+    expect(result1).equal(true, 'not setted');
+    expect(result2).equal(true, '=== 0');
   });
 
   it('#isValidSize (has maxSize, not allowed)', () => {
@@ -162,7 +162,7 @@ describe('(Storage) Storage service', () => {
     );
     // @ts-ignore
     const result = storageService.isValidSize(11000000); // 11MB
-    expect(result).to.equal(false);
+    expect(result).equal(false);
   });
 
   it('#isValidSize (has maxSize, allowed)', () => {
@@ -175,7 +175,7 @@ describe('(Storage) Storage service', () => {
     );
     // @ts-ignore
     const result = storageService.isValidSize(10000000); // 10MB
-    expect(result).to.equal(true);
+    expect(result).equal(true);
   });
 
   it('#validateUploadFile (missing data)', () => {
@@ -401,7 +401,7 @@ describe('(Storage) methods', () => {
     window['$$$SHEETBASE_APPS'] = null;
     expect(
       storage.bind(null),
-    ).to.throw('No app for storage component.');
+    ).throw('No app for storage component.');
   });
 
   it('#storage (no app, default app)', () => {
@@ -411,12 +411,12 @@ describe('(Storage) methods', () => {
 
     const result = storage();
 
-    expect(result).to.equal('An Storage instance');
+    expect(result).equal('An Storage instance');
   });
 
   it('#storage (app has no .Storage)', () => {
     const result = storage(new AppService({ backendUrl: '' }));
-    expect(result instanceof StorageService).to.equal(true);
+    expect(result instanceof StorageService).equal(true);
   });
 
 });

@@ -18,7 +18,7 @@ describe('utils', () => {
   it('#decodeJWTPayload', () => {
     // tslint:disable-next-line:max-line-length
     const result = decodeJWTPayload('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c');
-    expect(result).to.eql({
+    expect(result).eql({
       sub: '1234567890',
       name: 'John Doe',
       iat: 1516239022,
@@ -50,9 +50,9 @@ describe('utils', () => {
     const result1 = isExpiredJWT(TOKEN1);
     const result2 = isExpiredJWT(TOKEN2);
     const result3 = isExpiredJWT(TOKEN3);
-    expect(result1).to.equal(true, 'no exp');
-    expect(result2).to.equal(true, 'expired');
-    expect(result3).to.equal(false, 'not expired');
+    expect(result1).equal(true, 'no exp');
+    expect(result2).equal(true, 'expired');
+    expect(result3).equal(false, 'not expired');
   });
 
   it('#isExpiredInSeconds', () => {
@@ -60,9 +60,9 @@ describe('utils', () => {
     const result1 = isExpiredInSeconds(nowSecs);
     const result2 = isExpiredInSeconds(nowSecs + 10);
     const result3 = isExpiredInSeconds(nowSecs + 10, 10);
-    expect(result1).to.equal(true, 'expire now');
-    expect(result2).to.equal(false, 'expire in 10 secs later');
-    expect(result3).to.equal(true, 'expire in 10 secs later, but also cost 10 secs');
+    expect(result1).equal(true, 'expire now');
+    expect(result2).equal(false, 'expire in 10 secs later');
+    expect(result3).equal(true, 'expire in 10 secs later, but also cost 10 secs');
   });
 
   it('#createPopup (default configs)', () => {

@@ -79,9 +79,9 @@ describe('(Auth) Auth service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(authService.app instanceof AppService).to.equal(true);
+    expect(authService.app instanceof AppService).equal(true);
     // @ts-ignore
-    expect(authService.Api instanceof ApiService).to.equal(true);
+    expect(authService.Api instanceof ApiService).equal(true);
   });
 
   it('#onAuthStateChanged (no user)', () => {
@@ -89,7 +89,7 @@ describe('(Auth) Auth service', () => {
 
     let user: any;
     authService.onAuthStateChanged(_user => { user = _user; });
-    expect(user).to.equal(null);
+    expect(user).equal(null);
   });
 
   it('#onAuthStateChanged', () => {
@@ -97,12 +97,12 @@ describe('(Auth) Auth service', () => {
 
     let user: any;
     authService.onAuthStateChanged(_user => { user = _user; });
-    expect(user).to.eql({});
+    expect(user).eql({});
   });
 
   it('#checkActionCode', async () => {
     const result = await authService.checkActionCode('xxx');
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'GET',
       endpoint: '/oob',
       query: { oobCode: 'xxx' },
@@ -118,13 +118,13 @@ describe('(Auth) Auth service', () => {
     signInStub.onFirstCall().returns({ uid: 'xxx' });
 
     const result = await authService.createUserWithEmailAndPassword('xxx@xxx.xxx', 'xxx');
-    expect(putResult).to.eql({
+    expect(putResult).eql({
       method: 'PUT',
       endpoint: '/',
       query: {},
       body: { email: 'xxx@xxx.xxx', password: 'xxx', offlineAccess: true },
     });
-    expect(result.user).to.eql({ uid: 'xxx' });
+    expect(result.user).eql({ uid: 'xxx' });
   });
 
   it('#signInWithEmailAndPassword', async () => {
@@ -136,13 +136,13 @@ describe('(Auth) Auth service', () => {
     signInStub.onFirstCall().returns({ uid: 'xxx' });
 
     const result = await authService.signInWithEmailAndPassword('xxx@xxx.xxx', 'xxx');
-    expect(postResult).to.eql({
+    expect(postResult).eql({
       method: 'POST',
       endpoint: '/',
       query: {},
       body: { email: 'xxx@xxx.xxx', password: 'xxx', offlineAccess: true },
     });
-    expect(result.user).to.eql({ uid: 'xxx' });
+    expect(result.user).eql({ uid: 'xxx' });
   });
 
   it('#signInWithCustomToken', async () => {
@@ -154,13 +154,13 @@ describe('(Auth) Auth service', () => {
     signInStub.onFirstCall().returns({ uid: 'xxx' });
 
     const result = await authService.signInWithCustomToken('xxx');
-    expect(postResult).to.eql({
+    expect(postResult).eql({
       method: 'POST',
       endpoint: '/',
       query: {},
       body: { customToken: 'xxx', offlineAccess: true },
     });
-    expect(result.user).to.eql({ uid: 'xxx' });
+    expect(result.user).eql({ uid: 'xxx' });
   });
 
   it('#signInAnonymously', async () => {
@@ -172,13 +172,13 @@ describe('(Auth) Auth service', () => {
     signInStub.onFirstCall().returns({ uid: 'xxx' });
 
     const result = await authService.signInAnonymously();
-    expect(putResult).to.eql({
+    expect(putResult).eql({
       method: 'PUT',
       endpoint: '/',
       query: {},
       body: { offlineAccess: true },
     });
-    expect(result.user).to.eql({ uid: 'xxx' });
+    expect(result.user).eql({ uid: 'xxx' });
   });
 
   it('#signInWithLocalUser (no local user info)', async () => {
@@ -188,7 +188,7 @@ describe('(Auth) Auth service', () => {
 
     // @ts-ignore
     await authService.signInWithLocalUser();
-    expect(result).to.equal(undefined);
+    expect(result).equal(undefined);
   });
 
   it('#signInWithLocalUser (has info but no creds)', async () => {
@@ -199,7 +199,7 @@ describe('(Auth) Auth service', () => {
 
     // @ts-ignore
     await authService.signInWithLocalUser();
-    expect(result).to.equal(undefined);
+    expect(result).equal(undefined);
   });
 
   // it('#signInWithLocalUser (has info, has creds, but token expired)', async () => {
@@ -222,11 +222,11 @@ describe('(Auth) Auth service', () => {
 
   //   // @ts-ignore
   //   await authService.signInWithLocalUser();
-  //   expect(apiGetResult).to.eql([{
+  //   expect(apiGetResult).eql([{
   //     endpoint: '/user',
   //     query: { idToken: 'renewed id token' },
   //   }]);
-  //   expect(result).to.eql({
+  //   expect(result).eql({
   //     info: { uid: 'xxx', newInfo: true },
   //     idToken: 'renewed id token',
   //     refreshToken: 'xxx',
@@ -260,11 +260,11 @@ describe('(Auth) Auth service', () => {
 
   //   // @ts-ignore
   //   await authService.signInWithLocalUser();
-  //   expect(apiGetResult).to.eql([{
+  //   expect(apiGetResult).eql([{
   //     endpoint: '/user',
   //     query: { idToken: TOKEN },
   //   }]);
-  //   expect(result).to.eql({
+  //   expect(result).eql({
   //     info: { uid: 'xxx', newInfo: true },
   //     idToken: TOKEN,
   //     refreshToken: 'xxx',
@@ -273,7 +273,7 @@ describe('(Auth) Auth service', () => {
 
   it('#sendPasswordResetEmail', async () => {
     const result = await authService.sendPasswordResetEmail('xxx@xxx.xxx');
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'PUT',
       endpoint: '/oob',
       query: {},
@@ -283,7 +283,7 @@ describe('(Auth) Auth service', () => {
 
   it('#verifyPasswordResetCode', async () => {
     const result = await authService.verifyPasswordResetCode('xxx');
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'GET',
       endpoint: '/oob',
       query: { oobCode: 'xxx', mode: 'resetPassword' },
@@ -292,7 +292,7 @@ describe('(Auth) Auth service', () => {
 
   it('#confirmPasswordReset', async () => {
     const result = await authService.confirmPasswordReset('xxx', '1234567');
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'POST',
       endpoint: '/oob',
       query: {},
@@ -310,13 +310,13 @@ describe('(Auth) Auth service', () => {
 
     // @ts-ignore
     const result = await authService.signIn({ uid: 'xxx' }, 'xxx', 'xxx');
-    expect(publishResult.event).to.equal('SHEETBASE_USER_CHANGED');
-    expect(publishResult.user instanceof User).to.equal(true, 'publish user');
-    expect(setItemResult).to.eql([
+    expect(publishResult.event).equal('SHEETBASE_USER_CHANGED');
+    expect(publishResult.user instanceof User).equal(true, 'publish user');
+    expect(setItemResult).eql([
       { key: 'user_info', value: { uid: 'xxx' } },
       { key: 'user_creds', value: { uid: 'xxx', idToken: 'xxx', refreshToken: 'xxx' } },
     ]);
-    expect(result instanceof User).to.equal(true, 'final result');
+    expect(result instanceof User).equal(true, 'final result');
   });
 
   it('#signOut', async () => {
@@ -326,8 +326,8 @@ describe('(Auth) Auth service', () => {
     localstorageRemoveStub.callsFake(async key => { removeItemResult.push(key); });
 
     await authService.signOut();
-    expect(publishResult).to.eql({ event: 'SHEETBASE_USER_CHANGED', user: null });
-    expect(removeItemResult).to.eql([
+    expect(publishResult).eql({ event: 'SHEETBASE_USER_CHANGED', user: null });
+    expect(removeItemResult).eql([
       'user_info',
       'user_creds',
     ]);
@@ -407,10 +407,10 @@ describe('(Auth) User', () => {
 
   it('properties', () => {
     // @ts-ignore
-    expect(user.Api instanceof ApiService).to.equal(true, '.Api');
+    expect(user.Api instanceof ApiService).equal(true, '.Api');
 
-    expect(user.idToken).to.equal('xxx', '.idToken');
-    expect(user.refreshToken).to.equal('xxx', '.refreshToken');
+    expect(user.idToken).equal('xxx', '.idToken');
+    expect(user.refreshToken).equal('xxx', '.refreshToken');
   });
 
   it('#setInfo', () => {
@@ -418,55 +418,55 @@ describe('(Auth) User', () => {
     setInfoStub.restore();
 
     // before
-    expect(user.uid).to.equal(undefined, '.uid');
-    expect(user.providerId).to.equal(undefined, '.providerId');
-    expect(user.email).to.equal(undefined, '.email');
-    expect(user.emailVerified).to.equal(undefined, '.emailVerified');
-    expect(user.createdAt).to.equal(undefined, '.createdAt');
-    expect(user.lastLogin).to.equal(undefined, '.lastLogin');
-    expect(user.username).to.equal(undefined, '.username');
-    expect(user.phoneNumber).to.equal(undefined, '.phoneNumber');
-    expect(user.displayName).to.equal(undefined, '.displayName');
-    expect(user.photoURL).to.equal(undefined, '.photoURL');
-    expect(user.claims).to.equal(undefined, '.claims');
-    expect(user.isAnonymous).to.equal(undefined, '.isAnonymous');
-    expect(user.isNewUser).to.equal(undefined, '.isNewUser');
+    expect(user.uid).equal(undefined, '.uid');
+    expect(user.providerId).equal(undefined, '.providerId');
+    expect(user.email).equal(undefined, '.email');
+    expect(user.emailVerified).equal(undefined, '.emailVerified');
+    expect(user.createdAt).equal(undefined, '.createdAt');
+    expect(user.lastLogin).equal(undefined, '.lastLogin');
+    expect(user.username).equal(undefined, '.username');
+    expect(user.phoneNumber).equal(undefined, '.phoneNumber');
+    expect(user.displayName).equal(undefined, '.displayName');
+    expect(user.photoURL).equal(undefined, '.photoURL');
+    expect(user.claims).equal(undefined, '.claims');
+    expect(user.isAnonymous).equal(undefined, '.isAnonymous');
+    expect(user.isNewUser).equal(undefined, '.isNewUser');
 
     // @ts-ignore
     user.setInfo(INFO as any);
 
     // after
-    expect(user.uid).to.equal('xxx', '.uid');
-    expect(user.providerId).to.equal('password', '.providerId');
-    expect(user.email).to.equal('xxx@xxx.xxx', '.email');
-    expect(user.emailVerified).to.equal(false, '.emailVerified');
-    expect(user.createdAt).to.equal('2019-01-01T00:00:00.1000Z', '.createdAt');
-    expect(user.lastLogin).to.equal('2019-01-01T00:00:00.1000Z', '.lastLogin');
-    expect(user.username).to.equal('', '.username');
-    expect(user.phoneNumber).to.equal('', '.phoneNumber');
-    expect(user.displayName).to.equal('', '.displayName');
-    expect(user.photoURL).to.equal('', '.photoURL');
-    expect(user.claims).to.eql({}, '.claims');
-    expect(user.isAnonymous).to.equal(false, '.isAnonymous');
-    expect(user.isNewUser).to.equal(false, '.isNewUser');
+    expect(user.uid).equal('xxx', '.uid');
+    expect(user.providerId).equal('password', '.providerId');
+    expect(user.email).equal('xxx@xxx.xxx', '.email');
+    expect(user.emailVerified).equal(false, '.emailVerified');
+    expect(user.createdAt).equal('2019-01-01T00:00:00.1000Z', '.createdAt');
+    expect(user.lastLogin).equal('2019-01-01T00:00:00.1000Z', '.lastLogin');
+    expect(user.username).equal('', '.username');
+    expect(user.phoneNumber).equal('', '.phoneNumber');
+    expect(user.displayName).equal('', '.displayName');
+    expect(user.photoURL).equal('', '.photoURL');
+    expect(user.claims).eql({}, '.claims');
+    expect(user.isAnonymous).equal(false, '.isAnonymous');
+    expect(user.isNewUser).equal(false, '.isNewUser');
   });
 
   it('#toJSON', () => {
     const result = user.toJSON();
 
-    expect(result.uid).to.equal('xxx', '.uid');
-    expect(result.providerId).to.equal('password', '.providerId');
-    expect(result.email).to.equal('xxx@xxx.xxx', '.email');
-    expect(result.emailVerified).to.equal(false, '.emailVerified');
-    expect(result.createdAt).to.equal('2019-01-01T00:00:00.1000Z', '.createdAt');
-    expect(result.lastLogin).to.equal('2019-01-01T00:00:00.1000Z', '.lastLogin');
-    expect(result.username).to.equal('', '.username');
-    expect(result.phoneNumber).to.equal('', '.phoneNumber');
-    expect(result.displayName).to.equal('', '.displayName');
-    expect(result.photoURL).to.equal('', '.photoURL');
-    expect(result.claims).to.eql({}, '.claims');
-    expect(result.isAnonymous).to.equal(false, '.isAnonymous');
-    expect(result.isNewUser).to.equal(false, '.isNewUser');
+    expect(result.uid).equal('xxx', '.uid');
+    expect(result.providerId).equal('password', '.providerId');
+    expect(result.email).equal('xxx@xxx.xxx', '.email');
+    expect(result.emailVerified).equal(false, '.emailVerified');
+    expect(result.createdAt).equal('2019-01-01T00:00:00.1000Z', '.createdAt');
+    expect(result.lastLogin).equal('2019-01-01T00:00:00.1000Z', '.lastLogin');
+    expect(result.username).equal('', '.username');
+    expect(result.phoneNumber).equal('', '.phoneNumber');
+    expect(result.displayName).equal('', '.displayName');
+    expect(result.photoURL).equal('', '.photoURL');
+    expect(result.claims).eql({}, '.claims');
+    expect(result.isAnonymous).equal(false, '.isAnonymous');
+    expect(result.isNewUser).equal(false, '.isNewUser');
   });
 
   it('#getIdToken (not expired)', async () => {
@@ -484,7 +484,7 @@ describe('(Auth) User', () => {
 
     user.idToken = TOKEN;
     const result = await user.getIdToken();
-    expect(result).to.equal(TOKEN);
+    expect(result).equal(TOKEN);
   });
 
   it('#getIdToken (forceRefresh)', async () => {
@@ -508,13 +508,13 @@ describe('(Auth) User', () => {
 
     user.idToken = TOKEN;
     const result = await user.getIdToken(true);
-    expect(apiGetData).to.eql({
+    expect(apiGetData).eql({
       endpoint: '/token',
       query: {
         refreshToken: 'xxx',
       },
     });
-    expect(result).to.equal('xxx');
+    expect(result).equal('xxx');
   });
 
   it('#getIdToken (expired)', async () => {
@@ -530,13 +530,13 @@ describe('(Auth) User', () => {
 
     user.idToken = TOKEN;
     const result = await user.getIdToken();
-    expect(apiGetData).to.eql({
+    expect(apiGetData).eql({
       endpoint: '/token',
       query: {
         refreshToken: 'xxx',
       },
     });
-    expect(result).to.equal('xxx');
+    expect(result).equal('xxx');
   });
 
   it('#getIdTokenResult', async () => {
@@ -558,7 +558,7 @@ describe('(Auth) User', () => {
     });
 
     const result = await user.getIdTokenResult(true);
-    expect(forceRefresh).to.equal(true);
+    expect(forceRefresh).equal(true);
     expect(result).eql({
       uid: 'xxx',
     });
@@ -566,7 +566,7 @@ describe('(Auth) User', () => {
 
   it('#sendEmailVerification', async () => {
     const result = await user.sendEmailVerification();
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'PUT',
       endpoint: '/oob',
       query: {},
@@ -584,7 +584,7 @@ describe('(Auth) User', () => {
       displayName: 'xxx',
       photoURL: 'xxx',
     });
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'POST',
       endpoint: '/user',
       query: {},
@@ -601,7 +601,7 @@ describe('(Auth) User', () => {
     setInfoStub.callsFake(info => info); // forward api response
 
     const result = await user.setUsername('xxx');
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'POST',
       endpoint: '/user/username',
       query: {},
@@ -613,7 +613,7 @@ describe('(Auth) User', () => {
 
   it('#changePassword', async () => {
     const result = await user.changePassword('1234567', '1234567xxx');
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'POST',
       endpoint: '/user/password',
       query: {},
@@ -626,7 +626,7 @@ describe('(Auth) User', () => {
 
   it('#logout', async () => {
     const result = await user.logout();
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'DELETE',
       endpoint: '/',
       query: undefined,
@@ -636,7 +636,7 @@ describe('(Auth) User', () => {
 
   it('#delete', async () => {
     const result = await user.delete();
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'DELETE',
       endpoint: '/cancel',
       query: {},
@@ -697,7 +697,7 @@ describe('(Auth) methods', () => {
     window['$$$SHEETBASE_APPS'] = null;
     expect(
       auth.bind(null),
-    ).to.throw('No app for auth component.');
+    ).throw('No app for auth component.');
   });
 
   it('#auth (no app, default app)', () => {
@@ -707,13 +707,13 @@ describe('(Auth) methods', () => {
 
     const result = auth();
 
-    expect(result).to.equal('An Auth instance');
+    expect(result).equal('An Auth instance');
   });
 
   it('#auth (app has no .Auth)', () => {
     const result = auth(new AppService({ backendUrl: '' }));
 
-    expect(result instanceof AuthService).to.equal(true);
+    expect(result instanceof AuthService).equal(true);
   });
 
 });

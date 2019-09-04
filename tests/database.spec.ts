@@ -31,13 +31,13 @@ describe('(Database) Database service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(databaseService.app instanceof AppService).to.equal(true, 'app instance');
+    expect(databaseService.app instanceof AppService).equal(true, 'app instance');
     // @ts-ignore
-    expect(databaseService.DatabaseDirect instanceof DatabaseDirectService).to.equal(true, 'direct instance');
+    expect(databaseService.DatabaseDirect instanceof DatabaseDirectService).equal(true, 'direct instance');
     // @ts-ignore
-    expect(databaseService.DatabaseServer instanceof DatabaseServerService).to.equal(true, 'server instance');
+    expect(databaseService.DatabaseServer instanceof DatabaseServerService).equal(true, 'server instance');
     // @ts-ignore
-    expect(databaseService.BUILTIN_PUBLIC_GIDS).to.eql({
+    expect(databaseService.BUILTIN_PUBLIC_GIDS).eql({
       categories: '101',
       tags: '102',
       pages: '103',
@@ -53,25 +53,25 @@ describe('(Database) Database service', () => {
       promotions: '182',
     });
     // @ts-ignore
-    expect(databaseService.AUTO_LOADED_JSON_SCHEME).to.equal('json://');
+    expect(databaseService.AUTO_LOADED_JSON_SCHEME).equal('json://');
     // @ts-ignore
-    expect(databaseService.AUTO_LOADED_TEXT_SCHEME).to.equal('content://');
+    expect(databaseService.AUTO_LOADED_TEXT_SCHEME).equal('content://');
     // @ts-ignore
-    expect(databaseService.globalSegment).to.equal(undefined);
+    expect(databaseService.globalSegment).equal(undefined);
   });
 
   it('instances', () => {
     const direct = databaseService.direct();
     const server = databaseService.server();
-    expect(direct instanceof DatabaseDirectService).to.equal(true, 'direct instance');
-    expect(server instanceof DatabaseServerService).to.equal(true, 'server instance');
+    expect(direct instanceof DatabaseDirectService).equal(true, 'direct instance');
+    expect(server instanceof DatabaseServerService).equal(true, 'server instance');
   });
 
   it('#setSegmentation', () => {
     const result = databaseService.setSegmentation({ a: 1 });
     // @ts-ignore
-    expect(databaseService.globalSegment).to.eql({ a: 1 });
-    expect(result instanceof DatabaseService).to.equal(true);
+    expect(databaseService.globalSegment).eql({ a: 1 });
+    expect(result instanceof DatabaseService).equal(true);
   });
 
   it('#getMethodOptions (default)', () => {
@@ -398,7 +398,7 @@ describe('(Database) methods', () => {
     window['$$$SHEETBASE_APPS'] = null;
     expect(
       database.bind(null),
-    ).to.throw('No app for database component.');
+    ).throw('No app for database component.');
   });
 
   it('#database (no app, default app)', () => {
@@ -408,13 +408,13 @@ describe('(Database) methods', () => {
 
     const result = database();
 
-    expect(result).to.equal('An Database instance');
+    expect(result).equal('An Database instance');
   });
 
   it('#database (app has no .Database)', () => {
     const result = database(new AppService({ backendUrl: '' }));
 
-    expect(result instanceof DatabaseService).to.equal(true);
+    expect(result instanceof DatabaseService).equal(true);
   });
 
 });

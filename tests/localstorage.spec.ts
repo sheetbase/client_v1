@@ -58,8 +58,8 @@ describe('(Localstorage) Localstorage service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(localstorageService.app instanceof AppService).to.equal(true);
-    expect(localstorageService.localforage instanceof StubedLocalforageInstance).to.equal(true);
+    expect(localstorageService.app instanceof AppService).equal(true);
+    expect(localstorageService.localforage instanceof StubedLocalforageInstance).equal(true);
   });
 
   it('default storage configs', () => {
@@ -72,8 +72,8 @@ describe('(Localstorage) Localstorage service', () => {
     const result = localstorageService.instance({
       name: 'xxx',
     });
-    expect(result.app instanceof AppService).to.equal(true);
-    expect(result.localforage instanceof StubedLocalforageInstance).to.equal(true);
+    expect(result.app instanceof AppService).equal(true);
+    expect(result.localforage instanceof StubedLocalforageInstance).equal(true);
     expect(localForageconfigs).eql({
       name: 'xxx',
     });
@@ -81,7 +81,7 @@ describe('(Localstorage) Localstorage service', () => {
 
   it('#set', async () => {
     const result = await localstorageService.set('xxx', { a: 1 });
-    expect(result).to.eql([
+    expect(result).eql([
       'xxx',
       { a: 1 },
     ]);
@@ -89,12 +89,12 @@ describe('(Localstorage) Localstorage service', () => {
 
   it('#get', async () => {
     const result = await localstorageService.get('xxx');
-    expect(result).to.eql(['xxx']);
+    expect(result).eql(['xxx']);
   });
 
   it('#iterate', async () => {
     const result = await localstorageService.iterate('handler()' as any);
-    expect(result).to.eql(['handler()']);
+    expect(result).eql(['handler()']);
   });
 
   it('#iterateKeys', async () => {
@@ -104,7 +104,7 @@ describe('(Localstorage) Localstorage service', () => {
     await localstorageService.iterateKeys(async (key, i) => {
       result.push([ key, i ]);
     });
-    expect(result).to.eql([
+    expect(result).eql([
       ['k1', 0],
       ['k2', 1],
       ['k3', 2],
@@ -115,7 +115,7 @@ describe('(Localstorage) Localstorage service', () => {
     removeStub.restore();
 
     const result = await localstorageService.remove('xxx');
-    expect(result).to.eql(['xxx']);
+    expect(result).eql(['xxx']);
   });
 
   it('#removeBulk', async () => {
@@ -123,7 +123,7 @@ describe('(Localstorage) Localstorage service', () => {
     removeStub.callsFake(k => result.push(k));
 
     await localstorageService.removeBulk(['k1', 'k2']);
-    expect(result).to.eql(['k1', 'k2']);
+    expect(result).eql(['k1', 'k2']);
   });
 
   it('#removeByPrefix', async () => {
@@ -137,7 +137,7 @@ describe('(Localstorage) Localstorage service', () => {
     removeStub.callsFake(k => result.push(k));
 
     await localstorageService.removeByPrefix('a');
-    expect(result).to.eql(['a1', 'a2']);
+    expect(result).eql(['a1', 'a2']);
   });
 
   it('#removeBySuffix', async () => {
@@ -151,17 +151,17 @@ describe('(Localstorage) Localstorage service', () => {
     removeStub.callsFake(k => result.push(k));
 
     await localstorageService.removeBySuffix('z');
-    expect(result).to.eql(['az', 'bz']);
+    expect(result).eql(['az', 'bz']);
   });
 
   it('#clear', async () => {
     const result = await localstorageService.clear();
-    expect(result).to.equal('#clear');
+    expect(result).equal('#clear');
   });
 
   it('#keys', async () => {
     const result = await localstorageService.keys();
-    expect(result).to.eql(['k1', 'k2', 'k3']);
+    expect(result).eql(['k1', 'k2', 'k3']);
   });
 
 });
@@ -173,7 +173,7 @@ describe('(Localstorage) methods', () => {
 
     expect(
       localstorage.bind(null),
-    ).to.throw('No app for localstorage component.');
+    ).throw('No app for localstorage component.');
   });
 
   it('#localstorage (no app, default app)', () => {
@@ -183,13 +183,13 @@ describe('(Localstorage) methods', () => {
 
     const result = localstorage();
 
-    expect(result).to.equal('An Localstorage instance');
+    expect(result).equal('An Localstorage instance');
   });
 
   it('#localstorage (app has no .Localstorage)', () => {
     const result = localstorage({ options: {} } as any);
 
-    expect(result instanceof LocalstorageService).to.equal(true);
+    expect(result instanceof LocalstorageService).equal(true);
   });
 
 });

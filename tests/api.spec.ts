@@ -44,9 +44,9 @@ describe('(Api) Api service', () => {
   it('ApiError', () => {
     const error = { error: true, code: 'xxx', message: 'Route error ...' };
     const result = new ApiError(error);
-    expect(result.name).to.equal('ApiError');
-    expect(result.message).to.equal('Route error ...');
-    expect(result.error).to.eql(error);
+    expect(result.name).equal('ApiError');
+    expect(result.message).equal('Route error ...');
+    expect(result.error).eql(error);
   });
 
   const INSTANCE_DATA = {
@@ -57,15 +57,15 @@ describe('(Api) Api service', () => {
   };
 
   it('properties', () => {
-    expect(apiService.app instanceof AppService).to.equal(true, '.app');
+    expect(apiService.app instanceof AppService).equal(true, '.app');
     // @ts-ignore
-    expect(apiService.baseEndpoint).to.equal('', '.baseEndpoint');
+    expect(apiService.baseEndpoint).equal('', '.baseEndpoint');
     // @ts-ignore
-    expect(apiService.predefinedQuery).to.eql({}, '.predefinedQuery');
+    expect(apiService.predefinedQuery).eql({}, '.predefinedQuery');
     // @ts-ignore
-    expect(apiService.predefinedBody).to.eql({}, '.predefinedBody');
+    expect(apiService.predefinedBody).eql({}, '.predefinedBody');
     // @ts-ignore
-    expect(apiService.beforeRequestHooks).to.eql([], '.beforeRequestHooks');
+    expect(apiService.beforeRequestHooks).eql([], '.beforeRequestHooks');
   });
 
   it('properties (custom data)', () => {
@@ -75,13 +75,13 @@ describe('(Api) Api service', () => {
     );
 
     // @ts-ignore
-    expect(apiService.baseEndpoint).to.equal('xxx');
+    expect(apiService.baseEndpoint).equal('xxx');
     // @ts-ignore
-    expect(apiService.predefinedQuery).to.eql({ a: 1 });
+    expect(apiService.predefinedQuery).eql({ a: 1 });
     // @ts-ignore
-    expect(apiService.predefinedBody).to.eql({ b: 2 });
+    expect(apiService.predefinedBody).eql({ b: 2 });
     // @ts-ignore
-    expect(apiService.beforeRequestHooks.length).to.equal(1);
+    expect(apiService.beforeRequestHooks.length).equal(1);
   });
 
   it('properties (query has key)', () => {
@@ -90,7 +90,7 @@ describe('(Api) Api service', () => {
     );
 
     // @ts-ignore
-    expect(apiService.predefinedQuery).to.eql({ key: 'xxx' });
+    expect(apiService.predefinedQuery).eql({ key: 'xxx' });
   });
 
   it('#extend', () => {
@@ -100,11 +100,11 @@ describe('(Api) Api service', () => {
 
     const result = apiService.extend();
 
-    expect(result instanceof ApiService).to.equal(true, 'instance of api service');
+    expect(result instanceof ApiService).equal(true, 'instance of api service');
     expect(
       result.app instanceof AppService &&
       result.app.options.backendUrl === 'xxx',
-    ).to.equal(true, 'inherit .app');
+    ).equal(true, 'inherit .app');
   });
 
   it('#extend (also inherit data)', () => {
@@ -116,58 +116,58 @@ describe('(Api) Api service', () => {
     const result = apiService.extend();
 
     // @ts-ignore
-    expect(result.baseEndpoint).to.equal('xxx');
+    expect(result.baseEndpoint).equal('xxx');
     // @ts-ignore
-    expect(result.predefinedQuery).to.eql({ a: 1 });
+    expect(result.predefinedQuery).eql({ a: 1 });
     // @ts-ignore
-    expect(result.predefinedBody).to.eql({ b: 2 });
+    expect(result.predefinedBody).eql({ b: 2 });
     // @ts-ignore
-    expect(result.beforeRequestHooks.length).to.equal(1);
+    expect(result.beforeRequestHooks.length).equal(1);
   });
 
   it('#setData', () => {
     const result = apiService.setData(INSTANCE_DATA);
 
-    expect(result instanceof ApiService).to.equal(true);
+    expect(result instanceof ApiService).equal(true);
     // @ts-ignore
-    expect(result.baseEndpoint).to.equal('xxx');
+    expect(result.baseEndpoint).equal('xxx');
     // @ts-ignore
-    expect(result.predefinedQuery).to.eql({ a: 1 });
+    expect(result.predefinedQuery).eql({ a: 1 });
     // @ts-ignore
-    expect(result.predefinedBody).to.eql({ b: 2 });
+    expect(result.predefinedBody).eql({ b: 2 });
     // @ts-ignore
-    expect(result.beforeRequestHooks.length).to.equal(1);
+    expect(result.beforeRequestHooks.length).equal(1);
   });
 
   it('#setEndpoint', () => {
     const result = apiService.setEndpoint('xxx');
 
-    expect(result instanceof ApiService).to.equal(true);
+    expect(result instanceof ApiService).equal(true);
     // @ts-ignore
-    expect(result.baseEndpoint).to.equal('xxx');
+    expect(result.baseEndpoint).equal('xxx');
   });
 
   it('#addQuery', () => {
     const result = apiService.addQuery({ a: 1 });
-    expect(result instanceof ApiService).to.equal(true);
+    expect(result instanceof ApiService).equal(true);
     // @ts-ignore
-    expect(result.predefinedQuery).to.eql({ a: 1 });
+    expect(result.predefinedQuery).eql({ a: 1 });
   });
 
   it('#addBody', () => {
     const result = apiService.addBody({ b: 2 });
 
-    expect(result instanceof ApiService).to.equal(true);
+    expect(result instanceof ApiService).equal(true);
     // @ts-ignore
-    expect(result.predefinedBody).to.eql({ b: 2 });
+    expect(result.predefinedBody).eql({ b: 2 });
   });
 
   it('#addBeforeHooks (1 hook)', () => {
     const result = apiService.addBeforeHooks(async data => data);
 
-    expect(result instanceof ApiService).to.equal(true);
+    expect(result instanceof ApiService).equal(true);
     // @ts-ignore
-    expect(result.beforeRequestHooks.length).to.equal(1);
+    expect(result.beforeRequestHooks.length).equal(1);
   });
 
   it('#addBeforeHooks (multiple)', () => {
@@ -175,9 +175,9 @@ describe('(Api) Api service', () => {
       async data => data, async data => data,
     ]);
 
-    expect(result instanceof ApiService).to.equal(true);
+    expect(result instanceof ApiService).equal(true);
     // @ts-ignore
-    expect(result.beforeRequestHooks.length).to.equal(2);
+    expect(result.beforeRequestHooks.length).equal(2);
   });
 
   it('#buildEndpoint', () => {
@@ -188,9 +188,9 @@ describe('(Api) Api service', () => {
     // @ts-ignore
     const result3 = apiService.buildEndpoint('xxx/abc'); // deeper
 
-    expect(result1).to.equal('/');
-    expect(result2).to.equal('/xxx');
-    expect(result3).to.equal('/xxx/abc', 'depper');
+    expect(result1).equal('/');
+    expect(result2).equal('/xxx');
+    expect(result3).equal('/xxx/abc', 'depper');
   });
 
   it('#buildEndpoint (correct slashs)', () => {
@@ -201,9 +201,9 @@ describe('(Api) Api service', () => {
     // @ts-ignore
     const result3 = apiService.buildEndpoint('/xxx/');
 
-    expect(result1).to.equal('/xxx', 'begining /');
-    expect(result2).to.equal('/xxx', 'ending /');
-    expect(result3).to.equal('/xxx', 'both /');
+    expect(result1).equal('/xxx', 'begining /');
+    expect(result2).equal('/xxx', 'ending /');
+    expect(result3).equal('/xxx', 'both /');
   });
 
   it('#buildEndpoint (has baseEndpoint)', () => {
@@ -229,12 +229,12 @@ describe('(Api) Api service', () => {
     // @ts-ignore
     const result6 = apiService4.buildEndpoint();
 
-    expect(result1).to.equal('/123', 'api 1, empty');
-    expect(result2).to.equal('/123', 'api 1, a slash');
-    expect(result3).to.equal('/123/xxx');
-    expect(result4).to.equal('/123', 'api 2');
-    expect(result5).to.equal('/123', 'api 3');
-    expect(result6).to.equal('/123', 'api 4');
+    expect(result1).equal('/123', 'api 1, empty');
+    expect(result2).equal('/123', 'api 1, a slash');
+    expect(result3).equal('/123/xxx');
+    expect(result4).equal('/123', 'api 2');
+    expect(result5).equal('/123', 'api 3');
+    expect(result6).equal('/123', 'api 4');
   });
 
   it('#buildQuery', () => {
@@ -245,9 +245,9 @@ describe('(Api) Api service', () => {
     // @ts-ignore
     const result3 = apiService.buildQuery({ a: 1, b: 2 });
 
-    expect(result1).to.equal('');
-    expect(result2).to.equal('x=1');
-    expect(result3).to.equal('a=1&b=2');
+    expect(result1).equal('');
+    expect(result2).equal('x=1');
+    expect(result3).equal('a=1&b=2');
   });
 
   it('#buildQuery (has predefinedQuery)', () => {
@@ -265,9 +265,9 @@ describe('(Api) Api service', () => {
     // @ts-ignore
     const result3 = apiService.buildQuery({ a: 'xxx' }); // overide
 
-    expect(result1).to.equal('a=1');
-    expect(result2).to.equal('a=1&x=1');
-    expect(result3).to.equal('a=xxx');
+    expect(result1).equal('a=1');
+    expect(result2).equal('a=1&x=1');
+    expect(result3).equal('a=xxx');
   });
 
   it('#buildBody', () => {
@@ -278,9 +278,9 @@ describe('(Api) Api service', () => {
     // @ts-ignore
     const result3 = apiService.buildBody({ a: 1, b: 2 });
 
-    expect(result1).to.eql({});
-    expect(result2).to.eql({ x: 1 });
-    expect(result3).to.eql({ a: 1, b: 2 });
+    expect(result1).eql({});
+    expect(result2).eql({ x: 1 });
+    expect(result3).eql({ a: 1, b: 2 });
   });
 
   it('#buildBody (has predefinedBody)', () => {
@@ -297,9 +297,9 @@ describe('(Api) Api service', () => {
     // @ts-ignore
     const result3 = apiService.buildBody({ a: 'xxx' }); // overide
 
-    expect(result1).to.eql({ a: 1 });
-    expect(result2).to.eql({ a: 1, x: 1 });
-    expect(result3).to.eql({ a: 'xxx' });
+    expect(result1).eql({ a: 1 });
+    expect(result2).eql({ a: 1, x: 1 });
+    expect(result3).eql({ a: 'xxx' });
   });
 
   it('#buildUrl', () => {
@@ -312,10 +312,10 @@ describe('(Api) Api service', () => {
     // @ts-ignore
     const result4 = apiService.buildUrl('/xxx', 'a=1');
 
-    expect(result1).to.equal('');
-    expect(result2).to.equal('?e=/xxx');
-    expect(result3).to.equal('?a=1');
-    expect(result4).to.equal('?e=/xxx&a=1');
+    expect(result1).equal('');
+    expect(result2).equal('?e=/xxx');
+    expect(result3).equal('?a=1');
+    expect(result4).equal('?e=/xxx&a=1');
   });
 
   it('#runHooks', async () => {
@@ -347,7 +347,7 @@ describe('(Api) Api service', () => {
       body: { xxx: 'me uppercase' }, // { xxx: 'ME UPPERCASE' }
     });
 
-    expect(result).to.eql({
+    expect(result).eql({
       endpoint: '/abc',
       query: { a: 1, xxx: 'xxx' },
       body: { xxx: 'ME UPPERCASE' },
@@ -366,7 +366,7 @@ describe('(Api) Api service', () => {
       error = err;
     }
 
-    expect(error.message).to.equal('API fetch failed.');
+    expect(error.message).equal('API fetch failed.');
   });
 
   it('#fetch (reponse error)', async () => {
@@ -384,7 +384,7 @@ describe('(Api) Api service', () => {
       error = err;
     }
 
-    expect(error.name).to.equal('ApiError');
+    expect(error.name).equal('ApiError');
   });
 
   it('#fetch', async () => {
@@ -397,7 +397,7 @@ describe('(Api) Api service', () => {
     // @ts-ignore
     const result = await apiService.fetch('/');
 
-    expect(result).to.eql({ a: 1, b: 2 });
+    expect(result).eql({ a: 1, b: 2 });
   });
 
   it('#request', async () => {
@@ -411,16 +411,16 @@ describe('(Api) Api service', () => {
     const result4 = await apiService.request({
       method: 'PUT', endpoint: '/xxx', query: { a: 1 }, body: { b: 2 },
     });
-    expect(result1).to.eql({
+    expect(result1).eql({
       method: 'GET', endpoint: '/', query: {},
     });
-    expect(result2).to.eql({
+    expect(result2).eql({
       method: 'GET', endpoint: '/', query: {},
     });
-    expect(result3).to.eql({
+    expect(result3).eql({
       method: 'POST', endpoint: '/', query: {}, body: {},
     });
-    expect(result4).to.eql({
+    expect(result4).eql({
       method: 'POST', endpoint: '/xxx', query: { method: 'PUT', a: 1 }, body: { b: 2 },
     });
   });
@@ -430,7 +430,7 @@ describe('(Api) Api service', () => {
     apiGetStub.restore();
 
     const result = await apiService.get();
-    expect(result[1]).to.eql({ a: 1, b: 2 });
+    expect(result[1]).eql({ a: 1, b: 2 });
   });
 
   it('#post', async () => {
@@ -438,12 +438,12 @@ describe('(Api) Api service', () => {
     apiPostStub.restore();
 
     const result = await apiService.post();
-    expect(result).to.eql({ a: 1, b: 2 });
+    expect(result).eql({ a: 1, b: 2 });
   });
 
   it('#put', async () => {
     const result = await apiService.put('/');
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'POST',
       endpoint: '/',
       query: { method: 'PUT' },
@@ -453,7 +453,7 @@ describe('(Api) Api service', () => {
 
   it('#patch', async () => {
     const result = await apiService.patch('/', { a: 1 });
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'POST',
       endpoint: '/',
       query: { method: 'PATCH', a: 1 },
@@ -463,7 +463,7 @@ describe('(Api) Api service', () => {
 
   it('#delete', async () => {
     const result = await apiService.delete('/', {}, { b: 2 });
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'POST',
       endpoint: '/',
       query: { method: 'DELETE' },
@@ -480,7 +480,7 @@ describe('(Api) methods', () => {
 
     expect(
       api.bind(null),
-    ).to.throw('No app for api component.');
+    ).throw('No app for api component.');
   });
 
   it('#api (no app, default app)', () => {
@@ -490,13 +490,13 @@ describe('(Api) methods', () => {
 
     const result = api();
 
-    expect(result).to.equal('An Api instance');
+    expect(result).equal('An Api instance');
   });
 
   it('#api (app has no .Api)', () => {
     const result = api({ options: {} } as any);
 
-    expect(result instanceof ApiService).to.equal(true);
+    expect(result instanceof ApiService).equal(true);
   });
 
 });

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
-import { AppService } from '../src/lib/app/app.service';
+import { MockedAppService } from './_mocks';
 
 import { DatabaseDirectService } from '../src/lib/database/direct';
 
@@ -12,10 +12,7 @@ let databaseDirectService: DatabaseDirectService;
 
 function before() {
   databaseDirectService = new DatabaseDirectService(
-    new AppService(),
-    'xxx',
-    {},
-    null,
+    new MockedAppService() as any, undefined, {}, undefined,
   );
 }
 
@@ -29,7 +26,15 @@ describe('(Database) Database direct service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(databaseDirectService.app instanceof AppService).to.equal(true);
+    expect(databaseDirectService.app instanceof MockedAppService).equal(true);
+    // @ts-ignore
+    expect(databaseDirectService.PARSING_URL_SCHEME).equal('url:');
+    // @ts-ignore
+    expect(databaseDirectService.databaseId).equal(undefined);
+    // @ts-ignore
+    expect(databaseDirectService.databaseGids).eql({});
+    // @ts-ignore
+    expect(databaseDirectService.customDataParser).equal(undefined);
   });
 
   it('#parseCSV', async () => {
@@ -38,7 +43,7 @@ describe('(Database) Database direct service', () => {
       'a,b,c\n' +
       '1,2,3',
     );
-    expect(result).to.eql([
+    expect(result).eql([
       {
         a: '1',
         b: '2',
@@ -65,7 +70,7 @@ describe('(Database) Database direct service', () => {
       // builtin
       e: 'url:xxx',
     });
-    expect(result).to.eql({
+    expect(result).eql({
       // basic
       // a0: '',
       // a1: null,

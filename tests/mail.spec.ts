@@ -40,15 +40,15 @@ describe('(Mail) Mail service', () => {
   afterEach(after);
 
   it('properties', () => {
-    expect(mailService.app instanceof AppService).to.equal(true);
+    expect(mailService.app instanceof AppService).equal(true);
     // @ts-ignore
-    expect(mailService.Api instanceof ApiService).to.equal(true);
+    expect(mailService.Api instanceof ApiService).equal(true);
   });
 
   it('endpoint', () => {
     // default
     // @ts-ignore
-    expect(mailService.Api.baseEndpoint).to.equal('mail');
+    expect(mailService.Api.baseEndpoint).equal('mail');
     // custom
     const mailService2 = new MailService(
       new AppService({
@@ -56,12 +56,12 @@ describe('(Mail) Mail service', () => {
       }),
     );
     // @ts-ignore
-    expect(mailService2.Api.baseEndpoint).to.equal('xxx');
+    expect(mailService2.Api.baseEndpoint).equal('xxx');
   });
 
   it('#quota', async () => {
     const result = await mailService.quota();
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'GET',
       endpoint: '/',
       params: {},
@@ -79,7 +79,7 @@ describe('(Mail) Mail service', () => {
       },
       false,
     );
-    expect(result).to.eql({
+    expect(result).eql({
       method: 'POST',
       endpoint: '/',
       params: {},
@@ -104,7 +104,7 @@ describe('(Mail) methods', () => {
     window['$$$SHEETBASE_APPS'] = null;
     expect(
       mail.bind(null),
-    ).to.throw('No app for mail component.');
+    ).throw('No app for mail component.');
   });
 
   it('#mail (no app, default app)', () => {
@@ -114,13 +114,13 @@ describe('(Mail) methods', () => {
 
     const result = mail();
 
-    expect(result).to.equal('An Mail instance');
+    expect(result).equal('An Mail instance');
   });
 
   it('#mail (app has no .Mail)', () => {
     const result = mail(new AppService({ backendUrl: '' }));
 
-    expect(result instanceof MailService).to.equal(true);
+    expect(result instanceof MailService).equal(true);
   });
 
 });
