@@ -260,7 +260,7 @@ describe('(Cache) Cache service', () => {
       key = k;
       return new Date().getTime() + 10000; // 10s later
     });
-    let removeResult = [];
+    const removeResult = [];
     localstorageRemoveStub.onFirstCall().callsFake((...args) => removeResult[0] = args);
     localstorageRemoveStub.onSecondCall().callsFake((...args) => removeResult[1] = args);
 
@@ -272,7 +272,7 @@ describe('(Cache) Cache service', () => {
 
   it('#flushExpired (no expiration value)', async () => {
     localstorageGetStub.returns(null);
-    let removeResult = [];
+    const removeResult = [];
     localstorageRemoveStub.onFirstCall().callsFake((...args) => removeResult[0] = args);
     localstorageRemoveStub.onSecondCall().callsFake((...args) => removeResult[1] = args);
 
@@ -286,7 +286,7 @@ describe('(Cache) Cache service', () => {
 
   it('#flushExpired (expired)', async () => {
     localstorageGetStub.returns(new Date().getTime() - 10000); // 10s earlier
-    let removeResult = [];
+    const removeResult = [];
     localstorageRemoveStub.onFirstCall().callsFake((...args) => removeResult[0] = args);
     localstorageRemoveStub.onSecondCall().callsFake((...args) => removeResult[1] = args);
 
