@@ -33,8 +33,6 @@ describe('(Database) Database direct service', () => {
   it('properties', () => {
     expect(databaseDirectService.app instanceof MockedAppService).equal(true);
     // @ts-ignore
-    expect(databaseDirectService.PARSING_URL_SCHEME).equal('url:');
-    // @ts-ignore
     expect(databaseDirectService.databaseId).equal('1Abc');
     // @ts-ignore
     expect(databaseDirectService.databaseGids).eql({ xxx: '123' });
@@ -78,7 +76,7 @@ describe('(Database) Database direct service', () => {
       c4: 'FALSE',
       d: '{"a":1}',
       // builtin
-      e: 'url:xxx',
+      e: '17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W',
       // custom
       f: 'me:xxx',
     });
@@ -96,7 +94,7 @@ describe('(Database) Database direct service', () => {
       c4: false,
       d: { a: 1 },
       // builtin
-      e: 'https://drive.google.com/uc?id=xxx',
+      e: 'https://drive.google.com/uc?id=17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W',
       // custom
       f: 'me:xxx',
     });

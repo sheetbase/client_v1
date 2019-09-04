@@ -7,8 +7,6 @@ import { DocsContentStyle, DatabaseGids, DatabaseDataParser } from './types';
 
 export class DatabaseDirectService {
 
-  private PARSING_URL_SCHEME = 'url:';
-
   private databaseId: string;
   private databaseGids: DatabaseGids;
   private customDataParser: DatabaseDataParser;
@@ -71,9 +69,12 @@ export class DatabaseDirectService {
         // 2. BUILTIN
         if ( // uc url builder
           typeof value === 'string' &&
-          value.substr(0, this.PARSING_URL_SCHEME.length) === this.PARSING_URL_SCHEME
+          // drive file id
+          value.substr(0, 1) === '1' &&
+          value.length > 31 &&
+          value.length < 35
         ) {
-          value = 'https://drive.google.com/uc?id=' + value.replace(this.PARSING_URL_SCHEME, '');
+          value = 'https://drive.google.com/uc?id=' + value;
         }
         // 3. CUSTOM
         if (

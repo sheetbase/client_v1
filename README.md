@@ -77,8 +77,9 @@ Configs object for `initializeApp()`
 
   // database
   databaseEndpoint?: string; // custom database endpoint
-  databaseId?: string; // database for public accessing
-  databaseGids?: {} // gids map for public accessing
+  databaseId?: string; // database for accessing directly
+  databaseGids?: {} // gids map for accessing directly
+  databaseDataParser?(value: any) => any; // custom value parser
 
   // auth
   authEndpoint?: string; // custom auth endpoint
@@ -169,11 +170,7 @@ class CacheService {
   instance(storageConfigs: LocalstorageConfigs): CacheService;
   cacheTime(cacheTime: number): number;
   set<Data>(key: string, data: Data, cacheTime?: number): Promise<Data>;
-  get<Data>(key: string, always?: boolean): Promise<Data | {
-    data: Data;
-    expired: boolean;
-  }>;
-  getRefresh<Data>(key: string, cacheTime?: number, refresher?: CacheRefresher<Data>): Promise<Data>;
+  get<Data>(key: string, refresher?: CacheRefresher<Data>, cacheTime?: number): Promise<Data>;
   iterate<Data>(handler: LocalstorageIterateHandler<Data>): Promise<any>;
   iterateKeys(handler: LocalstorageIterateKeysHandler): Promise<void>;
   remove(key: string): Promise<void>;
@@ -191,14 +188,17 @@ class CacheService {
 // DatabaseService
 class DatabaseService {
   app: AppService;
-  setSegmentation(globalSegment: DataSegment): DatabaseService;
   direct(): DatabaseDirectService;
   server(): DatabaseServerService;
-  all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
-  query<Item>(sheet: string, filter: Filter, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  items<Item>(sheet: string, filter?: Filter, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  item<Item>(sheet: string, finder: string | Filter, useCached?: boolean, cacheTime?: number, docsStyle?: DocsContentStyles, segment?: DataSegment): Promise<Item>;
-  content(url: string, cacheTime?: number, docsStyle?: DocsContentStyles): Promise<string>;
+  setSegmentation(globalSegment: DataSegment): DatabaseService;
+  getMethodOptions(options: DatabaseMethodOptions): DatabaseMethodOptions;
+  all<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  query<Item>(sheet: string, filter: Filter, options?: DatabaseMethodOptions): Promise<Item[]>;
+  items<Item>(sheet: string, filter?: Filter, options?: DatabaseMethodOptions): Promise<Item[]>;
+  item<Item>(sheet: string, finder: string | Filter, options?: DatabaseMethodOptions): Promise<Item>;
+  docsContent(itemKey: string, docId: string, docsStyle?: DocsContentStyle, cacheTime?: number): Promise<string>;
+  textContent(itemKey: string, url: string, cacheTime?: number): Promise<string>;
+  jsonContent(itemKey: string, url: string, cacheTime?: number): Promise<unknown>;
   set<Data>(sheet: string, key: string, data: Data): Promise<any>;
   update<Data>(sheet: string, key: string, data: Data): Promise<any>;
   add<Data>(sheet: string, key: string, data: Data): Promise<any>;
@@ -207,24 +207,24 @@ class DatabaseService {
     [path: string]: number;
   }): Promise<any>;
   clearCachedAll(input: string | string[]): Promise<void>;
-  clearCachedItem<Item>(sheet: string, item: Item): Promise<void>;
-  itemsOriginal<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsDraft<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsPublished<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsArchived<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByRelated<Item>(sheet: string, baseItem: Item, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByType<Item>(sheet: string, type: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByTypeDefault<Item>(sheet: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByAuthor<Item>(sheet: string, authorKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByLocale<Item>(sheet: string, locale: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByOrigin<Item>(sheet: string, origin: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByParent<Item>(sheet: string, parentKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByTerm<Item>(sheet: string, taxonomy: string, termKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByCategory<Item>(sheet: string, categoryKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByTag<Item>(sheet: string, tagKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByKeyword<Item>(sheet: string, keyword: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByMetaExists<Item>(sheet: string, metaKey: string, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  itemsByMetaEquals<Item>(sheet: string, metaKey: string, equalTo: any, useCached?: boolean, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
+  clearCachedItem(sheet: string, itemKey: string): Promise<void>;
+  itemsOriginal<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsDraft<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsPublished<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsArchived<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByRelated<Item>(sheet: string, baseItem: Item, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByType<Item>(sheet: string, type: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByTypeDefault<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByAuthor<Item>(sheet: string, authorKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByLocale<Item>(sheet: string, locale: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByOrigin<Item>(sheet: string, origin: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByParent<Item>(sheet: string, parentKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByTerm<Item>(sheet: string, taxonomy: string, termKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByCategory<Item>(sheet: string, categoryKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByTag<Item>(sheet: string, tagKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByKeyword<Item>(sheet: string, keyword: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByMetaExists<Item>(sheet: string, metaKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsByMetaEquals<Item>(sheet: string, metaKey: string, equalTo: any, options?: DatabaseMethodOptions): Promise<Item[]>;
   viewing(sheet: string, key: string): Promise<any>;
   liking(sheet: string, key: string): Promise<any>;
   commenting(sheet: string, key: string): Promise<any>;
@@ -235,11 +235,14 @@ class DatabaseService {
 // DatabaseDirectService
 class DatabaseDirectService {
   app: AppService;
+  getPublishedUrl(sheet: string, output?: string): string;
+  parseCSV<Item>(csv: string): Promise<Item[]>;
+  parseData<Item>(item: Item): Item;
+  processDocsContent(html: string, style?: DocsContentStyle): string;
   all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
-  docsContent(docUrl: string, style?: DocsContentStyles, cacheTime?: number): Promise<{
-    docId?: string;
-    content: string;
-  }>;
+  docsContent(itemKey: string, docId: string, style?: DocsContentStyle, cacheTime?: number): Promise<string>;
+  textContent(itemKey: string, url: string, cacheTime?: number): Promise<string>;
+  jsonContent<Data>(itemKey: string, url: string, cacheTime?: number): Promise<Data>;
 }
 
 // DatabaseServerService
@@ -248,10 +251,7 @@ class DatabaseServerService {
   all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
   query<Item>(sheet: string, query: Query, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
   item<Item>(sheet: string, key: string, cacheTime?: number): Promise<Item>;
-  docsContent(docUrl: string, style?: DocsContentStyles, cacheTime?: number): Promise<{
-    docId?: string;
-    content: string;
-  }>;
+  docsContent(itemKey: string, docId: string, style?: DocsContentStyle, cacheTime?: number): Promise<string>;
   set<Data>(sheet: string, key: string, data: Data): Promise<any>;
   update<Data>(sheet: string, key: string, data: Data): Promise<any>;
   add<Data>(sheet: string, key: string, data: Data): Promise<any>;
@@ -374,7 +374,7 @@ class User {
 ```ts
 class StorageService {
   app: AppService;
-  info(id: string): Promise<FileInfo>;
+  info(id: string, cacheTime?: number): Promise<FileInfo>;
   upload(fileData: UploadFile, customFolder?: string, renamePolicy?: RenamePolicy, sharing?: FileSharing): Promise<FileInfo>;
   uploadMultiple(uploadResources: UploadResource[]): Promise<FileInfo[]>;
   update(id: string, data: FileUpdateData): Promise<{

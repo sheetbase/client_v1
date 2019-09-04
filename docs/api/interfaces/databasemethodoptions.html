@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>PopupConfigs | @sheetbase/client</title>
+	<title>DatabaseMethodOptions | @sheetbase/client</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../index.html">Globals</a>
 				</li>
 				<li>
-					<a href="popupconfigs.html">PopupConfigs</a>
+					<a href="databasemethodoptions.html">DatabaseMethodOptions</a>
 				</li>
 			</ul>
-			<h1>Interface PopupConfigs</h1>
+			<h1>Interface DatabaseMethodOptions</h1>
 		</div>
 	</div>
 </header>
@@ -66,7 +66,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">PopupConfigs</span>
+						<span class="target">DatabaseMethodOptions</span>
 					</li>
 				</ul>
 			</section>
@@ -77,10 +77,15 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="popupconfigs.html#callback" class="tsd-kind-icon">callback</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="popupconfigs.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="popupconfigs.html#options" class="tsd-kind-icon">options</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="popupconfigs.html#url" class="tsd-kind-icon">url</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="databasemethodoptions.html#autoloaded" class="tsd-kind-icon">auto<wbr>Loaded</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="databasemethodoptions.html#cachetime" class="tsd-kind-icon">cache<wbr>Time</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="databasemethodoptions.html#docsstyle" class="tsd-kind-icon">docs<wbr>Style</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="databasemethodoptions.html#limit" class="tsd-kind-icon">limit</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="databasemethodoptions.html#offset" class="tsd-kind-icon">offset</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="databasemethodoptions.html#order" class="tsd-kind-icon">order</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="databasemethodoptions.html#orderby" class="tsd-kind-icon">order<wbr>By</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="databasemethodoptions.html#segment" class="tsd-kind-icon">segment</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="databasemethodoptions.html#usecached" class="tsd-kind-icon">use<wbr>Cached</a></li>
 							</ul>
 						</section>
 					</div>
@@ -89,57 +94,92 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="callback" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> callback</h3>
-					<div class="tsd-signature tsd-kind-icon">callback<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<a name="autoloaded" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> auto<wbr>Loaded</h3>
+					<div class="tsd-signature tsd-kind-icon">auto<wbr>Loaded<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/app/types.ts#L16">lib/app/types.ts:16</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter-siganture">
-								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
-								</ul>
-								<ul class="tsd-descriptions">
-									<li class="tsd-description">
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="name" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> name</h3>
-					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/app/types.ts#L14">lib/app/types.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/database/types.ts#L50">lib/database/types.ts:50</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="options" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> options</h3>
-					<div class="tsd-signature tsd-kind-icon">options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="cachetime" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> cache<wbr>Time</h3>
+					<div class="tsd-signature tsd-kind-icon">cache<wbr>Time<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/app/types.ts#L15">lib/app/types.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/database/types.ts#L45">lib/database/types.ts:45</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="url" class="tsd-anchor"></a>
-					<h3>url</h3>
-					<div class="tsd-signature tsd-kind-icon">url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="docsstyle" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> docs<wbr>Style</h3>
+					<div class="tsd-signature tsd-kind-icon">docs<wbr>Style<span class="tsd-signature-symbol">:</span> <a href="../index.html#docscontentstyle" class="tsd-signature-type">DocsContentStyle</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/app/types.ts#L13">lib/app/types.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/database/types.ts#L47">lib/database/types.ts:47</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="limit" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> limit</h3>
+					<div class="tsd-signature tsd-kind-icon">limit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/database/types.ts#L54">lib/database/types.ts:54</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="offset" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> offset</h3>
+					<div class="tsd-signature tsd-kind-icon">offset<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/database/types.ts#L55">lib/database/types.ts:55</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="order" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> order</h3>
+					<div class="tsd-signature tsd-kind-icon">order<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"ASC"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"DESC"</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/database/types.ts#L52">lib/database/types.ts:52</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="orderby" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> order<wbr>By</h3>
+					<div class="tsd-signature tsd-kind-icon">order<wbr>By<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/database/types.ts#L53">lib/database/types.ts:53</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="segment" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> segment</h3>
+					<div class="tsd-signature tsd-kind-icon">segment<span class="tsd-signature-symbol">:</span> <a href="datasegment.html" class="tsd-signature-type">DataSegment</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/database/types.ts#L49">lib/database/types.ts:49</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="usecached" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> use<wbr>Cached</h3>
+					<div class="tsd-signature tsd-kind-icon">use<wbr>Cached<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/8477bd4/src/lib/database/types.ts#L44">lib/database/types.ts:44</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -158,19 +198,34 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="popupconfigs.html" class="tsd-kind-icon">Popup<wbr>Configs</a>
+						<a href="databasemethodoptions.html" class="tsd-kind-icon">Database<wbr>Method<wbr>Options</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="popupconfigs.html#callback" class="tsd-kind-icon">callback</a>
+								<a href="databasemethodoptions.html#autoloaded" class="tsd-kind-icon">auto<wbr>Loaded</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="popupconfigs.html#name" class="tsd-kind-icon">name</a>
+								<a href="databasemethodoptions.html#cachetime" class="tsd-kind-icon">cache<wbr>Time</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="popupconfigs.html#options" class="tsd-kind-icon">options</a>
+								<a href="databasemethodoptions.html#docsstyle" class="tsd-kind-icon">docs<wbr>Style</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="popupconfigs.html#url" class="tsd-kind-icon">url</a>
+								<a href="databasemethodoptions.html#limit" class="tsd-kind-icon">limit</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="databasemethodoptions.html#offset" class="tsd-kind-icon">offset</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="databasemethodoptions.html#order" class="tsd-kind-icon">order</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="databasemethodoptions.html#orderby" class="tsd-kind-icon">order<wbr>By</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="databasemethodoptions.html#segment" class="tsd-kind-icon">segment</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="databasemethodoptions.html#usecached" class="tsd-kind-icon">use<wbr>Cached</a>
 							</li>
 						</ul>
 					</li>
