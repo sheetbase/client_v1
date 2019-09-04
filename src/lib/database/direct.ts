@@ -27,23 +27,143 @@ export class DatabaseDirectService {
     this.customDataParser = customDataParser;
   }
 
+  getPublishedUrl(sheet: string, output = 'csv') {
+    return 'https://docs.google.com/spreadsheets/d/' + this.databaseId + '/pub' +
+      '?gid=' + this.databaseGids[sheet] +
+      '&output=' + output +
+      '&single=true';
+  }
+
+  parseCSV<Item>(csv: string) {
+    return new Promise<Item[]>((resolve, reject) => {
+      parse(csv, {
+        header: true,
+        complete: result => !result.errors.length ? resolve(result.data) : reject(result.errors),
+      });
+    });
+  }
+
+  parseData<Item>(item: Item) {
+    for (const key of Object.keys(item)) {
+      let value = item[key];
+      // remove empty values
+      if (
+        value === '' ||
+        value === undefined ||
+        value === null
+      ) {
+        delete item[key];
+      } else {
+        // 1. BASIC
+        if ((value + '').toLowerCase() === 'true') { // TRUE
+          value = true;
+        } else if ((value + '').toLowerCase() === 'false') { // FALSE
+          value = false;
+        } else if (!isNaN(value)) { // number
+          value = Number(value);
+        } else { // JSON
+          try {
+            value = JSON.parse(value);
+          } catch (e) {
+            /* invalid json, keep value as is */
+          }
+        }
+        // 2. BUILTIN
+        if ( // uc url builder
+          typeof value === 'string' &&
+          value.substr(0, this.PARSING_URL_SCHEME.length) === this.PARSING_URL_SCHEME
+        ) {
+          value = 'https://drive.google.com/uc?id=' + value.replace(this.PARSING_URL_SCHEME, '');
+        }
+        // 3. CUSTOM
+        if (
+          !!this.customDataParser &&
+          this.customDataParser instanceof Function
+        ) {
+          value = this.customDataParser(value);
+        }
+        // FINALLY (overwrite the value)
+        item[key] = value;
+      }
+    }
+    return item;
+  }
+
+  processDocsContent(html: string, style: DocsContentStyle = 'full') {
+    let content = html; // original
+    // not original
+    if (style !== 'original') {
+      // extract content, between: </head></html>
+      content = html.match(/\<\/head\>(.*)\<\/html\>/).pop();
+      // remove useless tags
+      content = content
+        .replace(/\<body(.*?)\>/, '') // replace: <body...>
+        .replace('</body>', '') // replace </body>
+        .replace(/\<script(.*?)\<\/script\>/g, '') // remove all script tag
+        .replace(/\<style(.*?)\<\/style\>/g, ''); // remove all style tag
+      // replace redirect links
+      const links = content.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\"/g);
+      if (!!links) {
+        for (let i = 0, l = links.length; i < l; i++) {
+          const link = links[i];
+          const urlMatch = link.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\&amp\;/);
+          if (!!urlMatch) {
+            const url = urlMatch.pop();
+            content = content.replace(link, '"' + url + '"');
+          }
+        }
+      }
+      // specific: full
+      if (style === 'full') {
+        // move class styles to inline
+        const classStyles = this.getCSSByClasses(html);
+        for(const key of Object.keys(classStyles)) {
+          content = content.replace(
+            new RegExp('class="' + key + '"', 'g'),
+            'style="' + classStyles[key] + '"',
+          );
+        }
+        // TODO: move tag styles to inline
+      }
+      // specific: clean
+      else if (style === 'clean') {
+        // remove attributes
+        const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
+        for (let i = 0, l = removeAttrs.length; i < l; i++) {
+          content = content.replace(
+            new RegExp('\ ' + removeAttrs[i] + '\=\"(.*?)\"', 'g'),
+            '',
+          );
+        }
+      }
+    }
+    return content;
+  }
+
+  /**
+   * main
+   *
+   */
+
   all<Item>(sheet: string, cacheTime = 0) {
     return this.app.Cache.getRefresh<Item[]>(
       'database_' + sheet,
       async () => {
-        const url = this.csvUrl(sheet);
+        const url = this.getPublishedUrl(sheet);
         const csvText: string = await this.app.Fetch.get(url, {}, { json: false });
-        const items = await this.parseCSV<Item>(csvText);
-        // process items
-        const result: Item[] = [];
-        for (let i = 0, l = items.length; i < l; i++) {
-          const item = this.parseItem(items[i]);
+        const rawItems = await this.parseCSV<Item>(csvText);
+        // process raw items
+        const items: Item[] = [];
+        for (let i = 0, l = rawItems.length; i < l; i++) {
+          const item = this.parseData(rawItems[i]);
+          // save item to the result if not empty
           if (!!Object.keys(item).length) {
             item['_row'] = i + 2;
-            result.push(item);
+            items.push(item);
           }
         }
-        return result;
+        // final result
+        return items;
       },
       cacheTime,
     );
@@ -59,7 +179,7 @@ export class DatabaseDirectService {
     const url = 'https://docs.google.com/document/d/' + docId + '/pub?embedded=true';
     return this.app.Cache.getRefresh<string>(
       'content_' + itemKey + '_' + docId + '_' + style,
-      async () => this.parseDocsContent(
+      async () => this.processDocsContent(
         await this.app.Fetch.get(url, {}, { json: false }),
         style,
       ),
@@ -85,76 +205,12 @@ export class DatabaseDirectService {
     );
   }
 
-  private csvUrl(sheet: string) {
-    return `https://docs.google.com/spreadsheets/d/`
-      + this.databaseId +
-      `/pub?gid=`
-      + this.databaseGids[sheet] +
-      `&single=true&output=csv`;
-  }
+  /**
+   * helpers
+   *
+   */
 
-  private parseCSV<Item>(csv: string) {
-    return new Promise<Item[]>((resolve, reject) => {
-      parse(csv, {
-        header: true,
-        complete: result => !result.errors.length ? resolve(result.data) : reject(result.errors),
-      });
-    });
-  }
-
-  private parseItem<Item>(item: Item) {
-    for (const key of Object.keys(item)) {
-      let value = item[key];
-      // 1. basic
-      if (
-        value === '' ||
-        value === undefined ||
-        value === null
-      ) {
-        delete item[key];
-      } else {
-        if ((value + '').toLowerCase() === 'true') { // TRUE
-          value = true;
-        } else if ((value + '').toLowerCase() === 'false') { // FALSE
-          value = false;
-        } else if (!isNaN(value)) { // number
-          value = Number(value);
-        } else { // JSON
-          try {
-            value = JSON.parse(value);
-          } catch (e) {
-            /* invalid json, keep value as is */
-          }
-        }
-        // 2. builtin
-        value = this.builtinDataParser(value);
-        // 3. custom
-        if (
-          !!this.customDataParser &&
-          this.customDataParser instanceof Function
-        ) {
-          value = this.customDataParser(value);
-        }
-        // finally, overwrite the value
-        item[key] = value;
-      }
-    }
-    return item;
-  }
-
-  private builtinDataParser(value: any) {
-    // uc url builder
-    if (
-      typeof value === 'string' &&
-      value.substr(0, this.PARSING_URL_SCHEME.length) === this.PARSING_URL_SCHEME
-    ) {
-      return 'https://drive.google.com/uc?id=' + value.replace(this.PARSING_URL_SCHEME, '');
-    } else {
-      return value;
-    }
-  }
-
-  private getClassStyles(html: string) {
+  private getCSSByClasses(html: string) {
     // copy class to inline
     const classGroups = {};
     const classes = {};
@@ -196,61 +252,6 @@ export class DatabaseDirectService {
       classGroups[classGroup] = groupStyles;
     }
     return { ... classGroups, ... classes };
-  }
-
-  private parseDocsContent(html: string, style: DocsContentStyle = 'full') {
-    let content = html; // original
-    if (style !== 'original') {
-
-      // extract content, between: </head></html>
-      content = html.match(/\<\/head\>(.*)\<\/html\>/).pop();
-
-      // clean up
-      content = content
-        .replace(/\<body(.*?)\>/, '') // replace: <body...>
-        .replace('</body>', '') // replace </body>
-        .replace(/\<script(.*?)\<\/script\>/g, '') // remove all script tag
-        .replace(/\<style(.*?)\<\/style\>/g, ''); // remove all style tag
-
-      // replace redirect links
-      const links = content.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\"/g);
-      if (!!links) {
-        for (let i = 0, l = links.length; i < l; i++) {
-          const link = links[i];
-          const urlMatch = link.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\&amp\;/);
-          if (!!urlMatch) {
-            const url = urlMatch.pop();
-            content = content.replace(link, '"' + url + '"');
-          }
-        }
-      }
-
-      // styles
-      if (style === 'full') { // full
-        // move class styles to inline
-        const classStyles = this.getClassStyles(html);
-        for(const key of Object.keys(classStyles)) {
-          content = content.replace(
-            new RegExp('class="' + key + '"', 'g'),
-            'style="' + classStyles[key] + '"',
-          );
-        }
-        // TODO: move tag styles to inline
-      } else { //clean
-
-        // remove all attributes
-        const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
-        for (let i = 0, l = removeAttrs.length; i < l; i++) {
-          content = content.replace(
-            new RegExp('\ ' + removeAttrs[i] + '\=\"(.*?)\"', 'g'),
-            '',
-          );
-        }
-
-      }
-
-    }
-    return content;
   }
 
 }

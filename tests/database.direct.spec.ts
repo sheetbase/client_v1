@@ -12,7 +12,10 @@ let databaseDirectService: DatabaseDirectService;
 
 function before() {
   databaseDirectService = new DatabaseDirectService(
-    new MockedAppService() as any, undefined, {}, undefined,
+    new MockedAppService() as any,
+    '1Abc', // database id
+    { xxx: '123' }, // gids
+    undefined, // custom parser
   );
 }
 
@@ -37,8 +40,11 @@ describe('(Database) Database direct service', () => {
     expect(databaseDirectService.customDataParser).equal(undefined);
   });
 
+  it('#getPublishedUrl', () => {
+    //
+  });
+
   it('#parseCSV', async () => {
-    // @ts-ignore
     const result = await databaseDirectService.parseCSV(
       'a,b,c\n' +
       '1,2,3',
@@ -52,9 +58,8 @@ describe('(Database) Database direct service', () => {
     ]);
   });
 
-  it('#parseItem', () => {
-    // @ts-ignore
-    const result = databaseDirectService.parseItem({
+  it('#parseData', () => {
+    const result = databaseDirectService.parseData({
       // basic
       a0: '',
       a1: null,
@@ -88,7 +93,27 @@ describe('(Database) Database direct service', () => {
     });
   });
 
+  it('#processDocsContent', () => {
+    //
+  });
+
   it('#all', async () => {
+    //
+  });
+
+  it('#docsContent', async () => {
+    //
+  });
+
+  it('#textContent', async () => {
+    //
+  });
+
+  it('#jsonContent', async () => {
+    //
+  });
+
+  it('#getCSSByClasses', () => {
     //
   });
 
