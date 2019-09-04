@@ -40,7 +40,7 @@ export class DatabaseServerService {
 
   item<Item>(sheet: string, key: string, cacheTime = 0): Promise<Item> {
     return this.app.Cache.getRefresh(
-      'database_' + sheet + '_' + key,
+      'database_' + sheet + '_item_' + key,
       () => this.Api.get('/', { sheet, key }, -1),
       cacheTime,
     );

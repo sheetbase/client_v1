@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { localforageCreateInstanceStub } from './_lib.spec';
+import { localforageCreateInstanceStub } from './_libs';
 
 import { ApiService } from '../src/lib/api/api.service';
 import { FetchService } from '../src/lib/fetch/fetch.service';

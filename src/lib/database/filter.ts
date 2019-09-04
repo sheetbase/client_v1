@@ -13,7 +13,6 @@ export function buildQuery(filter: Filter) {
 
 export function buildAdvancedFilter(query: Query) {
   let advancedFilter: AdvancedFilter;
-
   // build advanced filter
   const {
     where,
@@ -31,31 +30,26 @@ export function buildAdvancedFilter(query: Query) {
     advancedFilter = item => (!!exists ? !!item[where] : !item[where]);
   } else if (!!contains) { // where/contains
     advancedFilter = item => (
-      !!item[where] &&
       typeof item[where] === 'string' &&
       item[where].indexOf(contains) > -1
     );
   } else if (!!lt) { // where/less than
     advancedFilter = item => (
-      !!item[where] &&
       typeof item[where] === 'number' &&
       item[where] < lt
     );
   } else if (!!lte) { // where/less than or equal
     advancedFilter = item => (
-      !!item[where] &&
       typeof item[where] === 'number' &&
       item[where] <= lte
     );
   } else if (!!gt) { // where/greater than
     advancedFilter = item => (
-      !!item[where] &&
       typeof item[where] === 'number' &&
       item[where] > gt
     );
   } else if (!!gte) { // where/greater than or equal
     advancedFilter = item => (
-      !!item[where] &&
       typeof item[where] === 'number' &&
       item[where] >= gte
     );
@@ -79,7 +73,7 @@ export function buildAdvancedFilter(query: Query) {
   } else if (!!childEqual) { // where/child equal, not equal
     let notEqual: boolean;
     let childKey: string;
-    let childValue: string;
+    let childValue: any;
     if (childEqual.indexOf('!=') > -1) {
       notEqual = true;
       const keyValue = childEqual.split('!=').filter(Boolean);
@@ -89,6 +83,9 @@ export function buildAdvancedFilter(query: Query) {
       const keyValue = childEqual.split('=').filter(Boolean);
       childKey = keyValue[0];
       childValue = keyValue[1];
+    }
+    if (!isNaN(childValue)) {
+      childValue = Number(childValue);
     }
     advancedFilter = item => {
       if (!item[where] && notEqual) {
@@ -105,7 +102,6 @@ export function buildAdvancedFilter(query: Query) {
       return false;
     };
   }
-
   return advancedFilter;
 }
 

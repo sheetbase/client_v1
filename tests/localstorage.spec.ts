@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
-import { localforageCreateInstanceStub } from './_lib.spec';
+import { localforageCreateInstanceStub } from './_libs';
 
 import { AppService } from '../src/lib/app/app.service';
 

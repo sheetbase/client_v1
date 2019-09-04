@@ -59,6 +59,14 @@ export class DatabaseService {
     );
   }
 
+  direct() {
+    return this.DatabaseDirect;
+  }
+
+  server() {
+    return this.DatabaseServer;
+  }
+
   setSegmentation(globalSegment: DataSegment): DatabaseService {
     this.globalSegment = globalSegment;
     return this;
@@ -143,18 +151,6 @@ export class DatabaseService {
       value = 'https://drive.google.com/uc?id=' + value;
     }
     return value;
-  }
-
-  /**
-   * instances
-   */
-
-  direct() {
-    return this.DatabaseDirect;
-  }
-
-  server() {
-    return this.DatabaseServer;
   }
 
   /**

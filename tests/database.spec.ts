@@ -3,137 +3,391 @@ import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
 import { AppService } from '../src/lib/app/app.service';
-import { ApiService } from '../src/lib/api/api.service';
 
-import { DatabaseService } from '../src/lib/database/database.service';
 import { DatabaseDirectService } from '../src/lib/database/direct';
 import { DatabaseServerService } from '../src/lib/database/server';
+
+import { DatabaseService } from '../src/lib/database/database.service';
 import { database } from '../src/lib/database/index';
+import {
+  buildQuery,
+  buildAdvancedFilter,
+  buildSegmentFilter,
+} from '../src/lib/database/filter';
 
-let databaseServerService: DatabaseServerService;
-let databaseDirectService: DatabaseDirectService;
-
-let apiGetStub: sinon.SinonStub;
-let apiPostStub: sinon.SinonStub;
-let databaseAllStub: sinon.SinonStub;
-let databaseQueryStub: sinon.SinonStub;
-let databaseUpdateStub: sinon.SinonStub;
+let databaseService: DatabaseService;
 
 function before() {
-  /**
-   * server
-   */
-  databaseServerService = new DatabaseServerService(
-    new AppService({ backendUrl: '' }),
-  );
-  // @ts-ignore
-  apiGetStub = sinon.stub(databaseServerService.Api, 'get');
-  // @ts-ignore
-  apiPostStub = sinon.stub(databaseServerService.Api, 'post');
-  databaseAllStub = sinon.stub(databaseServerService, 'all');
-  databaseQueryStub = sinon.stub(databaseServerService, 'query');
-  databaseUpdateStub = sinon.stub(databaseServerService, 'update');
-  // stubs
-  apiGetStub.callsFake(async (endpoint, query) => {
-    return { method: 'GET', endpoint, query };
-  });
-  apiPostStub.callsFake(async (endpoint, query, body) => {
-    return { method: 'POST', endpoint, query, body };
-  });
-  /**
-   * client
-   */
-  databaseDirectService = new DatabaseDirectService(
-    new AppService({ backendUrl: '' }),
-    'xxx',
-    {},
-    null,
+  databaseService = new DatabaseService(
+    new AppService(),
   );
 }
 
-function after() {
-  apiGetStub.restore();
-  apiPostStub.restore();
-  databaseAllStub.restore();
-  databaseQueryStub.restore();
-  databaseUpdateStub.restore();
-}
+function after() {}
 
-describe('(Database) Database server service', () => {
+describe('(Database) Database service', () => {
 
   beforeEach(before);
   afterEach(after);
 
   it('properties', () => {
-    expect(databaseServerService.app instanceof AppService).to.equal(true);
+    expect(databaseService.app instanceof AppService).to.equal(true, 'app instance');
     // @ts-ignore
-    expect(databaseServerService.Api instanceof ApiService).to.equal(true);
+    expect(databaseService.DatabaseDirect instanceof DatabaseDirectService).to.equal(true, 'direct instance');
+    // @ts-ignore
+    expect(databaseService.DatabaseServer instanceof DatabaseServerService).to.equal(true, 'server instance');
+    // @ts-ignore
+    expect(databaseService.BUILTIN_PUBLIC_GIDS).to.eql({
+      categories: '101',
+      tags: '102',
+      pages: '103',
+      posts: '104',
+      authors: '105',
+      threads: '106',
+      options: '108',
+      bundles: '111',
+      audios: '112',
+      videos: '113',
+      products: '114',
+      notifications: '181',
+      promotions: '182',
+    });
+    // @ts-ignore
+    expect(databaseService.AUTO_LOADED_JSON_SCHEME).to.equal('json://');
+    // @ts-ignore
+    expect(databaseService.AUTO_LOADED_TEXT_SCHEME).to.equal('content://');
+    // @ts-ignore
+    expect(databaseService.globalSegment).to.equal(undefined);
+  });
+
+  it('instances', () => {
+    const direct = databaseService.direct();
+    const server = databaseService.server();
+    expect(direct instanceof DatabaseDirectService).to.equal(true, 'direct instance');
+    expect(server instanceof DatabaseServerService).to.equal(true, 'server instance');
+  });
+
+  it('#setSegmentation', () => {
+    const result = databaseService.setSegmentation({ a: 1 });
+    // @ts-ignore
+    expect(databaseService.globalSegment).to.eql({ a: 1 });
+    expect(result instanceof DatabaseService).to.equal(true);
+  });
+
+  it('#getMethodOptions (default)', () => {
+    const result = databaseService.getMethodOptions({});
+    expect(result).eql({
+      useCached: true,
+      cacheTime: 1440,
+      docsStyle: 'full',
+      segment: undefined,
+      autoLoaded: true,
+      order: undefined,
+      orderBy: undefined,
+      limit: undefined,
+      offset: undefined,
+    });
+  });
+
+  it('#getMethodOptions (custom)', () => {
+    const result = databaseService.getMethodOptions({
+      useCached: false,
+      cacheTime: 0,
+      docsStyle: 'clean',
+      segment: { a: 1 },
+      autoLoaded: false,
+      order: 'ASC',
+      orderBy: '#',
+      limit: 10,
+      offset: 10,
+    });
+    expect(result).eql({
+      useCached: false,
+      cacheTime: 0,
+      docsStyle: 'clean',
+      segment: { a: 1 },
+      autoLoaded: false,
+      order: 'ASC',
+      orderBy: '#',
+      limit: 10,
+      offset: 10,
+    });
+  });
+
+  it('#hasDirectAccess (no database id)', () => {
+    // @ts-ignore
+    const result = databaseService.hasDirectAccess('categories');
+    expect(result).equal(false);
+  });
+
+  it('#hasDirectAccess (no direct access)', () => {
+    databaseService.app.options.databaseId = 'xxx';
+    // @ts-ignore
+    const result = databaseService.hasDirectAccess('xxx');
+    expect(result).equal(false);
+  });
+
+  it('#hasDirectAccess (has direct access)', () => {
+    databaseService.app.options.databaseId = 'xxx';
+    // @ts-ignore
+    const result = databaseService.hasDirectAccess('categories');
+    expect(result).equal(true);
+  });
+
+  it('#hasDirectAccess (custom gids)', () => {
+    databaseService.app.options.databaseId = 'xxx';
+    databaseService.app.options.databaseGids = { xxx: '123' };
+    // @ts-ignore
+    const result = databaseService.hasDirectAccess('xxx');
+    expect(result).equal(true);
+  });
+
+  it('#isUrl', () => {
+    // @ts-ignore
+    const result1 = databaseService.isUrl('xxx');
+    // @ts-ignore
+    const result2 = databaseService.isUrl('http://xxx.xxx');
+    // @ts-ignore
+    const result3 = databaseService.isUrl('https://xxx.xxx');
+    expect(result1).equal(false);
+    expect(result2).equal(true);
+    expect(result3).equal(true);
+  });
+
+  it('#isFileId', () => {
+    // @ts-ignore
+    const result1 = databaseService.isFileId('xxx');
+    // @ts-ignore
+    const result2 = databaseService.isFileId('17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W');
+    expect(result1).equal(false);
+    expect(result2).equal(true);
+  });
+
+  it('#isDocId', () => {
+    // @ts-ignore
+    const result1 = databaseService.isDocId('xxx');
+    // @ts-ignore
+    const result2 = databaseService.isDocId('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc');
+    expect(result1).equal(false);
+    expect(result2).equal(true);
+  });
+
+  it('#buildAutoLoadedValue (any or doc id)', () => {
+    // @ts-ignore
+    const result1 = databaseService.buildAutoLoadedValue('xxx', '');
+    // @ts-ignore
+    const result2 = databaseService.buildAutoLoadedValue('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc', '');
+    expect(result1).equal('xxx');
+    expect(result2).equal('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc');
+  });
+
+  it('#buildAutoLoadedValue (url)', () => {
+    // @ts-ignore
+    const result = databaseService.buildAutoLoadedValue('json://https://xxx.xxx', 'json://');
+    expect(result).equal('https://xxx.xxx');
+  });
+
+  it('#buildAutoLoadedValue (fild id)', () => {
+    // @ts-ignore
+    const result = databaseService.buildAutoLoadedValue(
+      'content://17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W', 'content://');
+    expect(result).equal(
+      'https://drive.google.com/uc?id=17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W');
   });
 
 });
 
-describe('(Database) Database direct service', () => {
+describe('(Database) Filter', () => {
 
-  beforeEach(before);
-  afterEach(after);
-
-  it('properties', () => {
-    expect(databaseDirectService.app instanceof AppService).to.equal(true);
+  it('#buildQuery (shorthand)', () => {
+    const result = buildQuery({ a: 1 });
+    expect(result).eql({ where: 'a', equal: 1 });
   });
 
-  it('#parseCSV', async () => {
-    // @ts-ignore
-    const result = await databaseDirectService.parseCSV(
-      'a,b,c\n' +
-      '1,2,3',
-    );
-    expect(result).to.eql([
-      {
-        a: '1',
-        b: '2',
-        c: '3',
-      },
-    ]);
+  it('#buildQuery', () => {
+    const result = buildQuery({ where: 'a', childEqual: 'xxx' });
+    expect(result).eql({ where: 'a', childEqual: 'xxx' });
   });
 
-  it('#parseItem', () => {
-    // @ts-ignore
-    const result = databaseDirectService.parseItem({
-      // basic
-      a0: '',
-      a1: null,
-      a2: undefined,
-      b1: 0,
-      b2: 1,
-      b3: '2',
-      c1: true,
-      c2: false,
-      c3: 'true',
-      c4: 'FALSE',
-      d: '{"a":1}',
-      // builtin
-      e: 'url:xxx',
-    });
-    expect(result).to.eql({
-      // basic
-      // a0: '',
-      // a1: null,
-      // a2: undefined,
-      b1: 0,
-      b2: 1,
-      b3: 2,
-      c1: true,
-      c2: false,
-      c3: true,
-      c4: false,
-      d: { a: 1 },
-      // builtin
-      e: 'https://drive.google.com/uc?id=xxx',
-    });
+  it('#buildAdvancedFilter (equal)', () => {
+    const result = buildAdvancedFilter({ where: 'a', equal: 1 });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: 2 })).equal(false, 'not equal');
+    expect(result({ a: 1 })).equal(true, 'equal');
   });
 
-  it('#all', async () => {
-    //
+  it('#buildAdvancedFilter (exists)', () => {
+    const result = buildAdvancedFilter({ where: 'a', exists: true });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: '' })).equal(false, 'empty string');
+    expect(result({ a: null })).equal(false, 'null');
+    expect(result({ a: undefined })).equal(false, 'undefined');
+    expect(result({ a: 1 })).equal(true, 'exists');
+  });
+
+  it('#buildAdvancedFilter (not exists)', () => {
+    const result = buildAdvancedFilter({ where: 'a', exists: false });
+    expect(result({ a: 1 })).equal(false, 'exists');
+    expect(result({ a: '' })).equal(true, 'empty string');
+    expect(result({ a: null })).equal(true, 'null');
+    expect(result({ a: undefined })).equal(true, 'undedined');
+    expect(result({})).equal(true, 'not exists');
+  });
+
+  it('#buildAdvancedFilter (contains)', () => {
+    const result = buildAdvancedFilter({ where: 'a', contains: 'xxx' });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: 1 })).equal(false, 'not string');
+    expect(result({ a: 'abc xxx def'})).equal(true, 'contains');
+  });
+
+  it('#buildAdvancedFilter (lt)', () => {
+    const result = buildAdvancedFilter({ where: 'a', lt: 1 });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: 'xxx' })).equal(false, 'not number');
+    expect(result({ a: 1 })).equal(false, 'equal');
+    expect(result({ a: 0 })).equal(true, 'less than');
+  });
+
+  it('#buildAdvancedFilter (lte)', () => {
+    const result = buildAdvancedFilter({ where: 'a', lte: 1 });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: 'xxx' })).equal(false, 'not number');
+    expect(result({ a: 1 })).equal(true, 'equal');
+    expect(result({ a: 0 })).equal(true, 'less than');
+  });
+
+  it('#buildAdvancedFilter (gt)', () => {
+    const result = buildAdvancedFilter({ where: 'a', gt: 1 });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: 'xxx' })).equal(false, 'not number');
+    expect(result({ a: 1 })).equal(false, 'equal');
+    expect(result({ a: 2 })).equal(true, 'greater than');
+  });
+
+  it('#buildAdvancedFilter (gte)', () => {
+    const result = buildAdvancedFilter({ where: 'a', gte: 1 });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: 'xxx' })).equal(false, 'not number');
+    expect(result({ a: 1 })).equal(true, 'equal');
+    expect(result({ a: 2 })).equal(true, 'greater than');
+  });
+
+  it('#buildAdvancedFilter (childExists, object)', () => {
+    const result = buildAdvancedFilter({ where: 'a', childExists: 'xxx' });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: 'xxx' })).equal(false, 'not object');
+    expect(result({ a: {} })).equal(false, 'not exists');
+    expect(result({ a: { xxx: '' } })).equal(false, 'empty string');
+    expect(result({ a: { xxx: null } })).equal(false, 'null');
+    expect(result({ a: { xxx: undefined } })).equal(false, 'undefined');
+    expect(result({ a: { xxx: 1 } })).equal(true, 'exists');
+  });
+
+  it('#buildAdvancedFilter (childExists, array)', () => {
+    const result = buildAdvancedFilter({ where: 'a', childExists: 'xxx' });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: 'xxx' })).equal(false, 'not object');
+    expect(result({ a: [] })).equal(false, 'not exists');
+    expect(result({ a: ['xxx'] })).equal(true, 'exists');
+  });
+
+  it('#buildAdvancedFilter (not childExists, object)', () => {
+    const result = buildAdvancedFilter({ where: 'a', childExists: '!xxx' });
+    expect(result({ a: { xxx: 1 } })).equal(false, 'exists');
+    expect(result({ a: 'xxx' })).equal(false, 'not object');
+    expect(result({})).equal(true, 'no key');
+    expect(result({ a: {} })).equal(true, 'not exists');
+    expect(result({ a: { xxx: '' } })).equal(true, 'empty string');
+    expect(result({ a: { xxx: null } })).equal(true, 'null');
+    expect(result({ a: { xxx: undefined } })).equal(true, 'undefined');
+  });
+
+  it('#buildAdvancedFilter (not childExists, array)', () => {
+    const result = buildAdvancedFilter({ where: 'a', childExists: '!xxx' });
+    expect(result({ a: ['xxx'] })).equal(false, 'exists');
+    expect(result({ a: 'xxx' })).equal(false, 'not object');
+    expect(result({})).equal(true, 'no key');
+    expect(result({ a: [] })).equal(true, 'not exists');
+  });
+
+  it('#buildAdvancedFilter (childEqual, string)', () => {
+    const result = buildAdvancedFilter({ where: 'a', childEqual: 'xxx=def' });
+    expect(result({})).equal(false, 'no key');
+    expect(result({ a: 'xxx' })).equal(false, 'not object');
+    expect(result({ a: {} })).equal(false, 'not exists');
+    expect(result({ a: { xxx: '' } })).equal(false, 'empty string');
+    expect(result({ a: { xxx: null } })).equal(false, 'null');
+    expect(result({ a: { xxx: undefined } })).equal(false, 'undefined');
+    expect(result({ a: { xxx: 'abc' } })).equal(false, 'not equal');
+    expect(result({ a: { xxx: 'def' } })).equal(true, 'equal');
+  });
+
+  it('#buildAdvancedFilter (childEqual, number)', () => {
+    const result = buildAdvancedFilter({ where: 'a', childEqual: 'xxx=1' });
+    expect(result({ a: { xxx: 1 } })).equal(true, 'equal');
+  });
+
+  it('#buildAdvancedFilter (not childEqual)', () => {
+    const result = buildAdvancedFilter({ where: 'a', childEqual: 'xxx!=1' });
+    expect(result({ a: { xxx: 1 } })).equal(false, 'equal');
+    expect(result({ a: 'xxx' })).equal(false, 'not object');
+    expect(result({})).equal(true, 'no key');
+    expect(result({ a: {} })).equal(true, 'not exists');
+    expect(result({ a: { xxx: '' } })).equal(true, 'empty string');
+    expect(result({ a: { xxx: null } })).equal(true, 'null');
+    expect(result({ a: { xxx: undefined } })).equal(true, 'undefined');
+    expect(result({ a: { xxx: 'abc' } })).equal(true, 'not equal');
+  });
+
+  it('#buildSegmentFilter (no segment)', () => {
+    const result = buildSegmentFilter(null);
+    expect(result({})).equal(true);
+  });
+
+  it('#buildSegmentFilter (empty segment)', () => {
+    const result = buildSegmentFilter({});
+    expect(result({})).equal(true);
+  });
+
+  it('#buildSegmentFilter (1, matched, no field)', () => {
+    const result = buildSegmentFilter({ xxx: 1 });
+    expect(result({})).equal(true);
+  });
+
+  it('#buildSegmentFilter (1, not matched)', () => {
+    const result = buildSegmentFilter({ xxx: 1 });
+    expect(result({ xxx: 2 })).equal(false);
+  });
+
+  it('#buildSegmentFilter (1, matched)', () => {
+    const result = buildSegmentFilter({ xxx: 1 });
+    expect(result({ xxx: 1 })).equal(true);
+  });
+
+  it('#buildSegmentFilter (>1 & <=3, not matched)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2 });
+    expect(result({ a: 1, b: 3 })).equal(false);
+  });
+
+  it('#buildSegmentFilter (>1 & <=3, matched)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2, c: 3 });
+    expect(result({ a: 1, b: 2, c: 3 })).equal(true);
+  });
+
+  it('#buildSegmentFilter (>3, matched, no field)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2, c: 3, d: 4 });
+    expect(result({ a: 1, b: 2, c: 3 })).equal(true);
+  });
+
+  it('#buildSegmentFilter (>3, not matched)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2, c: 3, d: 4 });
+    expect(result({ a: 1, b: 2, c: 3, d: 5 })).equal(false);
+  });
+
+  it('#buildSegmentFilter (>3, matched)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2, c: 3, d: 4 });
+    expect(result({ a: 1, b: 2, c: 3, d: 4 })).equal(true);
   });
 
 });
