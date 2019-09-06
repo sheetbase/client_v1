@@ -1,3 +1,4 @@
+import { md5 } from '../utils';
 import { AppService } from '../app/app.service';
 
 import {
@@ -157,22 +158,28 @@ export class DatabaseService {
    * general get
    */
 
-  async all<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
+  all<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
     const { cacheTime } = this.getMethodOptions(options);
-    // load from direct
-    if (this.hasDirectAccess(sheet)) {
-      try {
-        return await this.DatabaseDirect.all<Item>(sheet, cacheTime);
-      } catch (error) {
-        // not published
-        // or any errors
-        throw new Error('Unable to access \'' + sheet + '\' directly, it may not be published.');
-      }
-    }
-    // load from server
-    else {
-      return await this.DatabaseServer.all<Item>(sheet, cacheTime);
-    }
+    return this.app.Cache.get(
+      'database_' + sheet,
+      async () => {
+        // load from direct
+        if (this.hasDirectAccess(sheet)) {
+          try {
+            return await this.DatabaseDirect.all<Item>(sheet);
+          } catch (error) {
+            // not published
+            // or any errors
+            throw new Error('Unable to access \'' + sheet + '\' directly, it may not be published.');
+          }
+        }
+        // load from server
+        else {
+          return await this.DatabaseServer.all<Item>(sheet);
+        }
+      },
+      cacheTime,
+    );
   }
 
   async query<Item>(
@@ -180,11 +187,7 @@ export class DatabaseService {
     filter: Filter,
     options: DatabaseMethodOptions = {},
   ): Promise<Item[]> {
-    const {
-      useCached,
-      cacheTime,
-      segment,
-    } = this.getMethodOptions(options);
+    const { useCached, cacheTime, segment } = this.getMethodOptions(options);
     // prepare
     let query: Query; // prepare query
     let advancedFilter: AdvancedFilter; // advanced filter
@@ -217,7 +220,11 @@ export class DatabaseService {
       return items;
     } else {
       if (!advancedFilter) {
-        return await this.DatabaseServer.query(sheet, query, cacheTime, segment);
+        return this.app.Cache.get(
+          'database_' + sheet + '_query_' + md5(JSON.stringify(query)),
+          () => this.DatabaseServer.query(sheet, query, segment),
+          cacheTime,
+        );
       } else {
         throw new Error('Can only apply advanced query with cached data.');
       }
@@ -247,9 +254,17 @@ export class DatabaseService {
     } = this.getMethodOptions(options);
     // get item
     let item: Item;
-    if (typeof finder === 'string' && !useCached) { // from server
-      item = await this.DatabaseServer.item(sheet, finder, cacheTime);
-    } else { // from cached
+    // from server
+    if (typeof finder === 'string' && !useCached) {
+      const key = finder;
+      item = await this.app.Cache.get(
+        'database_' + sheet + '_item_' + key,
+        () => this.DatabaseServer.item(sheet, key),
+        cacheTime,
+      );
+    }
+    // from cached
+    else {
       // turn string into finder
       if (typeof finder === 'string') {
         finder = { $key: finder };
@@ -293,21 +308,36 @@ export class DatabaseService {
     return item;
   }
 
+  // Google Docs html content
   docsContent(
     itemKey: string,
     docId: string,
     docsStyle: DocsContentStyle = 'full',
     cacheTime = 1440,
   ) {
-    return this.DatabaseDirect.docsContent(itemKey, docId, docsStyle, cacheTime);
+    return this.app.Cache.get<string>(
+      'content_' + itemKey + '_' + docId + '_' + docsStyle,
+      () => this.DatabaseDirect.docsContent(docId, docsStyle),
+      cacheTime,
+    );
   }
 
+  // text-based content (txt, html, md, ...)
   textContent(itemKey: string, url: string, cacheTime = 1440) {
-    return this.DatabaseDirect.textContent(itemKey, url, cacheTime);
+    return this.app.Cache.get<string>(
+      'content_' + itemKey + '_' + md5(url),
+      () => this.app.Fetch.get(url, {}, false),
+      cacheTime,
+    );
   }
 
-  jsonContent(itemKey: string, url: string, cacheTime = 1440) {
-    return this.DatabaseDirect.jsonContent(itemKey, url, cacheTime);
+  // json content
+  jsonContent<Data>(itemKey: string, url: string, cacheTime = 1440) {
+    return this.app.Cache.get<Data>(
+      'content_' + itemKey + '_' + md5(url),
+      () => this.app.Fetch.get(url),
+      cacheTime,
+    );
   }
 
   /**
