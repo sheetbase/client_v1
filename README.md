@@ -71,7 +71,6 @@ Configs object for `initializeApp()`
   // fetch
 
   // cache
-  cacheTime?: number; // global cache time
 
   // localstorage
 
