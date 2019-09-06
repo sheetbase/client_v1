@@ -1,7 +1,4 @@
-import { md5 } from '../utils';
 import { AppService } from '../app/app.service';
-
-import { FetchMethodOptions } from './types';
 
 export class FetchService {
 
@@ -11,51 +8,36 @@ export class FetchService {
     this.app = app;
   }
 
-  fetch<Data>(
+  async fetch<Data>(
     input: RequestInfo,
     init?: RequestInit,
-    options: FetchMethodOptions = {},
-  ) {
-    const { json = true, cacheTime = 0, cacheKey } = options;
-    // get data
-    return this.app.Cache.get(
-      !!cacheKey ? cacheKey : ('fetch_' + md5(input as string)),
-      async () => {
-        const response = await fetch(input, init);
-        if (!response.ok) {
-          throw new Error('Fetch failed!');
-        }
-        // get result
-        let result: string | Data;
-        if (json) {
-          result = await response.json();
-        } else {
-          result = await response.text();
-        }
-        return result;
-      },
-      cacheTime,
-    );
+    json = true,
+  ): Promise<Data> {
+    const response = await fetch(input, init);
+    if (!response.ok) {
+      throw new Error('Fetch failed!');
+    }
+    return !json ? response.text() : response.json();
   }
 
-  get<Data>(url: string, init?: RequestInit, options: FetchMethodOptions = {}) {
-    return this.fetch<Data>(url, { ... init, method: 'GET' }, options);
+  get<Data>(url: string, init?: RequestInit, json = true) {
+    return this.fetch<Data>(url, { ... init, method: 'GET' }, json);
   }
 
-  post<Data>(url: string, init?: RequestInit, options: FetchMethodOptions = {}) {
-    return this.fetch<Data>(url, { ... init, method: 'POST' }, options);
+  post<Data>(url: string, init?: RequestInit) {
+    return this.fetch<Data>(url, { ... init, method: 'POST' });
   }
 
-  put<Data>(url: string, init?: RequestInit, options: FetchMethodOptions = {}) {
-    return this.fetch<Data>(url, { ... init, method: 'PUT' }, options);
+  put<Data>(url: string, init?: RequestInit) {
+    return this.fetch<Data>(url, { ... init, method: 'PUT' });
   }
 
-  patch<Data>(url: string, init?: RequestInit, options: FetchMethodOptions = {}) {
-    return this.fetch<Data>(url, { ... init, method: 'PATCH' }, options);
+  patch<Data>(url: string, init?: RequestInit) {
+    return this.fetch<Data>(url, { ... init, method: 'PATCH' });
   }
 
-  delete<Data>(url: string, init?: RequestInit, options: FetchMethodOptions = {}) {
-    return this.fetch<Data>(url, { ... init, method: 'DELETE' }, options);
+  delete<Data>(url: string, init?: RequestInit) {
+    return this.fetch<Data>(url, { ... init, method: 'DELETE' });
   }
 
 }
