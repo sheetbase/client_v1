@@ -126,6 +126,7 @@ describe('(Database) Database service', () => {
   });
 
   it('#buildItemsOptions (default)', () => {
+    // @ts-ignore
     const result = databaseService.buildItemsOptions({});
     expect(result).eql({
       useCached: true,
@@ -139,6 +140,7 @@ describe('(Database) Database service', () => {
   });
 
   it('#buildItemsOptions (custom)', () => {
+    // @ts-ignore
     const result = databaseService.buildItemsOptions({
       useCached: false,
       cacheTime: 0,
@@ -160,6 +162,7 @@ describe('(Database) Database service', () => {
   });
 
   it('#buildItemOptions (default)', () => {
+    // @ts-ignore
     const result = databaseService.buildItemOptions({});
     expect(result).eql({
       useCached: true,
@@ -175,6 +178,7 @@ describe('(Database) Database service', () => {
   });
 
   it('#buildItemOptions (custom)', () => {
+    // @ts-ignore
     const result = databaseService.buildItemOptions({
       useCached: false,
       cacheTime: 0,

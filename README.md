@@ -127,12 +127,12 @@ class ApiService {
 ```ts
 class FetchService {
   app: AppService;
-  fetch<Data>(input: RequestInfo, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-  get<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-  post<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-  put<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-  patch<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
-  delete<Data>(url: string, init?: RequestInit, meta?: FetchMeta): Promise<string | Data>;
+  fetch<Data>(input: RequestInfo, init?: RequestInit, json?: boolean): Promise<Data>;
+  get<Data>(url: string, init?: RequestInit, json?: boolean, cacheTime?: number): Promise<Data>;
+  post<Data>(url: string, init?: RequestInit): Promise<Data>;
+  put<Data>(url: string, init?: RequestInit): Promise<Data>;
+  patch<Data>(url: string, init?: RequestInit): Promise<Data>;
+  delete<Data>(url: string, init?: RequestInit): Promise<Data>;
 }
 ```
 
@@ -166,7 +166,6 @@ class LocalstorageService {
 class CacheService {
   app: AppService;
   instance(storageConfigs: LocalstorageConfigs): CacheService;
-  cacheTime(cacheTime: number): number;
   set<Data>(key: string, data: Data, cacheTime?: number): Promise<Data>;
   get<Data>(key: string, refresher?: CacheRefresher<Data>, cacheTime?: number): Promise<Data>;
   iterate<Data>(handler: LocalstorageIterateHandler<Data>): Promise<any>;
@@ -189,14 +188,14 @@ class DatabaseService {
   direct(): DatabaseDirectService;
   server(): DatabaseServerService;
   setSegmentation(globalSegment: DataSegment): DatabaseService;
-  getMethodOptions(options: DatabaseMethodOptions): DatabaseMethodOptions;
-  all<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  query<Item>(sheet: string, filter: Filter, options?: DatabaseMethodOptions): Promise<Item[]>;
-  items<Item>(sheet: string, filter?: Filter, options?: DatabaseMethodOptions): Promise<Item[]>;
-  item<Item>(sheet: string, finder: string | Filter, options?: DatabaseMethodOptions): Promise<Item>;
+  registerDataParser(parser: DataParser): DatabaseService;
+  all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
+  query<Item>(sheet: string, filter: Filter, options?: ItemsOptions): Promise<Item[]>;
+  items<Item>(sheet: string, filter?: Filter, options?: ItemsOptions): Promise<Item[]>;
+  item<Item>(sheet: string, finder: string | Filter, options?: ItemOptions): Promise<Item>;
   docsContent(itemKey: string, docId: string, docsStyle?: DocsContentStyle, cacheTime?: number): Promise<string>;
   textContent(itemKey: string, url: string, cacheTime?: number): Promise<string>;
-  jsonContent(itemKey: string, url: string, cacheTime?: number): Promise<unknown>;
+  jsonContent<Data>(itemKey: string, url: string, cacheTime?: number): Promise<Data>;
   set<Data>(sheet: string, key: string, data: Data): Promise<any>;
   update<Data>(sheet: string, key: string, data: Data): Promise<any>;
   add<Data>(sheet: string, key: string, data: Data): Promise<any>;
@@ -206,23 +205,23 @@ class DatabaseService {
   }): Promise<any>;
   clearCachedAll(input: string | string[]): Promise<void>;
   clearCachedItem(sheet: string, itemKey: string): Promise<void>;
-  itemsOriginal<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsDraft<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsPublished<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsArchived<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByRelated<Item>(sheet: string, baseItem: Item, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByType<Item>(sheet: string, type: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByTypeDefault<Item>(sheet: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByAuthor<Item>(sheet: string, authorKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByLocale<Item>(sheet: string, locale: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByOrigin<Item>(sheet: string, origin: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByParent<Item>(sheet: string, parentKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByTerm<Item>(sheet: string, taxonomy: string, termKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByCategory<Item>(sheet: string, categoryKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByTag<Item>(sheet: string, tagKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByKeyword<Item>(sheet: string, keyword: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByMetaExists<Item>(sheet: string, metaKey: string, options?: DatabaseMethodOptions): Promise<Item[]>;
-  itemsByMetaEquals<Item>(sheet: string, metaKey: string, equalTo: any, options?: DatabaseMethodOptions): Promise<Item[]>;
+  itemsOriginal<Item>(sheet: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsDraft<Item>(sheet: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsPublished<Item>(sheet: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsArchived<Item>(sheet: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByRelated<Item>(sheet: string, baseItem: Item, options?: ItemsOptions): Promise<Item[]>;
+  itemsByType<Item>(sheet: string, type: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByTypeDefault<Item>(sheet: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByAuthor<Item>(sheet: string, authorKey: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByLocale<Item>(sheet: string, locale: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByOrigin<Item>(sheet: string, origin: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByParent<Item>(sheet: string, parentKey: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByTerm<Item>(sheet: string, taxonomy: string, termKey: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByCategory<Item>(sheet: string, categoryKey: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByTag<Item>(sheet: string, tagKey: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByKeyword<Item>(sheet: string, keyword: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByMetaExists<Item>(sheet: string, metaKey: string, options?: ItemsOptions): Promise<Item[]>;
+  itemsByMetaEquals<Item>(sheet: string, metaKey: string, equalTo: any, options?: ItemsOptions): Promise<Item[]>;
   viewing(sheet: string, key: string): Promise<any>;
   liking(sheet: string, key: string): Promise<any>;
   commenting(sheet: string, key: string): Promise<any>;
@@ -233,23 +232,22 @@ class DatabaseService {
 // DatabaseDirectService
 class DatabaseDirectService {
   app: AppService;
+  registerDataParser(parser: DataParser): DatabaseDirectService;
   getPublishedUrl(sheet: string, output?: string): string;
   parseCSV<Item>(csv: string): Promise<Item[]>;
   parseData<Item>(item: Item): Item;
   processDocsContent(html: string, style?: DocsContentStyle): string;
-  all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
-  docsContent(itemKey: string, docId: string, style?: DocsContentStyle, cacheTime?: number): Promise<string>;
-  textContent(itemKey: string, url: string, cacheTime?: number): Promise<string>;
-  jsonContent<Data>(itemKey: string, url: string, cacheTime?: number): Promise<Data>;
+  all<Item>(sheet: string): Promise<Item[]>;
+  docsContent(docId: string, style?: DocsContentStyle): Promise<string>;
 }
 
 // DatabaseServerService
 class DatabaseServerService {
   app: AppService;
-  all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
-  query<Item>(sheet: string, query: Query, cacheTime?: number, segment?: DataSegment): Promise<Item[]>;
-  item<Item>(sheet: string, key: string, cacheTime?: number): Promise<Item>;
-  docsContent(itemKey: string, docId: string, style?: DocsContentStyle, cacheTime?: number): Promise<string>;
+  all<Item>(sheet: string): Promise<Item[]>;
+  query<Item>(sheet: string, query: Query, segment?: DataSegment): Promise<Item[]>;
+  item<Item>(sheet: string, key: string): Promise<Item>;
+  docsContent(docId: string, style?: DocsContentStyle): Promise<string>;
   set<Data>(sheet: string, key: string, data: Data): Promise<any>;
   update<Data>(sheet: string, key: string, data: Data): Promise<any>;
   add<Data>(sheet: string, key: string, data: Data): Promise<any>;

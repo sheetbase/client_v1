@@ -79,7 +79,11 @@ export class DatabaseService {
     return this;
   }
 
-  buildItemsOptions(options: ItemsOptions): ItemsOptions {
+  /**
+   * utils
+   */
+
+  private buildItemsOptions(options: ItemsOptions): ItemsOptions {
     const {
       useCached = true,
       cacheTime = 1440,
@@ -100,7 +104,7 @@ export class DatabaseService {
     };
   }
 
-  buildItemOptions(options: ItemOptions): ItemOptions {
+  private buildItemOptions(options: ItemOptions): ItemOptions {
     const {
       docsStyle = 'full',
       autoLoaded = true,
@@ -108,10 +112,6 @@ export class DatabaseService {
     const itemsOptions = this.buildItemsOptions(options);
     return { ... itemsOptions, docsStyle, autoLoaded };
   }
-
-  /**
-   * utils
-   */
 
   // is this sheet available for direct access
   private hasDirectAccess(sheet: string) {
