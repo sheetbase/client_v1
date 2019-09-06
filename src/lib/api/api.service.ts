@@ -123,11 +123,7 @@ export class ApiService {
     }
 
     private async fetch(input: RequestInfo, init?: RequestInit) {
-        const response = await fetch(input, init);
-        if (!response.ok) {
-            throw new Error('API fetch failed.');
-        }
-        const result: ResponseSuccess & ResponseError = await response.json();
+        const result = await this.app.Fetch.fetch<ResponseSuccess & ResponseError>(input, init, true);
         if (result.error) {
             throw new ApiError(result);
         }
