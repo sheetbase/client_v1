@@ -9,30 +9,33 @@ import { api } from '../src/lib/api/index';
 
 let apiService: ApiService;
 
-let apiFetchStub: sinon.SinonStub;
-let apiGetStub: sinon.SinonStub;
-let apiPostStub: sinon.SinonStub;
+let fetchFetchStub: sinon.SinonStub;
+let fetchStub: sinon.SinonStub;
+let getStub: sinon.SinonStub;
+let postStub: sinon.SinonStub;
 
 function before() {
   apiService = new ApiService(
     new MockedAppService() as any,
   );
+  fetchFetchStub = sinon.stub(apiService.app.Fetch, 'fetch');
   // @ts-ignore
-  apiFetchStub = sinon.stub(apiService, 'fetch');
-  apiGetStub = sinon.stub(apiService, 'get')
+  fetchStub = sinon.stub(apiService, 'fetch');
+  getStub = sinon.stub(apiService, 'get')
   .callsFake(async (endpoint, query) => {
     return { method: 'GET', endpoint, query };
   });
-  apiPostStub = sinon.stub(apiService, 'post')
+  postStub = sinon.stub(apiService, 'post')
   .callsFake(async (endpoint, query, body) => {
     return { method: 'POST', endpoint, query, body };
   });
 }
 
 function after() {
-  apiFetchStub.restore();
-  apiGetStub.restore();
-  apiPostStub.restore();
+  fetchFetchStub.restore();
+  fetchStub.restore();
+  getStub.restore();
+  postStub.restore();
 }
 
 describe('(Api) Api service', () => {
@@ -352,28 +355,24 @@ describe('(Api) Api service', () => {
     });
   });
 
-  it('#fetch (not ok)', async () => {
-    apiFetchStub.restore();
-    global['fetch'] = async () => ({ ok: false });
+  it('#fetch (check args)', async () => {
+    fetchStub.restore();
 
-    let error: Error;
-    try {
-      // @ts-ignore
-      await apiService.fetch('/');
-    } catch (err) {
-      error = err;
-    }
-
-    expect(error.message).equal('API fetch failed.');
+    let fetchArgs;
+    fetchFetchStub.callsFake(async (...args) => fetchArgs = args);
+    // @ts-ignore
+    await apiService.fetch('/', { method: 'GET' });
+    expect(fetchArgs).eql([
+      '/',
+      { method: 'GET' },
+      true,
+    ]);
   });
 
   it('#fetch (reponse error)', async () => {
-    apiFetchStub.restore();
-    global['fetch'] = async () => ({
-      ok: true,
-      json: async () => ({ error: true }),
-    });
+    fetchStub.restore();
 
+    fetchFetchStub.returns({ error: true });
     let error: any;
     try {
       // @ts-ignore
@@ -381,20 +380,15 @@ describe('(Api) Api service', () => {
     } catch (err) {
       error = err;
     }
-
     expect(error.name).equal('ApiError');
   });
 
   it('#fetch', async () => {
-    apiFetchStub.restore();
-    global['fetch'] = async () => ({
-      ok: true,
-      json: async () => ({ success: true, data: { a: 1, b: 2 } }),
-    });
+    fetchStub.restore();
 
+    fetchFetchStub.returns({ success: true, data: { a: 1, b: 2 } });
     // @ts-ignore
     const result = await apiService.fetch('/');
-
     expect(result).eql({ a: 1, b: 2 });
   });
 
@@ -424,9 +418,9 @@ describe('(Api) Api service', () => {
   });
 
   it('#get', async () => {
-    apiGetStub.restore();
+    getStub.restore();
 
-    apiFetchStub.returns({ a: 1, b: 2 });
+    fetchStub.returns({ a: 1, b: 2 });
 
     const cacheGetArgs = await apiService.get();
     const result = await cacheGetArgs[1]();
@@ -436,8 +430,8 @@ describe('(Api) Api service', () => {
   });
 
   it('#post', async () => {
-    apiFetchStub.onFirstCall().returns({ a: 1, b: 2 });
-    apiPostStub.restore();
+    fetchStub.onFirstCall().returns({ a: 1, b: 2 });
+    postStub.restore();
 
     const result = await apiService.post();
     expect(result).eql({ a: 1, b: 2 });

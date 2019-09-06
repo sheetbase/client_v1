@@ -80,27 +80,6 @@ describe('(Cache) Cache service', () => {
     expect(configs).eql({ name: 'xxx' });
   });
 
-  it('#cacheTime (no global)', () => {
-    const result1 = cacheService.cacheTime(0);
-    const result2 = cacheService.cacheTime(1);
-    expect(result1).equal(0);
-    expect(result2).equal(1);
-  });
-
-  it('#cacheTime (has global)', () => {
-    const cacheService = new CacheService(
-      new MockedAppService() as any,
-    );
-    cacheService.app.options.cacheTime = 1;
-
-    const result1 = cacheService.cacheTime(-1);
-    const result2 = cacheService.cacheTime(0);
-    const result3 = cacheService.cacheTime(3);
-    expect(result1).equal(0);
-    expect(result2).equal(1);
-    expect(result3).equal(3);
-  });
-
   it('#set (time = 0)', async () => {
     setStub.restore();
 
@@ -183,6 +162,26 @@ describe('(Cache) Cache service', () => {
     expect(result).equal('abc'); // return cached value anyway
   });
 
+  it('#get (expired, with refresher, no cache time)', async () => {
+    getStub.restore();
+
+    localstorageGetStub.onFirstCall().returns(
+      new Date().getTime() - 10000, // expired 10s earlier
+    );
+    localstorageGetStub.onSecondCall().returns('abc'); // value in cached
+    let setArgs;
+    setStub.callsFake((...args) => {
+      setArgs = args;
+      return args[1]; // value
+    });
+
+    const result = await cacheService.get(
+      'xxx', async () => 'ABC',
+    );
+    expect(setArgs).eql(undefined); // not set cache
+    expect(result).equal('ABC');
+  });
+
   it('#get (expired, with refresher)', async () => {
     getStub.restore();
 
@@ -199,8 +198,8 @@ describe('(Cache) Cache service', () => {
     const result = await cacheService.get(
       'xxx', async () => 'ABC', 10000,
     );
-    expect(result).equal('ABC');
     expect(setArgs).eql([ 'xxx', 'ABC', 10000 ]);
+    expect(result).equal('ABC');
   });
 
   it('#iterate', async () => {

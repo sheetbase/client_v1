@@ -7,6 +7,8 @@ import { MockedAppService, MockedApiService } from './_mocks';
 import { DatabaseServerService } from '../src/lib/database/server';
 
 let databaseServerService: DatabaseServerService;
+
+let apiGetStub: sinon.SinonStub;
 let allStub: sinon.SinonStub;
 let queryStub: sinon.SinonStub;
 let itemStub: sinon.SinonStub;
@@ -16,14 +18,18 @@ function before() {
   databaseServerService = new DatabaseServerService(
     new MockedAppService() as any,
   );
+  // @ts-ignore
+  apiGetStub = sinon.stub(databaseServerService.Api, 'get')
+    .callsFake((...args) => ({ method: 'GET', args }) as any);
   allStub = sinon.stub(databaseServerService, 'all');
   queryStub = sinon.stub(databaseServerService, 'query');
   itemStub = sinon.stub(databaseServerService, 'item');
   updateStub = sinon.stub(databaseServerService, 'update')
-  .callsFake((...args) => args as any);
+    .callsFake((...args) => args as any);
 }
 
 function after() {
+  apiGetStub.restore();
   allStub.restore();
   queryStub.restore();
   itemStub.restore();
@@ -46,29 +52,20 @@ describe('(Database) Database server service', () => {
   it('#all', async () => {
     allStub.restore();
 
-    const result: any = await databaseServerService.all('xxx');
-    const apiGetResult = await result[1]();
-
-    expect(result[0]).equal('database_xxx');
-    expect(result[2]).equal(0);
-    expect(apiGetResult).eql({
+    const result = await databaseServerService.all('xxx');
+    expect(result).eql({
       method: 'GET',
-      args: [ '/', { sheet: 'xxx' }, -1 ],
+      args: ['/', { sheet: 'xxx' }],
     });
   });
 
   it('#query', async () => {
     queryStub.restore();
 
-    const result: any = await databaseServerService.query(
-      'xxx',
-      { where: 'a', equal: 1 },
+    const result = await databaseServerService.query(
+      'xxx', { where: 'a', equal: 1 },
     );
-    const apiGetResult = await result[1]();
-
-    expect(result[0]).equal('database_xxx_query_4a2f98478a5d638a3e2687b449058ea9');
-    expect(result[2]).equal(0);
-    expect(apiGetResult).eql({
+    expect(result).eql({
       method: 'GET',
       args: [
         '/',
@@ -78,7 +75,6 @@ describe('(Database) Database server service', () => {
           sheet: 'xxx',
           segment: null,
         },
-        -1,
       ],
     });
   });
@@ -86,12 +82,8 @@ describe('(Database) Database server service', () => {
   it('#item', async () => {
     itemStub.restore();
 
-    const result: any = await databaseServerService.item('xxx', 'xxx-1');
-    const apiGetResult = await result[1]();
-
-    expect(result[0]).equal('database_xxx_item_xxx-1');
-    expect(result[2]).equal(0);
-    expect(apiGetResult).eql({
+    const result = await databaseServerService.item('xxx', 'xxx-1');
+    expect(result).eql({
       method: 'GET',
       args: [
         '/',
@@ -99,28 +91,21 @@ describe('(Database) Database server service', () => {
           sheet: 'xxx',
           key: 'xxx-1',
         },
-        -1,
       ],
     });
   });
 
   it('#docsContent', async () => {
-    const cacheGetStub = sinon.stub(databaseServerService.app.Cache, 'get');
-    let cacheRefreshArgs;
-    cacheGetStub.callsFake((...args) => {
-      cacheRefreshArgs = args;
-      return { content: 'xxx' } as any;
+    let apiGetArgs;
+    apiGetStub.callsFake(async (...args) => {
+      apiGetArgs = { method: 'GET', args };
+      return { content: '<p>doc id content ...</p>' };
     });
 
-    const result: any = await databaseServerService.docsContent(
-      'xxx-1', 'doc-id-xxx',
+    const result = await databaseServerService.docsContent(
+      'doc-id-xxx',
     );
-    const apiGetResult = await cacheRefreshArgs[1]();
-
-    expect(result).equal('xxx');
-    expect(cacheRefreshArgs[0]).equal('content_xxx-1_doc-id-xxx_full');
-    expect(cacheRefreshArgs[2]).equal(0);
-    expect(apiGetResult).eql({
+    expect(apiGetArgs).eql({
       method: 'GET',
       args: [
         '/content',
@@ -128,11 +113,9 @@ describe('(Database) Database server service', () => {
           docId: 'doc-id-xxx',
           style: 'full',
         },
-        -1,
       ],
     });
-
-    cacheGetStub.restore();
+    expect(result).equal('<p>doc id content ...</p>');
   });
 
   it('#set', async () => {

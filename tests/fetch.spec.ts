@@ -2,17 +2,10 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as sinon from 'sinon';
 
+import { MockedAppService } from './_mocks';
+
 import { FetchService } from '../src/lib/fetch/fetch.service';
 import { fetch } from '../src/lib/fetch/index';
-
-// mocked AppService
-class MockedAppService {
-  options = {};
-  constructor() {}
-  Cache = {
-    get: (...args) => args,
-  } as any;
-}
 
 // FetchService
 let fetchService: FetchService;
@@ -24,7 +17,7 @@ function before() {
     new MockedAppService() as any,
   );
   fetchStub = sinon.stub(fetchService, 'fetch')
-  .callsFake((...args) => args as any);
+  .callsFake(async (...args) => args as any);
 }
 
 function after() {
@@ -40,32 +33,8 @@ describe('(Fetch) Fetch service', () => {
     expect(fetchService.app instanceof MockedAppService).equal(true);
   });
 
-  it('#fetch (default values)', async () => {
-    fetchStub.restore();
-
-    const cacheArgs: any = await fetchService.fetch('/');
-    expect(cacheArgs[0]).equal('fetch_6666cd76f96956469e7be39d750cc7d9');
-    expect(cacheArgs[1] instanceof Function).equal(true);
-    expect(cacheArgs[2]).equal(0);
-  });
-
-  it('#fetch (custom values)', async () => {
-    fetchStub.restore();
-
-    const cacheArgs: any = await fetchService.fetch('/', {}, {
-      cacheTime: 10,
-      cacheKey: 'xxx',
-    });
-    expect(cacheArgs[0]).equal('xxx');
-    expect(cacheArgs[1] instanceof Function).equal(true);
-    expect(cacheArgs[2]).equal(10);
-  });
-
   it('#fetch (error)', async () => {
     fetchStub.restore();
-
-    const cacheArgs: any = await fetchService.fetch('/');
-    const handler: any = cacheArgs[1];
 
     global['fetch'] = async () => ({
       ok: false,
@@ -73,7 +42,7 @@ describe('(Fetch) Fetch service', () => {
 
     let error: Error;
     try {
-      await handler();
+      await fetchService.fetch('/');
     } catch (err) {
       error = err;
     }
@@ -83,48 +52,46 @@ describe('(Fetch) Fetch service', () => {
   it('#fetch (json)', async () => {
     fetchStub.restore();
 
-    const cacheArgs: any = await fetchService.fetch('/');
-    const handler: any = cacheArgs[1];
-
     global['fetch'] = async () => ({
       ok: true,
       json: async () => ({ a: 1, b: 2 }),
     });
 
-    const result = await handler();
+    const result = await fetchService.fetch('/');
     expect(result).eql({ a: 1, b: 2 });
   });
 
   it('#fetch (text)', async () => {
     fetchStub.restore();
 
-    const cacheArgs: any = await fetchService.fetch('/', {}, { json: false });
-    const handler: any = cacheArgs[1];
-
     global['fetch'] = async () => ({
       ok: true,
       text: async () => 'xxx',
     });
 
-    const result = await handler();
+    const result = await fetchService.fetch('/', {}, false);
     expect(result).equal('xxx');
   });
 
   it('#get', async () => {
-    const result = await fetchService.get('/', { headers: {} }, { json: false });
-    expect(result).eql([
+    const cacheArgs: any = await fetchService.get('/');
+    const fetchArgs = await cacheArgs[1]();
+    expect(cacheArgs[0]).equal('fetch_6666cd76f96956469e7be39d750cc7d9');
+    expect(cacheArgs[2]).equal(0);
+    expect(fetchArgs).eql([
       '/',
-      { headers: {}, method: 'GET' },
-      { json: false },
+      { method: 'GET' },
+      true,
     ]);
   });
 
   it('#post', async () => {
-    const result = await fetchService.post('/');
+    const result = await fetchService.post('/', {
+      body: JSON.stringify({ a: 1 }),
+    });
     expect(result).eql([
       '/',
-      { method: 'POST' },
-      {},
+      { method: 'POST', body: '{"a":1}' },
     ]);
   });
 
@@ -133,7 +100,6 @@ describe('(Fetch) Fetch service', () => {
     expect(result).eql([
       '/',
       { method: 'PUT' },
-      {},
     ]);
   });
 
@@ -142,7 +108,6 @@ describe('(Fetch) Fetch service', () => {
     expect(result).eql([
       '/',
       { method: 'PATCH' },
-      {},
     ]);
   });
 
@@ -151,7 +116,6 @@ describe('(Fetch) Fetch service', () => {
     expect(result).eql([
       '/',
       { method: 'DELETE' },
-      {},
     ]);
   });
 

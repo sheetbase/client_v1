@@ -18,6 +18,7 @@ import {
 let databaseService: DatabaseService;
 
 let cacheRemoveByPrefixStub: sinon.SinonStub;
+let fetchGetStub: sinon.SinonStub;
 let allStub: sinon.SinonStub;
 let queryStub: sinon.SinonStub;
 let itemsStub: sinon.SinonStub;
@@ -37,6 +38,7 @@ function before() {
   );
   // stubs
   cacheRemoveByPrefixStub = sinon.stub(databaseService.app.Cache, 'removeByPrefix');
+  fetchGetStub = sinon.stub(databaseService.app.Fetch, 'get');
   allStub = sinon.stub(databaseService, 'all');
   queryStub = sinon.stub(databaseService, 'query');
   itemsStub = sinon.stub(databaseService, 'items').callsFake((...args) => args as any);
@@ -50,6 +52,7 @@ function before() {
 
 function after() {
   cacheRemoveByPrefixStub.restore();
+  fetchGetStub.restore();
   allStub.restore();
   queryStub.restore();
   itemsStub.restore();
@@ -110,14 +113,12 @@ describe('(Database) Database service', () => {
     expect(result instanceof DatabaseService).equal(true);
   });
 
-  it('#getMethodOptions (default)', () => {
-    const result = databaseService.getMethodOptions({});
+  it('#buildItemsOptions (default)', () => {
+    const result = databaseService.buildItemsOptions({});
     expect(result).eql({
       useCached: true,
       cacheTime: 1440,
-      docsStyle: 'full',
       segment: undefined,
-      autoLoaded: true,
       order: undefined,
       orderBy: undefined,
       limit: undefined,
@@ -125,13 +126,11 @@ describe('(Database) Database service', () => {
     });
   });
 
-  it('#getMethodOptions (custom)', () => {
-    const result = databaseService.getMethodOptions({
+  it('#buildItemsOptions (custom)', () => {
+    const result = databaseService.buildItemsOptions({
       useCached: false,
       cacheTime: 0,
-      docsStyle: 'clean',
       segment: { a: 1 },
-      autoLoaded: false,
       order: 'ASC',
       orderBy: '#',
       limit: 10,
@@ -140,13 +139,51 @@ describe('(Database) Database service', () => {
     expect(result).eql({
       useCached: false,
       cacheTime: 0,
-      docsStyle: 'clean',
       segment: { a: 1 },
-      autoLoaded: false,
       order: 'ASC',
       orderBy: '#',
       limit: 10,
       offset: 10,
+    });
+  });
+
+  it('#buildItemOptions (default)', () => {
+    const result = databaseService.buildItemOptions({});
+    expect(result).eql({
+      useCached: true,
+      cacheTime: 1440,
+      segment: undefined,
+      order: undefined,
+      orderBy: undefined,
+      limit: undefined,
+      offset: undefined,
+      docsStyle: 'full',
+      autoLoaded: true,
+    });
+  });
+
+  it('#buildItemOptions (custom)', () => {
+    const result = databaseService.buildItemOptions({
+      useCached: false,
+      cacheTime: 0,
+      segment: { a: 1 },
+      order: 'ASC',
+      orderBy: '#',
+      limit: 10,
+      offset: 10,
+      docsStyle: 'clean',
+      autoLoaded: false,
+    });
+    expect(result).eql({
+      useCached: false,
+      cacheTime: 0,
+      segment: { a: 1 },
+      order: 'ASC',
+      orderBy: '#',
+      limit: 10,
+      offset: 10,
+      docsStyle: 'clean',
+      autoLoaded: false,
     });
   });
 
@@ -231,26 +268,28 @@ describe('(Database) Database service', () => {
   it('#all (error for direct accessing)', async () => {
     allStub.restore();
 
+    const cacheGetArgs: any = await databaseService.all('tags');
     // @ts-ignore
     databaseService.DatabaseDirect = {
       all: async (...args) => {
         throw new Error('...'); // simulate error
       },
     };
-
     let error: Error;
     try {
-      await databaseService.all('tags');
+      await cacheGetArgs[1]();
     } catch (err) {
       error = err;
     }
-
     expect(error.message).equal('Unable to access \'tags\' directly, it may not be published.');
+    expect(cacheGetArgs[0]).equal('database_tags');
+    expect(cacheGetArgs[2]).equal(1440);
   });
 
   it('#all (direct)', async () => {
     allStub.restore();
 
+    const cacheGetArgs: any = await databaseService.all('tags');
     let directAllArgs;
     // @ts-ignore
     databaseService.DatabaseDirect = {
@@ -259,15 +298,15 @@ describe('(Database) Database service', () => {
         return [1, 2, 3] as any;
       },
     };
-
-    const result = await databaseService.all('tags');
-    expect(directAllArgs).eql(['tags', 1440]);
+    const result = await cacheGetArgs[1]();
+    expect(directAllArgs).eql(['tags']);
     expect(result).eql([1, 2, 3]);
   });
 
   it('#all (server)', async () => {
     allStub.restore();
 
+    const cacheGetArgs: any = await databaseService.all('xxx2');
     let serverAllArgs;
     // @ts-ignore
     databaseService.DatabaseServer = {
@@ -276,9 +315,8 @@ describe('(Database) Database service', () => {
         return [1, 2, 3] as any;
       },
     };
-
-    const result = await databaseService.all('xxx2');
-    expect(serverAllArgs).eql(['xxx2', 1440]);
+    const result = await cacheGetArgs[1]();
+    expect(serverAllArgs).eql(['xxx2']);
     expect(result).eql([1, 2, 3]);
   });
 
@@ -307,6 +345,7 @@ describe('(Database) Database service', () => {
   it('#query (not useCached)', async () => {
     queryStub.restore();
 
+    const cacheGetArgs: any = await databaseService.query('xxx', { a: 1 }, { useCached: false });
     let serverQueryArgs;
     // @ts-ignore
     databaseService.DatabaseServer = {
@@ -315,10 +354,11 @@ describe('(Database) Database service', () => {
         return [{a: 1}] as any;
       },
     };
-
-    const result = await databaseService.query('xxx', { a: 1 }, { useCached: false });
+    const result = await cacheGetArgs[1]();
+    expect(cacheGetArgs[0]).equal('database_xxx_query_4a2f98478a5d638a3e2687b449058ea9');
+    expect(cacheGetArgs[2]).equal(1440);
     expect(serverQueryArgs).eql([
-      'xxx', { where: 'a', equal: 1 }, 1440, undefined,
+      'xxx', { where: 'a', equal: 1 }, undefined,
     ]);
     expect(result).eql([{a: 1}]);
   });
@@ -334,7 +374,7 @@ describe('(Database) Database service', () => {
 
     const result = await databaseService.items('xxx');
     expect(allArgs).eql([
-      'xxx', {},
+      'xxx', 1440,
     ]);
     expect(result).eql([1, 2, 3]);
   });
@@ -365,11 +405,14 @@ describe('(Database) Database service', () => {
       },
     };
 
-    const result = await databaseService.item(
+    const cacheGetArgs: any = await databaseService.item(
       'xxx', 'xxx-1', { useCached: false, autoLoaded: false },
     );
+    const result = await cacheGetArgs[1]();
+    expect(cacheGetArgs[0]).equal('database_xxx_item_xxx-1');
+    expect(cacheGetArgs[2]).equal(1440);
     expect(serverItemArgs).eql([
-      'xxx', 'xxx-1', 1440,
+      'xxx', 'xxx-1',
     ]);
     expect(result).eql({a: 1});
   });
@@ -455,10 +498,12 @@ describe('(Database) Database service', () => {
         return '<p>doc content ...</p>';
       },
     };
-
-    const result = await databaseService.docsContent('xxx-1', 'doc-id-xxx');
+    const cacheGetArgs: any = await databaseService.docsContent('xxx-1', 'doc-id-xxx');
+    const result = await cacheGetArgs[1]();
+    expect(cacheGetArgs[0]).equal('content_xxx-1_doc-id-xxx_full');
+    expect(cacheGetArgs[2]).equal(1440);
     expect(docsContentArgs).eql([
-      'xxx-1', 'doc-id-xxx', 'full', 1440,
+      'doc-id-xxx', 'full',
     ]);
     expect(result).equal('<p>doc content ...</p>');
   });
@@ -466,18 +511,18 @@ describe('(Database) Database service', () => {
   it('#textContent', async () => {
     textContentStub.restore();
 
-    let textContentArgs;
-    // @ts-ignore
-    databaseService.DatabaseDirect = {
-      textContent: async (...args) => {
-        textContentArgs = args;
-        return '<p>content ...</p>';
-      },
-    };
+    let fetchGetArgs;
+    fetchGetStub.callsFake(async (...args) => {
+      fetchGetArgs = args;
+      return '<p>content ...</p>';
+    });
 
-    const result = await databaseService.textContent('xxx-1', 'https://xxx.xxx');
-    expect(textContentArgs).eql([
-      'xxx-1', 'https://xxx.xxx', 1440,
+    const cacheGetArgs: any = await databaseService.textContent('xxx-1', 'https://xxx.xxx');
+    const result = await cacheGetArgs[1]();
+    expect(cacheGetArgs[0]).equal('content_xxx-1_6b89c305ffa17e4cd1c7d839566ff058');
+    expect(cacheGetArgs[2]).equal(1440);
+    expect(fetchGetArgs).eql([
+      'https://xxx.xxx', {}, false,
     ]);
     expect(result).equal('<p>content ...</p>');
   });
@@ -485,18 +530,18 @@ describe('(Database) Database service', () => {
   it('#jsonContent', async () => {
     jsonContentStub.restore();
 
-    let jsonContentArgs;
-    // @ts-ignore
-    databaseService.DatabaseDirect = {
-      jsonContent: async (...args) => {
-        jsonContentArgs = args;
-        return { a: 1 } as any;
-      },
-    };
+    let fetchGetArgs;
+    fetchGetStub.callsFake(async (...args) => {
+      fetchGetArgs = args;
+      return { a: 1 } as any;
+    });
 
-    const result = await databaseService.jsonContent('xxx-1', 'https://xxx.xxx');
-    expect(jsonContentArgs).eql([
-      'xxx-1', 'https://xxx.xxx', 1440,
+    const cacheGetArgs: any = await databaseService.jsonContent('xxx-1', 'https://xxx.xxx');
+    const result = await cacheGetArgs[1]();
+    expect(cacheGetArgs[0]).equal('content_xxx-1_6b89c305ffa17e4cd1c7d839566ff058');
+    expect(cacheGetArgs[2]).equal(1440);
+    expect(fetchGetArgs).eql([
+      'https://xxx.xxx',
     ]);
     expect(result).eql({ a: 1 });
   });

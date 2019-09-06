@@ -43,5 +43,6 @@ export class MockedCacheService {
 
 export class MockedFetchService {
   constructor() {}
+  async fetch(...args) { return args; }
   async get(...args) { return args; }
 }

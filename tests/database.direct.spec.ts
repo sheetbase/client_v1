@@ -15,7 +15,6 @@ function before() {
     new MockedAppService() as any,
     '1Abc', // database id
     { xxx: '123' }, // gids
-    undefined, // custom parser
   );
   // stubs
   fetchGetStub = sinon.stub(databaseDirectService.app.Fetch, 'get');
@@ -153,16 +152,12 @@ describe('(Database) Database direct service', () => {
       );
     });
 
-    const cacheGetArgs: any = await databaseDirectService.all('xxx');
-    const result = await cacheGetArgs[1]();
-
+    const result = await databaseDirectService.all('xxx');
     expect(fetchGetArgs).eql([
       'https://docs.google.com/spreadsheets/d/1Abc/pub?gid=123&output=csv&single=true',
       {},
-      { json: false },
+      false,
     ]);
-    expect(cacheGetArgs[0]).equal('database_xxx');
-    expect(cacheGetArgs[2]).equal(0);
     expect(result).eql([
       { _row: 2, a: 1, b: 2, c: 3 },
       { _row: 4, a: 4, b: 5, c: 6 },
@@ -176,64 +171,16 @@ describe('(Database) Database direct service', () => {
       return '<p>doc content ...</p>';
     });
 
-    const cacheGetArgs: any = await databaseDirectService.docsContent(
-      'xxx-1',
+    const result = await databaseDirectService.docsContent(
       'doc-id-xxx',
     );
-    const result = await cacheGetArgs[1]();
 
     expect(fetchGetArgs).eql([
       'https://docs.google.com/document/d/doc-id-xxx/pub?embedded=true',
       {},
-      { json: false },
+      false,
     ]);
-    expect(cacheGetArgs[0]).equal('content_xxx-1_doc-id-xxx_full');
-    expect(cacheGetArgs[2]).equal(0);
     expect(result).equal('<p>doc content ...</p>');
-  });
-
-  it('#textContent', async () => {
-    let fetchGetArgs;
-    fetchGetStub.callsFake((...args) => {
-      fetchGetArgs = args;
-      return '<p>content ...</p>';
-    });
-
-    const cacheGetArgs: any = await databaseDirectService.textContent(
-      'xxx-1',
-      'https://xxx.xxx',
-    );
-    const result = await cacheGetArgs[1]();
-
-    expect(fetchGetArgs).eql([
-      'https://xxx.xxx',
-      {},
-      { json: false },
-    ]);
-    expect(cacheGetArgs[0]).equal('content_xxx-1_6b89c305ffa17e4cd1c7d839566ff058');
-    expect(cacheGetArgs[2]).equal(0);
-    expect(result).equal('<p>content ...</p>');
-  });
-
-  it('#jsonContent', async () => {
-    let fetchGetArgs;
-    fetchGetStub.callsFake((...args) => {
-      fetchGetArgs = args;
-      return { a: 1, b: 2, c: 3 };
-    });
-
-    const cacheGetArgs: any = await databaseDirectService.jsonContent(
-      'xxx-1',
-      'https://xxx.xxx',
-    );
-    const result = await cacheGetArgs[1]();
-
-    expect(fetchGetArgs).eql([
-      'https://xxx.xxx',
-    ]);
-    expect(cacheGetArgs[0]).equal('content_xxx-1_6b89c305ffa17e4cd1c7d839566ff058');
-    expect(cacheGetArgs[2]).equal(0);
-    expect(result).eql({ a: 1, b: 2, c: 3 });
   });
 
 });
