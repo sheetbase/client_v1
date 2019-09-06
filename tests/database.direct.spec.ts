@@ -39,6 +39,13 @@ describe('(Database) Database direct service', () => {
     expect(databaseDirectService.customDataParser).equal(undefined);
   });
 
+  it('#registerDataParser', () => {
+    const result = databaseDirectService.registerDataParser(value => value);
+    // @ts-ignore
+    expect(databaseDirectService.customDataParser('xxx')).equal('xxx');
+    expect(result instanceof DatabaseDirectService).equal(true);
+  });
+
   it('#getPublishedUrl', () => {
     const result = databaseDirectService.getPublishedUrl('xxx');
     expect(result).equal(

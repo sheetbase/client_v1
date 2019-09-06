@@ -113,6 +113,18 @@ describe('(Database) Database service', () => {
     expect(result instanceof DatabaseService).equal(true);
   });
 
+  it('#registerDataParser', () => {
+    let parser;
+    // @ts-ignore
+    databaseService.DatabaseDirect = {
+      registerDataParser: ps => parser = ps,
+    } as any;
+    const result = databaseService.registerDataParser(value => value);
+    expect(result instanceof DatabaseService).equal(true);
+    // @ts-ignore
+    expect(parser('xxx')).equal('xxx');
+  });
+
   it('#buildItemsOptions (default)', () => {
     const result = databaseService.buildItemsOptions({});
     expect(result).eql({
