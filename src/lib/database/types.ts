@@ -1,4 +1,4 @@
-export interface DatabaseOptions extends DatabasePublicOptions, DatabaseParserOptions {
+export interface DatabaseOptions extends DatabasePublicOptions {
   databaseEndpoint?: string;
 }
 
