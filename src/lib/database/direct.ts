@@ -3,13 +3,13 @@ import { parse } from 'papaparse';
 import { md5 } from '../utils';
 import { AppService } from '../app/app.service';
 
-import { DocsContentStyle, DatabaseGids, DatabaseDataParser } from './types';
+import { DocsContentStyle, DatabaseGids, DataParser } from './types';
 
 export class DatabaseDirectService {
 
   private databaseId: string;
   private databaseGids: DatabaseGids;
-  private customDataParser: DatabaseDataParser;
+  private customDataParser: DataParser;
 
   app: AppService;
 
@@ -17,12 +17,15 @@ export class DatabaseDirectService {
     app: AppService,
     databaseId: string,
     databaseGids: DatabaseGids,
-    customDataParser: DatabaseDataParser,
   ) {
     this.app = app;
     this.databaseId = databaseId;
     this.databaseGids = databaseGids;
-    this.customDataParser = customDataParser;
+  }
+
+  registerDataParser(parser: DataParser): DatabaseDirectService {
+    this.customDataParser = parser;
+    return this;
   }
 
   getPublishedUrl(sheet: string, output = 'csv') {

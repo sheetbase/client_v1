@@ -7,10 +7,6 @@ export interface DatabasePublicOptions {
   databaseGids?: DatabaseGids;
 }
 
-export interface DatabaseParserOptions {
-  databaseDataParser?: DataParser;
-}
-
 export type AdvancedFilter = (item: any) => boolean;
 export type ShorthandEqual = {[field: string]: any};
 export type Filter = ShorthandEqual | Query | AdvancedFilter;

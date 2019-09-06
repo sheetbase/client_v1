@@ -78,7 +78,6 @@ Configs object for `initializeApp()`
   databaseEndpoint?: string; // custom database endpoint
   databaseId?: string; // database for accessing directly
   databaseGids?: {} // gids map for accessing directly
-  databaseDataParser?(value: any) => any; // custom value parser
 
   // auth
   authEndpoint?: string; // custom auth endpoint

@@ -5,6 +5,7 @@ import {
   Filter,
   AdvancedFilter,
   Query,
+  DataParser,
   DataSegment,
   DocsContentStyle,
   ItemsOptions,
@@ -42,7 +43,7 @@ export class DatabaseService {
   app: AppService;
 
   constructor(app: AppService) {
-    const { databaseEndpoint, databaseId, databaseGids, databaseDataParser } = app.options;
+    const { databaseEndpoint, databaseId, databaseGids } = app.options;
     // set app
     this.app = app;
     // create instances
@@ -53,7 +54,6 @@ export class DatabaseService {
         ... this.BUILTIN_PUBLIC_GIDS,
         ... databaseGids,
       },
-      databaseDataParser,
     );
     this.DatabaseServer = new DatabaseServerService(
       this.app,
@@ -71,6 +71,11 @@ export class DatabaseService {
 
   setSegmentation(globalSegment: DataSegment): DatabaseService {
     this.globalSegment = globalSegment;
+    return this;
+  }
+
+  registerDataParser(parser: DataParser): DatabaseService {
+    this.DatabaseDirect.registerDataParser(parser);
     return this;
   }
 
