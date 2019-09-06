@@ -147,64 +147,32 @@ export class DatabaseDirectService {
    *
    */
 
-  all<Item>(sheet: string, cacheTime = 0) {
-    return this.app.Cache.get<Item[]>(
-      'database_' + sheet,
-      async () => {
-        const url = this.getPublishedUrl(sheet);
-        const csvText: string = await this.app.Fetch.get(url, {}, { json: false });
-        const rawItems = await this.parseCSV<Item>(csvText);
-        // process raw items
-        const items: Item[] = [];
-        for (let i = 0, l = rawItems.length; i < l; i++) {
-          const item = this.parseData(rawItems[i]);
-          // save item to the result if not empty
-          if (!!Object.keys(item).length) {
-            item['_row'] = i + 2;
-            items.push(item);
-          }
-        }
-        // final result
-        return items;
-      },
-      cacheTime,
-    );
+  async all<Item>(sheet: string) {
+    const url = this.getPublishedUrl(sheet);
+    const csvText = await this.app.Fetch.get<string>(url, {}, false);
+    const rawItems = await this.parseCSV<Item>(csvText);
+    // process raw items
+    const items: Item[] = [];
+    for (let i = 0, l = rawItems.length; i < l; i++) {
+      const item = this.parseData(rawItems[i]);
+      // save item to the result if not empty
+      if (!!Object.keys(item).length) {
+        item['_row'] = i + 2;
+        items.push(item);
+      }
+    }
+    // final result
+    return items;
   }
 
   // Google Docs html content
-  docsContent(
-    itemKey: string,
+  async docsContent(
     docId: string,
     style: DocsContentStyle = 'full',
-    cacheTime = 0,
   ) {
     const url = 'https://docs.google.com/document/d/' + docId + '/pub?embedded=true';
-    return this.app.Cache.get<string>(
-      'content_' + itemKey + '_' + docId + '_' + style,
-      async () => this.processDocsContent(
-        await this.app.Fetch.get(url, {}, { json: false }),
-        style,
-      ),
-      cacheTime,
-    );
-  }
-
-  // text-based content (txt, html, md, ...)
-  textContent(itemKey: string, url: string, cacheTime = 0) {
-    return this.app.Cache.get<string>(
-      'content_' + itemKey + '_' + md5(url),
-      () => this.app.Fetch.get(url, {}, { json: false }),
-      cacheTime,
-    );
-  }
-
-  // json content
-  jsonContent<Data>(itemKey: string, url: string, cacheTime = 0) {
-    return this.app.Cache.get<Data>(
-      'content_' + itemKey + '_' + md5(url),
-      () => this.app.Fetch.get(url) as Promise<Data>,
-      cacheTime,
-    );
+    const content = await this.app.Fetch.get<string>(url, {}, false);
+    return this.processDocsContent(content, style);
   }
 
   /**

@@ -1,4 +1,3 @@
-import { md5 } from '../utils';
 import { AppService } from '../app/app.service';
 import { ApiService } from '../api/api.service';
 
@@ -17,47 +16,28 @@ export class DatabaseServerService {
       .setEndpoint(endpoint);
   }
 
-  all<Item>(sheet: string, cacheTime = 0): Promise<Item[]> {
-    return this.app.Cache.get(
-      'database_' + sheet,
-      () => this.Api.get('/', { sheet }, -1),
-      cacheTime,
-    );
+  all<Item>(sheet: string): Promise<Item[]> {
+    return this.Api.get('/', { sheet });
   }
 
   query<Item>(
     sheet: string,
     query: Query,
-    cacheTime = 0,
     segment: DataSegment = null,
   ): Promise<Item[]> {
-    return this.app.Cache.get(
-      'database_' + sheet + '_query_' + md5(JSON.stringify(query)),
-      () => this.Api.get('/', { ... query, sheet, segment }, -1),
-      cacheTime,
-    );
+    return this.Api.get('/', { ... query, sheet, segment });
   }
 
-  item<Item>(sheet: string, key: string, cacheTime = 0): Promise<Item> {
-    return this.app.Cache.get(
-      'database_' + sheet + '_item_' + key,
-      () => this.Api.get('/', { sheet, key }, -1),
-      cacheTime,
-    );
+  item<Item>(sheet: string, key: string): Promise<Item> {
+    return this.Api.get('/', { sheet, key });
   }
 
   async docsContent(
-    itemKey: string,
     docId: string,
     style: DocsContentStyle = 'full',
-    cacheTime = 0,
   ) {
-    const { content } = await this.app.Cache.get(
-      'content_' + itemKey + '_' + docId + '_' + style,
-      () => this.Api.get('/content', { docId, style }, -1),
-      cacheTime,
-    );
-    return content as string;
+    const result = await this.Api.get('/content', { docId, style });
+    return result.content as string;
   }
 
   set<Data>(sheet: string, key: string, data: Data) {
