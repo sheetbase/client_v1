@@ -7,7 +7,8 @@ import {
   Query,
   DataSegment,
   DocsContentStyle,
-  DatabaseMethodOptions,
+  ItemsOptions,
+  ItemOptions,
 } from './types';
 import { DatabaseDirectService } from './direct';
 import { DatabaseServerService } from './server';
@@ -73,13 +74,11 @@ export class DatabaseService {
     return this;
   }
 
-  getMethodOptions(options: DatabaseMethodOptions) {
+  buildItemsOptions(options: ItemsOptions): ItemsOptions {
     const {
       useCached = true,
       cacheTime = 1440,
-      docsStyle = 'full',
       segment,
-      autoLoaded = true,
       order,
       orderBy,
       limit,
@@ -88,14 +87,21 @@ export class DatabaseService {
     return {
       useCached,
       cacheTime,
-      docsStyle,
       segment,
-      autoLoaded,
       order,
       orderBy,
       limit,
       offset,
-    } as DatabaseMethodOptions;
+    };
+  }
+
+  buildItemOptions(options: ItemOptions): ItemOptions {
+    const {
+      docsStyle = 'full',
+      autoLoaded = true,
+    } = options;
+    const itemsOptions = this.buildItemsOptions(options);
+    return { ... itemsOptions, docsStyle, autoLoaded };
   }
 
   /**
@@ -158,8 +164,7 @@ export class DatabaseService {
    * general get
    */
 
-  all<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
-    const { cacheTime } = this.getMethodOptions(options);
+  all<Item>(sheet: string, cacheTime = 1440) {
     return this.app.Cache.get(
       'database_' + sheet,
       async () => {
@@ -185,9 +190,9 @@ export class DatabaseService {
   async query<Item>(
     sheet: string,
     filter: Filter,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ): Promise<Item[]> {
-    const { useCached, cacheTime, segment } = this.getMethodOptions(options);
+    const { useCached, cacheTime, segment } = this.buildItemsOptions(options);
     // prepare
     let query: Query; // prepare query
     let advancedFilter: AdvancedFilter; // advanced filter
@@ -205,7 +210,7 @@ export class DatabaseService {
       // build segment filter
       const segmentFilter = buildSegmentFilter<Item>(segment || this.globalSegment);
       // load local items
-      const allItems = await this.all(sheet, options);
+      const allItems = await this.all(sheet, cacheTime);
       // query local items
       const items: Item[] = [];
       for (let i = 0, length = allItems.length; i < length; i++) {
@@ -234,24 +239,22 @@ export class DatabaseService {
   async items<Item>(
     sheet: string,
     filter?: Filter,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
-    return !!filter ?
-      this.query<Item>(sheet, filter, options) :
-      this.all<Item>(sheet, options);
+    if (!!filter) {
+      return this.query<Item>(sheet, filter, options);
+    } else {
+      const { cacheTime } = this.buildItemsOptions(options);
+      return this.all<Item>(sheet, cacheTime);
+    }
   }
 
   async item<Item>(
     sheet: string,
     finder: string | Filter,
-    options: DatabaseMethodOptions = {},
+    options: ItemOptions = {},
   ) {
-    const {
-      useCached,
-      cacheTime,
-      docsStyle,
-      autoLoaded,
-    } = this.getMethodOptions(options);
+    const { useCached, cacheTime, docsStyle, autoLoaded } = this.buildItemOptions(options);
     // get item
     let item: Item;
     // from server
@@ -392,7 +395,7 @@ export class DatabaseService {
    * convinient get
    */
 
-  itemsOriginal<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
+  itemsOriginal<Item>(sheet: string, options: ItemsOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -403,7 +406,7 @@ export class DatabaseService {
     );
   }
 
-  itemsDraft<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
+  itemsDraft<Item>(sheet: string, options: ItemsOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -414,7 +417,7 @@ export class DatabaseService {
     );
   }
 
-  itemsPublished<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
+  itemsPublished<Item>(sheet: string, options: ItemsOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -425,7 +428,7 @@ export class DatabaseService {
     );
   }
 
-  itemsArchived<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
+  itemsArchived<Item>(sheet: string, options: ItemsOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => (
@@ -439,7 +442,7 @@ export class DatabaseService {
   async itemsByRelated<Item>(
     sheet: string,
     baseItem: Item,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     // retrieve category & tag
     const { categories, tags } = baseItem as any;
@@ -486,7 +489,7 @@ export class DatabaseService {
   itemsByType<Item>(
     sheet: string,
     type: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -498,7 +501,7 @@ export class DatabaseService {
     );
   }
 
-  itemsByTypeDefault<Item>(sheet: string, options: DatabaseMethodOptions = {}) {
+  itemsByTypeDefault<Item>(sheet: string, options: ItemsOptions = {}) {
     return this.items<Item>(
       sheet,
       (item: Item) => !item['type'],
@@ -509,7 +512,7 @@ export class DatabaseService {
   itemsByAuthor<Item>(
     sheet: string,
     authorKey: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -524,7 +527,7 @@ export class DatabaseService {
   itemsByLocale<Item>(
     sheet: string,
     locale: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -539,7 +542,7 @@ export class DatabaseService {
   itemsByOrigin<Item>(
     sheet: string,
     origin: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -554,7 +557,7 @@ export class DatabaseService {
   itemsByParent<Item>(
     sheet: string,
     parentKey: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -570,7 +573,7 @@ export class DatabaseService {
     sheet: string,
     taxonomy: string,
     termKey: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -585,7 +588,7 @@ export class DatabaseService {
   itemsByCategory<Item>(
     sheet: string,
     categoryKey: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.itemsByTerm<Item>(
       sheet,
@@ -598,7 +601,7 @@ export class DatabaseService {
   itemsByTag<Item>(
     sheet: string,
     tagKey: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.itemsByTerm<Item>(
       sheet,
@@ -611,7 +614,7 @@ export class DatabaseService {
   itemsByKeyword<Item>(
     sheet: string,
     keyword: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -626,7 +629,7 @@ export class DatabaseService {
   itemsByMetaExists<Item>(
     sheet: string,
     metaKey: string,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.items<Item>(
       sheet,
@@ -642,7 +645,7 @@ export class DatabaseService {
     sheet: string,
     metaKey: string,
     equalTo: any,
-    options: DatabaseMethodOptions = {},
+    options: ItemsOptions = {},
   ) {
     return this.items<Item>(
       sheet,

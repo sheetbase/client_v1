@@ -8,7 +8,7 @@ export interface DatabasePublicOptions {
 }
 
 export interface DatabaseParserOptions {
-  databaseDataParser?: DatabaseDataParser;
+  databaseDataParser?: DataParser;
 }
 
 export type AdvancedFilter = (item: any) => boolean;
@@ -37,20 +37,24 @@ export interface DatabaseGids {
   [sheet: string]: string;
 }
 
-export type DatabaseDataParser = (value: any) => any;
+export type DataParser = (value: any) => any;
 
-export interface DatabaseMethodOptions {
+export interface ItemsOptions {
   // caching
   useCached?: boolean;
   cacheTime?: number;
-  // content
-  docsStyle?: DocsContentStyle;
   // data
-  segment?: DataSegment;// this or global, bypass global: {} (empty)
-  autoLoaded?: boolean;
+  segment?: DataSegment; // this or global, bypass global: {} (empty)
   // query
   order?: 'ASC' | 'DESC';
   orderBy?: string;
   limit?: number;
   offset?: number;
+}
+
+export interface ItemOptions extends ItemsOptions {
+  // content
+  docsStyle?: DocsContentStyle;
+  // auto-loaded content
+  autoLoaded?: boolean;
 }
