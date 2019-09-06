@@ -1,3 +1,4 @@
+import { md5 } from '../utils';
 import { AppService } from '../app/app.service';
 
 export class FetchService {
@@ -20,8 +21,12 @@ export class FetchService {
     return !json ? response.text() : response.json();
   }
 
-  get<Data>(url: string, init?: RequestInit, json = true) {
-    return this.fetch<Data>(url, { ... init, method: 'GET' }, json);
+  get<Data>(url: string, init?: RequestInit, json = true, cacheTime = 0) {
+    return this.app.Cache.get(
+      'fetch_' + md5(url),
+      () => this.fetch<Data>(url, { ... init, method: 'GET' }, json),
+      cacheTime,
+    );
   }
 
   post<Data>(url: string, init?: RequestInit) {
