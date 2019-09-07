@@ -67,6 +67,7 @@ Configs object for `initializeApp()`
   // api
   backendUrl: string; // backend url
   apiKey?: string; // built-in support for api key
+  loggingEndpoint?: string; // custom logging endpoint
 
   // fetch
 
