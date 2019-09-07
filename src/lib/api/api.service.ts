@@ -5,8 +5,11 @@ import {
   BeforeRequestHook,
   ApiInstanceData,
   ActionData,
+  RequestQuery,
+  RequestBody,
   ResponseSuccess,
   ResponseError,
+  SystemInfo,
   LoggingLevel,
 } from './types';
 
@@ -19,8 +22,8 @@ export function ApiError(result: ResponseError) {
 export class ApiService {
 
   private baseEndpoint  = '';
-  private predefinedQuery: any = {};
-  private predefinedBody: any = {};
+  private predefinedQuery: RequestQuery = {};
+  private predefinedBody: RequestBody = {};
   private beforeRequestHooks: BeforeRequestHook[] = [];
   private loggingEndpoint  = '';
 
@@ -65,7 +68,7 @@ export class ApiService {
     return this;
   }
 
-  addQuery(query: {}): ApiService {
+  addQuery(query: RequestQuery): ApiService {
     this.predefinedQuery = {
       ... this.predefinedQuery,
       ...query,
@@ -73,7 +76,7 @@ export class ApiService {
     return this;
   }
 
-  addBody(body: {}): ApiService {
+  addBody(body: RequestBody): ApiService {
     this.predefinedBody = {
       ... this.predefinedBody,
       ...body,
@@ -135,7 +138,7 @@ export class ApiService {
     return result.data;
   }
 
-  request(inputs: {
+  request<Data>(inputs: {
     method?: string,
     endpoint?: string,
     query?: {},
@@ -144,15 +147,15 @@ export class ApiService {
   } = {}) {
     const { method = 'get', endpoint = '/', query = {}, body = {}, cacheTime = 0 } = inputs;
     if (method.toLowerCase() === 'get') {
-      return this.get(endpoint, query, cacheTime);
+      return this.get<Data>(endpoint, query, cacheTime);
     } else if (method.toLowerCase() === 'post') {
-      return this.post(endpoint, query, body);
+      return this.post<Data>(endpoint, query, body);
     } else {
-      return this.post(endpoint, { method, ...query }, body);
+      return this.post<Data>(endpoint, { method, ...query }, body);
     }
   }
 
-  async get(endpoint?: string, query = {}, cacheTime = 0) {
+  async get<Data>(endpoint?: string, query = {}, cacheTime = 0) {
     const originalUrl = this.buildUrl(
       this.buildEndpoint(endpoint),
       this.buildQuery(query),
@@ -168,14 +171,14 @@ export class ApiService {
       this.buildEndpoint(endpoint),
       this.buildQuery(query),
     );
-    return this.app.Cache.get(
+    return this.app.Cache.get<Data>(
       'api_' + md5(originalUrl),
       () => this.fetch(url, { method: 'GET' }),
       cacheTime,
     );
   }
 
-  async post(endpoint?: string, query = {}, body = {}) {
+  async post<Data>(endpoint?: string, query = {}, body = {}): Promise<Data> {
     const beforeHookResult = await this.runHooks('before', {
       endpoint, query, body,
     });
@@ -199,39 +202,39 @@ export class ApiService {
     });
   }
 
-  put(endpoint?: string, query = {}, body = {}) {
-    return this.post(endpoint, { ...query, method: 'PUT' }, body);
+  put<Data>(endpoint?: string, query = {}, body = {}) {
+    return this.post<Data>(endpoint, { ...query, method: 'PUT' }, body);
   }
 
-  patch(endpoint?: string, query = {}, body = {}) {
-    return this.post(endpoint, { ...query, method: 'PATCH' }, body);
+  patch<Data>(endpoint?: string, query = {}, body = {}) {
+    return this.post<Data>(endpoint, { ...query, method: 'PATCH' }, body);
   }
 
-  delete(endpoint?: string, query = {}, body = {}) {
-    return this.post(endpoint, { ...query, method: 'DELETE' }, body);
+  delete<Data>(endpoint?: string, query = {}, body = {}) {
+    return this.post<Data>(endpoint, { ...query, method: 'DELETE' }, body);
   }
 
   system() {
-    return this.get('/system');
+    return this.get<SystemInfo>('/system');
   }
 
-  logging(value: any, level: LoggingLevel = 'DEBUG') {
-    return this.put('/' + this.loggingEndpoint, {}, { level, value });
+  logging<Value>(value: Value, level: LoggingLevel = 'DEBUG') {
+    return this.put<void>('/' + this.loggingEndpoint, {}, { level, value });
   }
 
-  log(value: any) {
+  log<Value>(value: Value) {
     return this.logging(value, 'DEBUG');
   }
 
-  info(value: any) {
+  info<Value>(value: Value) {
     return this.logging(value, 'INFO');
   }
 
-  warn(value: any) {
+  warn<Value>(value: Value) {
     return this.logging(value, 'WARNING');
   }
 
-  error(value: any) {
+  error<Value>(value: Value) {
     return this.logging(value, 'ERROR');
   }
 
