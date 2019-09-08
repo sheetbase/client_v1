@@ -7,10 +7,15 @@ export interface DatabasePublicOptions {
   databaseGids?: DatabaseGids;
 }
 
-export type AdvancedFilter = (item: any) => boolean;
-export type ShorthandEqual = {[field: string]: any};
-export type Filter = ShorthandEqual | Query | AdvancedFilter;
-export interface Query {
+export type Filter<Item> = Query | AdvancedFilter<Item>;
+
+export type AdvancedFilter<Item> = (item: Item) => boolean;
+
+export type Query = ShorthandQuery | SingleQuery | MultiQuery;
+
+export type ShorthandQuery = {[field: string]: any};
+
+export interface SingleQuery {
   where: string;
   equal?: any;
   exists?: boolean;
@@ -21,6 +26,11 @@ export interface Query {
   gte?: number;
   childExists?: any;
   childEqual?: string;
+}
+
+export interface MultiQuery {
+  and?: SingleQuery[];
+  or?: SingleQuery[];
 }
 
 export type DocsContentStyle = 'clean' | 'full' | 'original';
@@ -35,22 +45,22 @@ export interface DatabaseGids {
 
 export type DataParser = (value: any) => any;
 
-export interface ItemsOptions {
-  // caching
-  useCached?: boolean;
-  cacheTime?: number;
-  // data
-  segment?: DataSegment; // this or global, bypass global: {} (empty)
-  // query
-  order?: 'ASC' | 'DESC';
-  orderBy?: string;
-  limit?: number;
+export type ListingOrder = 'asc' | 'desc';
+
+export interface ListingFilter {
+  order?: ListingOrder | ListingOrder[];
+  orderBy?: string | string[];
+  limit?: number; // +/- limit to first/last
   offset?: number;
 }
 
+export interface ItemsOptions extends ListingFilter {
+  useCached?: boolean;
+  cacheTime?: number;
+  segment?: DataSegment; // this or global, bypass global: {} (empty)
+}
+
 export interface ItemOptions extends ItemsOptions {
-  // content
   docsStyle?: DocsContentStyle;
-  // auto-loaded content
-  autoLoaded?: boolean;
+  autoLoaded?: boolean; // json:// & content://
 }

@@ -1,9 +1,14 @@
 import { parse } from 'papaparse';
 
-import { md5 } from '../utils';
 import { AppService } from '../app/app.service';
 
-import { DocsContentStyle, DatabaseGids, DataParser } from './types';
+import {
+  Query,
+  DocsContentStyle,
+  DatabaseGids,
+  DataParser,
+  DataSegment,
+} from './types';
 
 export class DatabaseDirectService {
 

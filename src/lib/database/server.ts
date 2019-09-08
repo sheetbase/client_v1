@@ -16,27 +16,23 @@ export class DatabaseServerService {
       .setEndpoint(endpoint);
   }
 
-  all<Item>(sheet: string): Promise<Item[]> {
-    return this.Api.get('/', { sheet });
+  all<Item>(sheet: string) {
+    return this.Api.get<Item[]>('/', { sheet });
   }
 
-  query<Item>(
-    sheet: string,
-    query: Query,
-    segment: DataSegment = null,
-  ): Promise<Item[]> {
-    return this.Api.get('/', { ... query, sheet, segment });
+  // TODO: fix the query param
+  query<Item>(sheet: string, query: Query, segment?: DataSegment) {
+    return this.Api.get<Item[]>('/', { sheet, query, segment });
   }
 
-  item<Item>(sheet: string, key: string): Promise<Item> {
-    return this.Api.get('/', { sheet, key });
+  item<Item>(sheet: string, key: string) {
+    return this.Api.get<Item>('/', { sheet, key });
   }
 
-  async docsContent(
-    docId: string,
-    style: DocsContentStyle = 'full',
-  ) {
-    const result = await this.Api.get('/content', { docId, style });
+  async docsContent(docId: string, style: DocsContentStyle = 'full') {
+    const result = await this.Api.get<{docId: string, content: string}>(
+      '/content', { docId, style },
+    );
     return result.content as string;
   }
 

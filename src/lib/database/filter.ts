@@ -1,18 +1,44 @@
-import { Filter, AdvancedFilter, Query, DataSegment } from './types';
+import { orderBy as _orderBy } from '../utils';
 
-export function buildQuery(filter: Filter) {
-  if (!filter['where']) { // shorthand query
-    const where = Object.keys(filter)[0];
-    const equal = filter[where];
-    delete filter[where]; // remove shorthand value from filter
-    filter['where'] = where;
-    filter['equal'] = equal;
+import {
+  Filter,
+  AdvancedFilter,
+  ShorthandQuery,
+  SingleQuery,
+  MultiQuery,
+  DataSegment,
+  ListingFilter,
+} from './types';
+
+export function buildAdvancedFilter<Item>(filter: Filter<Item>) {
+  let advancedFilter: AdvancedFilter<Item>;
+  // advanced filter
+  if (filter instanceof Function) {
+    advancedFilter = filter;
+  } else {
+    // multi query
+    if (!!filter['and'] || !!filter['or']) {
+      advancedFilter = convertMultiQueryToAdvancedFilter(filter as MultiQuery);
+    }
+    // ShorthandQuery or SingleQuery
+    else {
+      if (!filter['where']) { // shorthand
+        filter = convertShorthandQueryToSingleQuery(filter);
+      }
+      advancedFilter = convertSingleQueryToAdvancedFilter(filter as SingleQuery);
+    }
   }
-  return filter as Query;
+  return advancedFilter;
 }
 
-export function buildAdvancedFilter(query: Query) {
-  let advancedFilter: AdvancedFilter;
+export function convertShorthandQueryToSingleQuery(shorthandQuery: ShorthandQuery) {
+  const where = Object.keys(shorthandQuery)[0];
+  const equal = shorthandQuery[where];
+  return { where, equal } as SingleQuery;
+}
+
+export function convertSingleQueryToAdvancedFilter<Item>(singleQuery: SingleQuery) {
+  let advancedFilter: AdvancedFilter<Item>;
   // build advanced filter
   const {
     where,
@@ -23,7 +49,7 @@ export function buildAdvancedFilter(query: Query) {
     gt, gte,
     childExists,
     childEqual,
-  } = query as Query;
+  } = singleQuery;
   if (!!equal) { // where/equal
     advancedFilter = item => (!!item[where] && item[where] === equal);
   } else if (typeof exists === 'boolean') { // where/exists/not exists
@@ -105,8 +131,48 @@ export function buildAdvancedFilter(query: Query) {
   return advancedFilter;
 }
 
+export function convertMultiQueryToAdvancedFilter<Item>(multiQuery: MultiQuery) {
+  const { and = [], or = [] } = multiQuery;
+  // and filters
+  const andFilters: Array<AdvancedFilter<Item>> = [];
+  if (!!and.length) {
+    for (const query of and) {
+      andFilters.push(
+        convertSingleQueryToAdvancedFilter(query),
+      );
+    }
+  }
+  // or filters
+  const orFilters: Array<AdvancedFilter<Item>> = [];
+  if (!!or.length) {
+    for (const query of or) {
+      orFilters.push(
+        convertSingleQueryToAdvancedFilter(query),
+      );
+    }
+  }
+  const advancedFilter: AdvancedFilter<Item> = item => {
+    let andMatched = true;
+    for (const advancedFilter of andFilters) {
+      if (!advancedFilter(item)) {
+        andMatched = false;
+        break;
+      }
+    }
+    let orMatched = false;
+    for (const advancedFilter of orFilters) {
+      if (advancedFilter(item)) {
+        orMatched = true;
+        break;
+      }
+    }
+    return andMatched || orMatched;
+  };
+  return advancedFilter;
+}
+
 export function buildSegmentFilter<Item>(segment: DataSegment) {
-  const segmentFilter = (item: Item): boolean => {
+  const segmentFilter: AdvancedFilter<Item> = item => {
     let result = false;
     const segmentArr = Object.keys(segment || {});
     if (!segmentArr.length) {
@@ -153,4 +219,38 @@ export function buildSegmentFilter<Item>(segment: DataSegment) {
     return result;
   };
   return segmentFilter;
+}
+
+export function applyListingFilter<Item>(items: Item[], listingFilter?: ListingFilter) {
+  // ordering
+  let { order, orderBy } = listingFilter;
+  if (!orderBy && !!order) {
+    orderBy = ['#'];
+  }
+  if (!!orderBy) {
+    orderBy = (typeof orderBy === 'string') ? [orderBy] : orderBy;
+    if (!!order) {
+      order = (typeof order === 'string') ? [order] : order;
+    } else {
+      order = new Array(orderBy.length).fill('asc');
+    }
+    items = _orderBy(items, orderBy, order);
+  }
+  // limitation
+  const { limit = 0, offset = 0 } = listingFilter;
+  if (!!offset) {
+    if (offset < 0) {
+      items = items.slice(0, items.length + offset);
+    } else {
+      items = items.slice(offset, items.length);
+    }
+  }
+  if (!!limit) {
+    if (limit < 0) {
+      items = items.slice(items.length + limit, items.length);
+    } else {
+      items = items.slice(0, limit);
+    }
+  }
+  return items;
 }

@@ -3,8 +3,6 @@ import { AppService } from '../app/app.service';
 
 import {
   Filter,
-  AdvancedFilter,
-  Query,
   DataParser,
   DataSegment,
   DocsContentStyle,
@@ -13,9 +11,16 @@ import {
 } from './types';
 import { DatabaseDirectService } from './direct';
 import { DatabaseServerService } from './server';
-import { buildQuery, buildAdvancedFilter, buildSegmentFilter } from './filter';
+import {
+  buildAdvancedFilter,
+  buildSegmentFilter,
+  applyListingFilter,
+} from './filter';
 
 export class DatabaseService {
+
+  private DatabaseDirect: DatabaseDirectService;
+  private DatabaseServer: DatabaseServerService;
 
   private BUILTIN_PUBLIC_GIDS = {
     categories: '101',
@@ -34,10 +39,6 @@ export class DatabaseService {
   };
   private AUTO_LOADED_JSON_SCHEME = 'json://';
   private AUTO_LOADED_TEXT_SCHEME = 'content://';
-
-  private DatabaseDirect: DatabaseDirectService;
-  private DatabaseServer: DatabaseServerService;
-
   private globalSegment: DataSegment;
 
   app: AppService;
@@ -194,56 +195,39 @@ export class DatabaseService {
 
   async query<Item>(
     sheet: string,
-    filter: Filter,
+    filter: Filter<Item>,
     options: ItemsOptions = {},
   ): Promise<Item[]> {
     const { useCached, cacheTime, segment } = this.buildItemsOptions(options);
-    // prepare
-    let query: Query; // prepare query
-    let advancedFilter: AdvancedFilter; // advanced filter
-    if (filter instanceof Function) {
-      advancedFilter = filter;
-    } else {
-      query = buildQuery(filter);
-    }
-    // query items
+    // direct
     if (useCached) {
-      // turn simple query into advanced filter
-      if (!advancedFilter) {
-        advancedFilter = buildAdvancedFilter(query);
-      }
-      // build segment filter
+      // get all items
+      const allItems = await this.all<Item>(sheet, cacheTime);
+      // build filters
+      const advancedFilter = buildAdvancedFilter(filter);
       const segmentFilter = buildSegmentFilter<Item>(segment || this.globalSegment);
-      // load local items
-      const allItems = await this.all(sheet, cacheTime);
       // query local items
-      const items: Item[] = [];
-      for (let i = 0, length = allItems.length; i < length; i++) {
-        const item = allItems[i] as Item;
-        if (
-          !!segmentFilter(item) &&
-          !!advancedFilter(item)
-        ) {
-          items.push(item);
-        }
+      const items = allItems.filter(item => (
+        segmentFilter(item) && advancedFilter(item)
+      ));
+      return applyListingFilter(items, options);
+    }
+    // server
+    else {
+      if (filter instanceof Function) {
+        throw new Error('Can only use advanced filter with local data.');
       }
-      return items;
-    } else {
-      if (!advancedFilter) {
-        return this.app.Cache.get(
-          'database_' + sheet + '_query_' + md5(JSON.stringify(query)),
-          () => this.DatabaseServer.query(sheet, query, segment),
-          cacheTime,
-        );
-      } else {
-        throw new Error('Can only apply advanced query with cached data.');
-      }
+      return this.app.Cache.get(
+        `database_${sheet}_query_${md5(JSON.stringify(filter))}`,
+        () => this.DatabaseServer.query(sheet, filter, segment),
+        cacheTime,
+      );
     }
   }
 
   async items<Item>(
     sheet: string,
-    filter?: Filter,
+    filter?: Filter<Item>,
     options: ItemsOptions = {},
   ) {
     if (!!filter) {
@@ -256,7 +240,7 @@ export class DatabaseService {
 
   async item<Item>(
     sheet: string,
-    finder: string | Filter,
+    finder: string | Filter<Item>,
     options: ItemOptions = {},
   ) {
     const { useCached, cacheTime, docsStyle, autoLoaded } = this.buildItemOptions(options);

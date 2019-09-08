@@ -1,6 +1,7 @@
 import { PopupConfigs } from './app/types';
 
 export { md5 } from '../md5/md5';
+export { orderBy } from '../lodash/orderby';
 
 export function decodeJWTPayload(token: string) {
   const [, payloadStr ] = token.split('.');

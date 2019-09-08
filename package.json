@@ -48,11 +48,13 @@
   "dependencies": {
     "@sheetbase/models": "^1.8.0",
     "localforage": "^1.7.3",
+    "lodash": "^4.17.15",
     "papaparse": "4.4.0",
     "pubsub-js": "^1.7.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.0",
+    "@types/lodash": "^4.14.138",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.7.2",
     "@types/papaparse": "^5.0.1",
