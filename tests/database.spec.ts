@@ -9,11 +9,6 @@ import { DatabaseServerService } from '../src/lib/database/server';
 
 import { DatabaseService } from '../src/lib/database/database.service';
 import { database } from '../src/lib/database/index';
-import {
-  buildQuery,
-  buildAdvancedFilter,
-  buildSegmentFilter,
-} from '../src/lib/database/filter';
 
 let databaseService: DatabaseService;
 
@@ -76,28 +71,10 @@ describe('(Database) Database service', () => {
     // @ts-ignore
     expect(databaseService.DatabaseServer instanceof DatabaseServerService).equal(true, 'server instance');
     // @ts-ignore
-    expect(databaseService.BUILTIN_PUBLIC_GIDS).eql({
-      categories: '101',
-      tags: '102',
-      pages: '103',
-      posts: '104',
-      authors: '105',
-      threads: '106',
-      options: '108',
-      bundles: '111',
-      audios: '112',
-      videos: '113',
-      products: '114',
-      notifications: '181',
-      promotions: '182',
-    });
-    // @ts-ignore
-    expect(databaseService.AUTO_LOADED_JSON_SCHEME).equal('json://');
-    // @ts-ignore
-    expect(databaseService.AUTO_LOADED_TEXT_SCHEME).equal('content://');
-    // @ts-ignore
     expect(databaseService.globalSegment).equal(undefined);
   });
+
+  it.skip('database options', () => {});
 
   it('instances', () => {
     const direct = databaseService.direct();
@@ -145,7 +122,7 @@ describe('(Database) Database service', () => {
       useCached: false,
       cacheTime: 0,
       segment: { a: 1 },
-      order: 'ASC',
+      order: 'asc',
       orderBy: '#',
       limit: 10,
       offset: 10,
@@ -154,7 +131,7 @@ describe('(Database) Database service', () => {
       useCached: false,
       cacheTime: 0,
       segment: { a: 1 },
-      order: 'ASC',
+      order: 'asc',
       orderBy: '#',
       limit: 10,
       offset: 10,
@@ -173,7 +150,7 @@ describe('(Database) Database service', () => {
       limit: undefined,
       offset: undefined,
       docsStyle: 'full',
-      autoLoaded: true,
+      autoContent: true,
     });
   });
 
@@ -183,102 +160,24 @@ describe('(Database) Database service', () => {
       useCached: false,
       cacheTime: 0,
       segment: { a: 1 },
-      order: 'ASC',
+      order: 'asc',
       orderBy: '#',
       limit: 10,
       offset: 10,
       docsStyle: 'clean',
-      autoLoaded: false,
+      autoContent: false,
     });
     expect(result).eql({
       useCached: false,
       cacheTime: 0,
       segment: { a: 1 },
-      order: 'ASC',
+      order: 'asc',
       orderBy: '#',
       limit: 10,
       offset: 10,
       docsStyle: 'clean',
-      autoLoaded: false,
+      autoContent: false,
     });
-  });
-
-  it('#hasDirectAccess (no database id)', () => {
-    databaseService.app.options.databaseId = null;
-    // @ts-ignore
-    const result = databaseService.hasDirectAccess('categories');
-    expect(result).equal(false);
-  });
-
-  it('#hasDirectAccess (no direct access)', () => {
-    // @ts-ignore
-    const result = databaseService.hasDirectAccess('xxx2');
-    expect(result).equal(false);
-  });
-
-  it('#hasDirectAccess (has direct access)', () => {
-    // @ts-ignore
-    const result = databaseService.hasDirectAccess('categories');
-    expect(result).equal(true);
-  });
-
-  it('#hasDirectAccess (custom gids)', () => {
-    // @ts-ignore
-    const result = databaseService.hasDirectAccess('xxx');
-    expect(result).equal(true);
-  });
-
-  it('#isUrl', () => {
-    // @ts-ignore
-    const result1 = databaseService.isUrl('xxx');
-    // @ts-ignore
-    const result2 = databaseService.isUrl('http://xxx.xxx');
-    // @ts-ignore
-    const result3 = databaseService.isUrl('https://xxx.xxx');
-    expect(result1).equal(false);
-    expect(result2).equal(true);
-    expect(result3).equal(true);
-  });
-
-  it('#isFileId', () => {
-    // @ts-ignore
-    const result1 = databaseService.isFileId('xxx');
-    // @ts-ignore
-    const result2 = databaseService.isFileId('17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W');
-    expect(result1).equal(false);
-    expect(result2).equal(true);
-  });
-
-  it('#isDocId', () => {
-    // @ts-ignore
-    const result1 = databaseService.isDocId('xxx');
-    // @ts-ignore
-    const result2 = databaseService.isDocId('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc');
-    expect(result1).equal(false);
-    expect(result2).equal(true);
-  });
-
-  it('#buildAutoLoadedValue (any or doc id)', () => {
-    // @ts-ignore
-    const result1 = databaseService.buildAutoLoadedValue('xxx', '');
-    // @ts-ignore
-    const result2 = databaseService.buildAutoLoadedValue('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc', '');
-    expect(result1).equal('xxx');
-    expect(result2).equal('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc');
-  });
-
-  it('#buildAutoLoadedValue (url)', () => {
-    // @ts-ignore
-    const result = databaseService.buildAutoLoadedValue('json://https://xxx.xxx', 'json://');
-    expect(result).equal('https://xxx.xxx');
-  });
-
-  it('#buildAutoLoadedValue (file id)', () => {
-    // @ts-ignore
-    const result = databaseService.buildAutoLoadedValue(
-      'content://17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W', 'content://');
-    expect(result).equal(
-      'https://drive.google.com/uc?id=17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W');
   });
 
   it('#all (error for direct accessing)', async () => {
@@ -355,13 +254,12 @@ describe('(Database) Database service', () => {
       error = err;
     }
 
-    expect(error.message).equal('Can only apply advanced query with cached data.');
+    expect(error.message).equal('Can only use advanced filter with cached data.');
   });
 
   it('#query (not useCached)', async () => {
     queryStub.restore();
 
-    const cacheGetArgs: any = await databaseService.query('xxx', { a: 1 }, { useCached: false });
     let serverQueryArgs;
     // @ts-ignore
     databaseService.DatabaseServer = {
@@ -370,13 +268,31 @@ describe('(Database) Database service', () => {
         return [{a: 1}] as any;
       },
     };
-    const result = await cacheGetArgs[1]();
-    expect(cacheGetArgs[0]).equal('database_xxx_query_4a2f98478a5d638a3e2687b449058ea9');
-    expect(cacheGetArgs[2]).equal(1440);
+    const result: any = await databaseService.query(
+      'xxx', { a: 1 }, { useCached: false },
+    );
     expect(serverQueryArgs).eql([
-      'xxx', { where: 'a', equal: 1 }, undefined,
+      'xxx', { a: 1 }, undefined,
     ]);
     expect(result).eql([{a: 1}]);
+    // const cacheGetArgs: any = await databaseService.query(
+    //   'xxx', { a: 1 }, { useCached: false },
+    // );
+    // let serverQueryArgs;
+    // // @ts-ignore
+    // databaseService.DatabaseServer = {
+    //   query: async (...args) => {
+    //     serverQueryArgs = args;
+    //     return [{a: 1}] as any;
+    //   },
+    // };
+    // const result = await cacheGetArgs[1]();
+    // expect(cacheGetArgs[0]).equal('database_xxx_query_bb6cb5c68df4652941caf652a366f2d8');
+    // expect(cacheGetArgs[2]).equal(1440);
+    // expect(serverQueryArgs).eql([
+    //   'xxx', { a: 1 }, undefined,
+    // ]);
+    // expect(result).eql([{a: 1}]);
   });
 
   it('#items (no filter)', async () => {
@@ -411,6 +327,27 @@ describe('(Database) Database service', () => {
     expect(result).eql([1, 2, 3]);
   });
 
+  it('#item (no autoLoad, from server, error)', async () => {
+    let serverItemArgs;
+    // @ts-ignore
+    databaseService.DatabaseServer = {
+      item: async (...args) => {
+        serverItemArgs = args;
+        return {a: 1} as any;
+      },
+    };
+
+    let error: Error;
+    try {
+      await databaseService.item(
+        'xxx', { a: 1 }, { useCached: false, autoContent: false },
+      );
+    } catch (err) {
+      error = err;
+    }
+    expect(error.message).equal('Can only get item from server with item $key.');
+  });
+
   it('#item (no autoLoad, from server)', async () => {
     let serverItemArgs;
     // @ts-ignore
@@ -422,7 +359,7 @@ describe('(Database) Database service', () => {
     };
 
     const cacheGetArgs: any = await databaseService.item(
-      'xxx', 'xxx-1', { useCached: false, autoLoaded: false },
+      'xxx', 'xxx-1', { useCached: false, autoContent: false },
     );
     const result = await cacheGetArgs[1]();
     expect(cacheGetArgs[0]).equal('database_xxx_item_xxx-1');
@@ -433,7 +370,7 @@ describe('(Database) Database service', () => {
     expect(result).eql({a: 1});
   });
 
-  it('#item (no autoLoad, direct 1)', async () => {
+  it('#item (no autoLoad, finder is a string)', async () => {
     let directQueryArgs;
     queryStub.callsFake((...args) => {
       directQueryArgs = args;
@@ -441,15 +378,15 @@ describe('(Database) Database service', () => {
     });
 
     const result = await databaseService.item(
-      'xxx', 'xxx-1', { autoLoaded: false }, // useCached = true
+      'xxx', 'xxx-1', { autoContent: false }, // useCached = true
     );
     expect(directQueryArgs).eql([
-      'xxx', { $key: 'xxx-1' }, { autoLoaded: false },
+      'xxx', { where: '$key', equal: 'xxx-1' }, { autoContent: false },
     ]);
     expect(result).eql({a: 1});
   });
 
-  it('#item (no autoLoad, direct 2)', async () => {
+  it('#item (no autoLoad, finder is a number)', async () => {
     let directQueryArgs;
     queryStub.callsFake((...args) => {
       directQueryArgs = args;
@@ -457,10 +394,26 @@ describe('(Database) Database service', () => {
     });
 
     const result = await databaseService.item(
-      'xxx', { a: 1 }, { autoLoaded: false }, // useCached = true
+      'xxx', 1, { autoContent: false }, // useCached = true
     );
     expect(directQueryArgs).eql([
-      'xxx', { a: 1 }, { autoLoaded: false },
+      'xxx', { where: '#', equal: 1 }, { autoContent: false },
+    ]);
+    expect(result).eql({a: 1});
+  });
+
+  it('#item (no autoLoad, finder is a query)', async () => {
+    let directQueryArgs;
+    queryStub.callsFake((...args) => {
+      directQueryArgs = args;
+      return [{a: 1}];
+    });
+
+    const result = await databaseService.item(
+      'xxx', { a: 1 }, { autoContent: false }, // useCached = true
+    );
+    expect(directQueryArgs).eql([
+      'xxx', { a: 1 }, { autoContent: false },
     ]);
     expect(result).eql({a: 1});
   });
@@ -473,10 +426,10 @@ describe('(Database) Database service', () => {
     });
 
     const result = await databaseService.item(
-      'xxx', { a: 1 }, { autoLoaded: false }, // useCached = true
+      'xxx', { a: 1 }, { autoContent: false }, // useCached = true
     );
     expect(directQueryArgs).eql([
-      'xxx', { a: 1 }, { autoLoaded: false },
+      'xxx', { a: 1 }, { autoContent: false },
     ]);
     expect(result).equal(undefined);
   });
@@ -514,7 +467,7 @@ describe('(Database) Database service', () => {
         return '<p>doc content ...</p>';
       },
     };
-    const cacheGetArgs: any = await databaseService.docsContent('xxx-1', 'doc-id-xxx');
+    const cacheGetArgs: any = await databaseService.docsContent('doc-id-xxx');
     const result = await cacheGetArgs[1]();
     expect(cacheGetArgs[0]).equal('content_xxx-1_doc-id-xxx_full');
     expect(cacheGetArgs[2]).equal(1440);
@@ -533,7 +486,7 @@ describe('(Database) Database service', () => {
       return '<p>content ...</p>';
     });
 
-    const cacheGetArgs: any = await databaseService.textContent('xxx-1', 'https://xxx.xxx');
+    const cacheGetArgs: any = await databaseService.textContent('https://xxx.xxx');
     const result = await cacheGetArgs[1]();
     expect(cacheGetArgs[0]).equal('content_xxx-1_6b89c305ffa17e4cd1c7d839566ff058');
     expect(cacheGetArgs[2]).equal(1440);
@@ -552,7 +505,7 @@ describe('(Database) Database service', () => {
       return { a: 1 } as any;
     });
 
-    const cacheGetArgs: any = await databaseService.jsonContent('xxx-1', 'https://xxx.xxx');
+    const cacheGetArgs: any = await databaseService.jsonContent('https://xxx.xxx');
     const result = await cacheGetArgs[1]();
     expect(cacheGetArgs[0]).equal('content_xxx-1_6b89c305ffa17e4cd1c7d839566ff058');
     expect(cacheGetArgs[2]).equal(1440);
@@ -924,201 +877,6 @@ describe('(Database) Database service (convinient methods)', () => {
         'sharing/total': 1,
       },
     ]);
-  });
-
-});
-
-describe('(Database) Filter', () => {
-
-  it('#buildQuery (shorthand)', () => {
-    const result = buildQuery({ a: 1 });
-    expect(result).eql({ where: 'a', equal: 1 });
-  });
-
-  it('#buildQuery', () => {
-    const result = buildQuery({ where: 'a', childEqual: 'xxx' });
-    expect(result).eql({ where: 'a', childEqual: 'xxx' });
-  });
-
-  it('#buildAdvancedFilter (equal)', () => {
-    const result = buildAdvancedFilter({ where: 'a', equal: 1 });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: 2 })).equal(false, 'not equal');
-    expect(result({ a: 1 })).equal(true, 'equal');
-  });
-
-  it('#buildAdvancedFilter (exists)', () => {
-    const result = buildAdvancedFilter({ where: 'a', exists: true });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: '' })).equal(false, 'empty string');
-    expect(result({ a: null })).equal(false, 'null');
-    expect(result({ a: undefined })).equal(false, 'undefined');
-    expect(result({ a: 1 })).equal(true, 'exists');
-  });
-
-  it('#buildAdvancedFilter (not exists)', () => {
-    const result = buildAdvancedFilter({ where: 'a', exists: false });
-    expect(result({ a: 1 })).equal(false, 'exists');
-    expect(result({ a: '' })).equal(true, 'empty string');
-    expect(result({ a: null })).equal(true, 'null');
-    expect(result({ a: undefined })).equal(true, 'undedined');
-    expect(result({})).equal(true, 'not exists');
-  });
-
-  it('#buildAdvancedFilter (contains)', () => {
-    const result = buildAdvancedFilter({ where: 'a', contains: 'xxx' });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: 1 })).equal(false, 'not string');
-    expect(result({ a: 'abc xxx def'})).equal(true, 'contains');
-  });
-
-  it('#buildAdvancedFilter (lt)', () => {
-    const result = buildAdvancedFilter({ where: 'a', lt: 1 });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: 'xxx' })).equal(false, 'not number');
-    expect(result({ a: 1 })).equal(false, 'equal');
-    expect(result({ a: 0 })).equal(true, 'less than');
-  });
-
-  it('#buildAdvancedFilter (lte)', () => {
-    const result = buildAdvancedFilter({ where: 'a', lte: 1 });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: 'xxx' })).equal(false, 'not number');
-    expect(result({ a: 1 })).equal(true, 'equal');
-    expect(result({ a: 0 })).equal(true, 'less than');
-  });
-
-  it('#buildAdvancedFilter (gt)', () => {
-    const result = buildAdvancedFilter({ where: 'a', gt: 1 });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: 'xxx' })).equal(false, 'not number');
-    expect(result({ a: 1 })).equal(false, 'equal');
-    expect(result({ a: 2 })).equal(true, 'greater than');
-  });
-
-  it('#buildAdvancedFilter (gte)', () => {
-    const result = buildAdvancedFilter({ where: 'a', gte: 1 });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: 'xxx' })).equal(false, 'not number');
-    expect(result({ a: 1 })).equal(true, 'equal');
-    expect(result({ a: 2 })).equal(true, 'greater than');
-  });
-
-  it('#buildAdvancedFilter (childExists, object)', () => {
-    const result = buildAdvancedFilter({ where: 'a', childExists: 'xxx' });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: 'xxx' })).equal(false, 'not object');
-    expect(result({ a: {} })).equal(false, 'not exists');
-    expect(result({ a: { xxx: '' } })).equal(false, 'empty string');
-    expect(result({ a: { xxx: null } })).equal(false, 'null');
-    expect(result({ a: { xxx: undefined } })).equal(false, 'undefined');
-    expect(result({ a: { xxx: 1 } })).equal(true, 'exists');
-  });
-
-  it('#buildAdvancedFilter (childExists, array)', () => {
-    const result = buildAdvancedFilter({ where: 'a', childExists: 'xxx' });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: 'xxx' })).equal(false, 'not object');
-    expect(result({ a: [] })).equal(false, 'not exists');
-    expect(result({ a: ['xxx'] })).equal(true, 'exists');
-  });
-
-  it('#buildAdvancedFilter (not childExists, object)', () => {
-    const result = buildAdvancedFilter({ where: 'a', childExists: '!xxx' });
-    expect(result({ a: { xxx: 1 } })).equal(false, 'exists');
-    expect(result({ a: 'xxx' })).equal(false, 'not object');
-    expect(result({})).equal(true, 'no key');
-    expect(result({ a: {} })).equal(true, 'not exists');
-    expect(result({ a: { xxx: '' } })).equal(true, 'empty string');
-    expect(result({ a: { xxx: null } })).equal(true, 'null');
-    expect(result({ a: { xxx: undefined } })).equal(true, 'undefined');
-  });
-
-  it('#buildAdvancedFilter (not childExists, array)', () => {
-    const result = buildAdvancedFilter({ where: 'a', childExists: '!xxx' });
-    expect(result({ a: ['xxx'] })).equal(false, 'exists');
-    expect(result({ a: 'xxx' })).equal(false, 'not object');
-    expect(result({})).equal(true, 'no key');
-    expect(result({ a: [] })).equal(true, 'not exists');
-  });
-
-  it('#buildAdvancedFilter (childEqual, string)', () => {
-    const result = buildAdvancedFilter({ where: 'a', childEqual: 'xxx=def' });
-    expect(result({})).equal(false, 'no key');
-    expect(result({ a: 'xxx' })).equal(false, 'not object');
-    expect(result({ a: {} })).equal(false, 'not exists');
-    expect(result({ a: { xxx: '' } })).equal(false, 'empty string');
-    expect(result({ a: { xxx: null } })).equal(false, 'null');
-    expect(result({ a: { xxx: undefined } })).equal(false, 'undefined');
-    expect(result({ a: { xxx: 'abc' } })).equal(false, 'not equal');
-    expect(result({ a: { xxx: 'def' } })).equal(true, 'equal');
-  });
-
-  it('#buildAdvancedFilter (childEqual, number)', () => {
-    const result = buildAdvancedFilter({ where: 'a', childEqual: 'xxx=1' });
-    expect(result({ a: { xxx: 1 } })).equal(true, 'equal');
-  });
-
-  it('#buildAdvancedFilter (not childEqual)', () => {
-    const result = buildAdvancedFilter({ where: 'a', childEqual: 'xxx!=1' });
-    expect(result({ a: { xxx: 1 } })).equal(false, 'equal');
-    expect(result({ a: 'xxx' })).equal(false, 'not object');
-    expect(result({})).equal(true, 'no key');
-    expect(result({ a: {} })).equal(true, 'not exists');
-    expect(result({ a: { xxx: '' } })).equal(true, 'empty string');
-    expect(result({ a: { xxx: null } })).equal(true, 'null');
-    expect(result({ a: { xxx: undefined } })).equal(true, 'undefined');
-    expect(result({ a: { xxx: 'abc' } })).equal(true, 'not equal');
-  });
-
-  it('#buildSegmentFilter (no segment)', () => {
-    const result = buildSegmentFilter(null);
-    expect(result({})).equal(true);
-  });
-
-  it('#buildSegmentFilter (empty segment)', () => {
-    const result = buildSegmentFilter({});
-    expect(result({})).equal(true);
-  });
-
-  it('#buildSegmentFilter (1, matched, no field)', () => {
-    const result = buildSegmentFilter({ xxx: 1 });
-    expect(result({})).equal(true);
-  });
-
-  it('#buildSegmentFilter (1, not matched)', () => {
-    const result = buildSegmentFilter({ xxx: 1 });
-    expect(result({ xxx: 2 })).equal(false);
-  });
-
-  it('#buildSegmentFilter (1, matched)', () => {
-    const result = buildSegmentFilter({ xxx: 1 });
-    expect(result({ xxx: 1 })).equal(true);
-  });
-
-  it('#buildSegmentFilter (>1 & <=3, not matched)', () => {
-    const result = buildSegmentFilter({ a: 1, b: 2 });
-    expect(result({ a: 1, b: 3 })).equal(false);
-  });
-
-  it('#buildSegmentFilter (>1 & <=3, matched)', () => {
-    const result = buildSegmentFilter({ a: 1, b: 2, c: 3 });
-    expect(result({ a: 1, b: 2, c: 3 })).equal(true);
-  });
-
-  it('#buildSegmentFilter (>3, matched, no field)', () => {
-    const result = buildSegmentFilter({ a: 1, b: 2, c: 3, d: 4 });
-    expect(result({ a: 1, b: 2, c: 3 })).equal(true);
-  });
-
-  it('#buildSegmentFilter (>3, not matched)', () => {
-    const result = buildSegmentFilter({ a: 1, b: 2, c: 3, d: 4 });
-    expect(result({ a: 1, b: 2, c: 3, d: 5 })).equal(false);
-  });
-
-  it('#buildSegmentFilter (>3, matched)', () => {
-    const result = buildSegmentFilter({ a: 1, b: 2, c: 3, d: 4 });
-    expect(result({ a: 1, b: 2, c: 3, d: 4 })).equal(true);
   });
 
 });

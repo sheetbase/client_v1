@@ -202,6 +202,8 @@ describe('(Cache) Cache service', () => {
     expect(result).equal('ABC');
   });
 
+  it.skip('#get (key builder)');
+
   it('#iterate', async () => {
     const result = await cacheService.iterate('handler()' as any);
     expect(result).equal('handler()');

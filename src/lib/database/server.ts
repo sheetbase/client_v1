@@ -9,20 +9,24 @@ export class DatabaseServerService {
 
   app: AppService;
 
-  constructor(app: AppService, endpoint = 'database') {
+  constructor(app: AppService) {
     this.app = app;
     this.Api = this.app.Api
       .extend()
-      .setEndpoint(endpoint);
+      .setEndpoint(this.app.options.databaseEndpoint || 'database');
   }
 
   all<Item>(sheet: string) {
     return this.Api.get<Item[]>('/', { sheet });
   }
 
-  // TODO: fix the query param
   query<Item>(sheet: string, query: Query, segment?: DataSegment) {
-    return this.Api.get<Item[]>('/', { sheet, query, segment });
+    const params: any = { sheet };
+    params['query'] = encodeURIComponent(JSON.stringify(query));
+    if (!!segment) {
+      params['segment'] = encodeURIComponent(JSON.stringify(segment));
+    }
+    return this.Api.get<Item[]>('/', params);
   }
 
   item<Item>(sheet: string, key: string) {

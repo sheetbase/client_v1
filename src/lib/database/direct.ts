@@ -2,15 +2,27 @@ import { parse } from 'papaparse';
 
 import { AppService } from '../app/app.service';
 
-import {
-  Query,
-  DocsContentStyle,
-  DatabaseGids,
-  DataParser,
-  DataSegment,
-} from './types';
+import { DocsContentStyle, DatabaseGids, DataParser } from './types';
 
 export class DatabaseDirectService {
+
+  private BUILTIN_PUBLIC_GIDS = {
+    categories: '101',
+    tags: '102',
+    pages: '103',
+    posts: '104',
+    authors: '105',
+    threads: '106',
+    options: '108',
+    bundles: '111',
+    audios: '112',
+    videos: '113',
+    products: '114',
+    notifications: '181',
+    promotions: '182',
+  };
+  private AUTO_LOADED_JSON_SCHEME = 'json://';
+  private AUTO_LOADED_TEXT_SCHEME = 'content://';
 
   private databaseId: string;
   private databaseGids: DatabaseGids;
@@ -18,14 +30,15 @@ export class DatabaseDirectService {
 
   app: AppService;
 
-  constructor(
-    app: AppService,
-    databaseId: string,
-    databaseGids: DatabaseGids,
-  ) {
+  constructor(app: AppService) {
+    // app
     this.app = app;
-    this.databaseId = databaseId;
-    this.databaseGids = databaseGids;
+    // props
+    this.databaseId = this.app.options.databaseId;
+    this.databaseGids = {
+      ... this.BUILTIN_PUBLIC_GIDS,
+      ... this.app.options.databaseGids,
+    };
   }
 
   registerDataParser(parser: DataParser): DatabaseDirectService {
@@ -33,7 +46,108 @@ export class DatabaseDirectService {
     return this;
   }
 
-  getPublishedUrl(sheet: string, output = 'csv') {
+  /**
+   * main
+   *
+   */
+
+  async all<Item>(sheet: string) {
+    const url = this.buildPublishedUrl(sheet);
+    const csvText = await this.app.Fetch.get<string>(url, {}, false);
+    const rawItems = await this.parseCSV<Item>(csvText);
+    // process raw items
+    const items: Item[] = [];
+    for (let i = 0, l = rawItems.length; i < l; i++) {
+      const item = this.parseData(rawItems[i]);
+      // save item to the result if not empty
+      if (!!Object.keys(item).length) {
+        item['_row'] = i + 2;
+        items.push(item);
+      }
+    }
+    // final result
+    return items;
+  }
+
+  // Google Docs html content
+  async docsContent(
+    docId: string,
+    style: DocsContentStyle = 'full',
+  ) {
+    const url = 'https://docs.google.com/document/d/' + docId + '/pub?embedded=true';
+    const content = await this.app.Fetch.get<string>(url, {}, false);
+    return this.processDocsContent(content, style);
+  }
+
+  // text-based content (txt, html, md, ...)
+  textContent(url: string) {
+    return this.app.Fetch.get<string>(url, {}, false);
+  }
+
+  // json content
+  jsonContent<Data>(url: string) {
+    return this.app.Fetch.get<Data>(url);
+  }
+
+  /**
+   * helpers
+   *
+   */
+
+  // is this sheet available for direct access
+  hasAccess(sheet: string) {
+    return (!!this.databaseId && !!this.databaseGids[sheet]);
+  }
+
+  isUrl(value: string) {
+    return (
+      !!value &&
+      typeof value === 'string' &&
+      (
+        value.substr(0, 7) === 'http://' ||
+        value.substr(0, 8) === 'https://'
+      )
+    );
+  }
+
+  isFileId(value: string) {
+    // example: 17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W
+    // usually an 33 characters id, and starts with 1
+    return (
+      !!value &&
+      typeof value === 'string' &&
+      value.substr(0, 1) === '1' &&
+      value.length > 31 &&
+      value.length < 35
+    );
+  }
+
+  isDocId(value: string) {
+    // example: 1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc
+    // usually an 44 characters id, and starts with 1
+    return (
+      !!value &&
+      typeof value === 'string' &&
+      value.substr(0, 1) === '1' &&
+      value.length > 42 &&
+      value.length < 46
+    );
+  }
+
+  buildFileUrl(id: string) {
+    return 'https://drive.google.com/uc?id=' + id;
+  }
+
+  // return url to resource or a doc id
+  buildAutoLoadedValue(rawValue: string, scheme: string) {
+    let value = rawValue.replace(scheme, '');
+    if (!this.isUrl(value) && this.isFileId(value)) {
+      value = this.buildFileUrl(value);
+    }
+    return value;
+  }
+
+  buildPublishedUrl(sheet: string, output = 'csv') {
     return 'https://docs.google.com/spreadsheets/d/' + this.databaseId + '/pub' +
       '?gid=' + this.databaseGids[sheet] +
       '&output=' + output +
@@ -75,14 +189,9 @@ export class DatabaseDirectService {
           }
         }
         // 2. BUILTIN
-        if ( // uc url builder
-          typeof value === 'string' &&
-          // drive file id
-          value.substr(0, 1) === '1' &&
-          value.length > 31 &&
-          value.length < 35
-        ) {
-          value = 'https://drive.google.com/uc?id=' + value;
+        // uc url builder
+        if (this.isFileId(value)) {
+          value = this.buildFileUrl(value);
         }
         // 3. CUSTOM
         if (
@@ -150,41 +259,35 @@ export class DatabaseDirectService {
     return content;
   }
 
-  /**
-   * main
-   *
-   */
-
-  async all<Item>(sheet: string) {
-    const url = this.getPublishedUrl(sheet);
-    const csvText = await this.app.Fetch.get<string>(url, {}, false);
-    const rawItems = await this.parseCSV<Item>(csvText);
-    // process raw items
-    const items: Item[] = [];
-    for (let i = 0, l = rawItems.length; i < l; i++) {
-      const item = this.parseData(rawItems[i]);
-      // save item to the result if not empty
-      if (!!Object.keys(item).length) {
-        item['_row'] = i + 2;
-        items.push(item);
+  async loadItemContent<Item>(item: Item, docsStyle: DocsContentStyle = 'full') {
+    // check all props and load values
+    for (const prop of Object.keys(item)) {
+      const propValue = item[prop];
+      // auto-loaded json://
+      if (
+        typeof propValue === 'string' &&
+        propValue.substr(0, this.AUTO_LOADED_JSON_SCHEME.length) === this.AUTO_LOADED_JSON_SCHEME
+      ) {
+        // load and overwrite the data
+        const autoLoadedValue = this.buildAutoLoadedValue(propValue, this.AUTO_LOADED_JSON_SCHEME);
+        item[prop] = await this.jsonContent(autoLoadedValue);
+      }
+      // auto-loaded content://
+      if (
+        typeof propValue === 'string' &&
+        propValue.substr(0, this.AUTO_LOADED_TEXT_SCHEME.length) === this.AUTO_LOADED_TEXT_SCHEME
+      ) {
+        const autoLoadedValue = this.buildAutoLoadedValue(propValue, this.AUTO_LOADED_TEXT_SCHEME);
+        item[prop] = this.isDocId(autoLoadedValue) ?
+        await this.docsContent(autoLoadedValue, docsStyle) :
+        await this.textContent(autoLoadedValue);
       }
     }
-    // final result
-    return items;
-  }
-
-  // Google Docs html content
-  async docsContent(
-    docId: string,
-    style: DocsContentStyle = 'full',
-  ) {
-    const url = 'https://docs.google.com/document/d/' + docId + '/pub?embedded=true';
-    const content = await this.app.Fetch.get<string>(url, {}, false);
-    return this.processDocsContent(content, style);
+    return item;
   }
 
   /**
-   * helpers
+   * misc
    *
    */
 

@@ -1,10 +1,25 @@
-export interface DatabaseOptions extends DatabasePublicOptions {
+export interface DatabaseOptions
+extends
+DatabasePublicOptions,
+DatabaseCachingOptions,
+DatabaseContentOptions
+{
   databaseEndpoint?: string;
 }
 
 export interface DatabasePublicOptions {
   databaseId?: string;
   databaseGids?: DatabaseGids;
+}
+
+export interface DatabaseCachingOptions {
+  databaseUseCached?: boolean;
+  databaseCacheTime?: number;
+}
+
+export interface DatabaseContentOptions {
+  databaseAutoContent?: boolean;
+  databaseDocsStyle?: DocsContentStyle;
 }
 
 export type Filter<Item> = Query | AdvancedFilter<Item>;
@@ -62,5 +77,5 @@ export interface ItemsOptions extends ListingFilter {
 
 export interface ItemOptions extends ItemsOptions {
   docsStyle?: DocsContentStyle;
-  autoLoaded?: boolean; // json:// & content://
+  autoContent?: boolean; // json:// & content://
 }

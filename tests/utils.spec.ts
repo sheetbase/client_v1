@@ -9,6 +9,7 @@ import {
   createPopup,
   getHost,
   md5,
+  orderBy,
 } from '../src/lib/utils';
 
 global['atob'] = (b64: string) => Buffer.from(b64, 'base64').toString();
@@ -139,6 +140,22 @@ describe('utils', () => {
     expect(result1).equal('f561aaf6ef0bf14d4208bb46a4ccb3ad');
     expect(result2).equal('132daa7422d3d79dd078ce8bd9f4155c');
     expect(result3).equal('õaªöï\u000bñMB\b»F¤Ì³­');
+  });
+
+  it('#orderBy', () => {
+    const items = [
+      { user: 'fred',   age: 48 },
+      { user: 'barney', age: 34 },
+      { user: 'fred',   age: 40 },
+      { user: 'barney', age: 36 },
+    ];
+    const result = orderBy(items, ['user', 'age'], ['asc', 'desc']);
+    expect(result).eql([
+      { user: 'barney', age: 36 },
+      { user: 'barney', age: 34 },
+      { user: 'fred',   age: 48 },
+      { user: 'fred',   age: 40 },
+    ]);
   });
 
 });

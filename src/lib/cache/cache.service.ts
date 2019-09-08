@@ -29,8 +29,11 @@ export class CacheService {
 
   async set<Data>(key: string, data: Data, cacheTime = 0) {
     cacheTime = Math.abs(cacheTime);
+    if (!key) {
+      throw new Error('No cache key provided.');
+    }
     if (cacheTime === 0) {
-      throw new Error('Not caching when time is 0. Set time globally or use the argument.');
+      throw new Error('No cache time provided.');
     }
     // save expiration
     await this.Localstorage.set<number>(
@@ -45,6 +48,7 @@ export class CacheService {
     key: string,
     refresher?: CacheRefresher<Data>,
     cacheTime = 0,
+    keyBuilder?: (data: Data) => string,
   ) {
     // retrieve cached
     const expiration = await this.Localstorage.get<number>(key + '__expiration');
@@ -58,7 +62,15 @@ export class CacheService {
       const freshData = await refresher(); // refresh
       // return value if cache time = 0
       // else save cache then return value
-      return (cacheTime === 0) ? freshData : this.set(key, freshData, cacheTime);
+      if (cacheTime === 0) {
+        return freshData;
+      } else {
+        return this.set(
+          (!!keyBuilder ? keyBuilder(freshData) : key),
+          freshData,
+          cacheTime,
+        );
+      }
     } catch (error) {
       // no refresher or error while refreshing
       // use cached any value or null

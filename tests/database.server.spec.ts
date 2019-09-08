@@ -59,7 +59,7 @@ describe('(Database) Database server service', () => {
     });
   });
 
-  it('#query', async () => {
+  it('#query (no segment)', async () => {
     queryStub.restore();
 
     const result = await databaseServerService.query(
@@ -70,10 +70,27 @@ describe('(Database) Database server service', () => {
       args: [
         '/',
         {
-          where: 'a',
-          equal: 1,
+          query: '%7B%22where%22%3A%22a%22%2C%22equal%22%3A1%7D',
           sheet: 'xxx',
-          segment: null,
+        },
+      ],
+    });
+  });
+
+  it('#query (hass segment)', async () => {
+    queryStub.restore();
+
+    const result = await databaseServerService.query(
+      'xxx', { where: 'a', equal: 1 }, { a: 1 },
+    );
+    expect(result).eql({
+      method: 'GET',
+      args: [
+        '/',
+        {
+          query: '%7B%22where%22%3A%22a%22%2C%22equal%22%3A1%7D',
+          sheet: 'xxx',
+          segment: '%7B%22a%22%3A1%7D',
         },
       ],
     });

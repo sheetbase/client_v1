@@ -47,8 +47,4 @@ export interface ResponseSuccess {
   };
 }
 
-export interface SystemInfo {
-  [prop: string]: any;
-}
-
 export type LoggingLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';

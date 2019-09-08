@@ -13,6 +13,8 @@ let fetchFetchStub: sinon.SinonStub;
 let fetchStub: sinon.SinonStub;
 let getStub: sinon.SinonStub;
 let postStub: sinon.SinonStub;
+let putStub: sinon.SinonStub;
+let loggingStub: sinon.SinonStub;
 
 function before() {
   apiService = new ApiService(
@@ -29,6 +31,10 @@ function before() {
   .callsFake(async (endpoint, query, body) => {
     return { method: 'POST', endpoint, query, body };
   });
+  putStub = sinon.stub(apiService, 'put')
+  .callsFake(async (...args) => args as any);
+  loggingStub = sinon.stub(apiService, 'logging')
+  .callsFake(async (...args) => args as any);
 }
 
 function after() {
@@ -36,7 +42,16 @@ function after() {
   fetchStub.restore();
   getStub.restore();
   postStub.restore();
+  putStub.restore();
+  loggingStub.restore();
 }
+
+const INSTANCE_DATA = {
+  endpoint: 'xxx',
+  query: { a: 1 },
+  body: { b: 2 },
+  beforeHooks: [async data => data],
+};
 
 describe('(Api) Api service', () => {
 
@@ -51,13 +66,6 @@ describe('(Api) Api service', () => {
     expect(result.error).eql(error);
   });
 
-  const INSTANCE_DATA = {
-    endpoint: 'xxx',
-    query: { a: 1 },
-    body: { b: 2 },
-    beforeHooks: [async data => data],
-  };
-
   it('properties', () => {
     expect(apiService.app instanceof MockedAppService).equal(true, '.app');
     // @ts-ignore
@@ -68,6 +76,8 @@ describe('(Api) Api service', () => {
     expect(apiService.predefinedBody).eql({}, '.predefinedBody');
     // @ts-ignore
     expect(apiService.beforeRequestHooks).eql([], '.beforeRequestHooks');
+    // @ts-ignore
+    expect(apiService.loggingEndpoint).equal('logging', '.loggingEndpoint');
   });
 
   it('properties (custom data)', () => {
@@ -438,6 +448,8 @@ describe('(Api) Api service', () => {
   });
 
   it('#put', async () => {
+    putStub.restore();
+
     const result = await apiService.put('/');
     expect(result).eql({
       method: 'POST',
@@ -465,6 +477,49 @@ describe('(Api) Api service', () => {
       query: { method: 'DELETE' },
       body: { b: 2 },
     });
+  });
+
+  it('#system', async () => {
+    const result = await apiService.system();
+    expect(result).eql({
+      method: 'GET',
+      endpoint: '/system',
+      query: undefined,
+    });
+  });
+
+  it('#logging', async () => {
+    loggingStub.restore();
+
+    const result = await apiService.logging('xxx');
+    expect(result).eql([
+      '/logging',
+      {},
+      {
+        value: 'xxx',
+        level: 'DEBUG',
+      },
+    ]);
+  });
+
+  it('#log', async () => {
+    const result = await apiService.log('xxx');
+    expect(result).eql(['xxx', 'DEBUG']);
+  });
+
+  it('#info', async () => {
+    const result = await apiService.info('xxx');
+    expect(result).eql(['xxx', 'INFO']);
+  });
+
+  it('#warn', async () => {
+    const result = await apiService.warn('xxx');
+    expect(result).eql(['xxx', 'WARNING']);
+  });
+
+  it('#error', async () => {
+    const result = await apiService.error('xxx');
+    expect(result).eql(['xxx', 'ERROR']);
   });
 
 });

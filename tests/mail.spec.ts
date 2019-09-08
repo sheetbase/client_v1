@@ -11,27 +11,9 @@ const mailService = new MailService(
   new MockedAppService() as any,
 );
 
-let apiGetStub: sinon.SinonStub;
-let apiPostStub: sinon.SinonStub;
+function before() {}
 
-function before() {
-  // @ts-ignore
-  apiGetStub = sinon.stub(mailService.Api, 'get');
-  // @ts-ignore
-  apiPostStub = sinon.stub(mailService.Api, 'post');
-  //
-  apiGetStub.callsFake(async (endpoint, params) => {
-    return { method: 'GET', endpoint, params };
-  });
-  apiPostStub.callsFake(async (endpoint, params, body) => {
-    return { method: 'POST', endpoint, params, body };
-  });
-}
-
-function after() {
-  apiGetStub.restore();
-  apiPostStub.restore();
-}
+function after() {}
 
 describe('(Mail) Mail service', () => {
 
@@ -62,8 +44,15 @@ describe('(Mail) Mail service', () => {
     const result = await mailService.quota();
     expect(result).eql({
       method: 'GET',
-      endpoint: '/',
-      params: {},
+      args: ['/'],
+    });
+  });
+
+  it('#threads', async () => {
+    const result = await mailService.threads();
+    expect(result).eql({
+      method: 'GET',
+      args: ['/threads', { category: 'uncategorized' }],
     });
   });
 
@@ -79,19 +68,21 @@ describe('(Mail) Mail service', () => {
       false,
     );
     expect(result).eql({
-      method: 'POST',
-      endpoint: '/',
-      params: {},
-      body: {
-        mailingData: {
-          recipient: 'xxx@xxx.xxx',
+      method: 'PUT',
+      args: [
+        '/',
+        {},
+        {
+          mailingData: {
+            recipient: 'xxx@xxx.xxx',
+          },
+          category: 'message',
+          template: {
+            hello: { name: 'John' },
+          },
+          silent: false,
         },
-        category: 'message',
-        template: {
-          hello: { name: 'John' },
-        },
-        silent: false,
-      },
+      ],
     });
   });
 

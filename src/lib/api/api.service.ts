@@ -9,7 +9,6 @@ import {
   RequestBody,
   ResponseSuccess,
   ResponseError,
-  SystemInfo,
   LoggingLevel,
 } from './types';
 
@@ -214,12 +213,12 @@ export class ApiService {
     return this.post<Data>(endpoint, { ...query, method: 'DELETE' }, body);
   }
 
-  system() {
-    return this.get<SystemInfo>('/system');
+  system<Data>() {
+    return this.get<Data>('/system');
   }
 
   logging<Value>(value: Value, level: LoggingLevel = 'DEBUG') {
-    return this.put<void>('/' + this.loggingEndpoint, {}, { level, value });
+    return this.put<any>('/' + this.loggingEndpoint, {}, { level, value });
   }
 
   log<Value>(value: Value) {

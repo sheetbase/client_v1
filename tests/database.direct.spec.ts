@@ -13,8 +13,6 @@ let fetchGetStub: sinon.SinonStub;
 function before() {
   databaseDirectService = new DatabaseDirectService(
     new MockedAppService() as any,
-    '1Abc', // database id
-    { xxx: '123' }, // gids
   );
   // stubs
   fetchGetStub = sinon.stub(databaseDirectService.app.Fetch, 'get');
@@ -32,6 +30,26 @@ describe('(Database) Database direct service', () => {
   it('properties', () => {
     expect(databaseDirectService.app instanceof MockedAppService).equal(true);
     // @ts-ignore
+    expect(databaseDirectService.BUILTIN_PUBLIC_GIDS).eql({
+      categories: '101',
+      tags: '102',
+      pages: '103',
+      posts: '104',
+      authors: '105',
+      threads: '106',
+      options: '108',
+      bundles: '111',
+      audios: '112',
+      videos: '113',
+      products: '114',
+      notifications: '181',
+      promotions: '182',
+    });
+    // @ts-ignore
+    expect(databaseDirectService.AUTO_LOADED_JSON_SCHEME).equal('json://');
+    // @ts-ignore
+    expect(databaseDirectService.AUTO_LOADED_TEXT_SCHEME).equal('content://');
+    // @ts-ignore
     expect(databaseDirectService.databaseId).equal('1Abc');
     // @ts-ignore
     expect(databaseDirectService.databaseGids).eql({ xxx: '123' });
@@ -46,8 +64,88 @@ describe('(Database) Database direct service', () => {
     expect(result instanceof DatabaseDirectService).equal(true);
   });
 
-  it('#getPublishedUrl', () => {
-    const result = databaseDirectService.getPublishedUrl('xxx');
+  it('#hasDirectAccess (no database id)', () => {
+    databaseDirectService.app.options.databaseId = null;
+    // @ts-ignore
+    const result = databaseDirectService.hasDirectAccess('categories');
+    expect(result).equal(false);
+  });
+
+  it('#hasDirectAccess (no direct access)', () => {
+    // @ts-ignore
+    const result = databaseDirectService.hasDirectAccess('xxx2');
+    expect(result).equal(false);
+  });
+
+  it('#hasDirectAccess (has direct access)', () => {
+    // @ts-ignore
+    const result = databaseDirectService.hasDirectAccess('categories');
+    expect(result).equal(true);
+  });
+
+  it('#hasDirectAccess (custom gids)', () => {
+    // @ts-ignore
+    const result = databaseDirectService.hasDirectAccess('xxx');
+    expect(result).equal(true);
+  });
+
+  it('#isUrl', () => {
+    // @ts-ignore
+    const result1 = databaseDirectService.isUrl('xxx');
+    // @ts-ignore
+    const result2 = databaseDirectService.isUrl('http://xxx.xxx');
+    // @ts-ignore
+    const result3 = databaseDirectService.isUrl('https://xxx.xxx');
+    expect(result1).equal(false);
+    expect(result2).equal(true);
+    expect(result3).equal(true);
+  });
+
+  it('#isFileId', () => {
+    // @ts-ignore
+    const result1 = databaseDirectService.isFileId('xxx');
+    // @ts-ignore
+    const result2 = databaseDirectService.isFileId('17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W');
+    expect(result1).equal(false);
+    expect(result2).equal(true);
+  });
+
+  it('#isDocId', () => {
+    // @ts-ignore
+    const result1 = databaseDirectService.isDocId('xxx');
+    // @ts-ignore
+    const result2 = databaseDirectService.isDocId('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc');
+    expect(result1).equal(false);
+    expect(result2).equal(true);
+  });
+
+  it.skip('#buildFileUrl');
+
+  it('#buildAutoLoadedValue (any or doc id)', () => {
+    // @ts-ignore
+    const result1 = databaseDirectService.buildAutoLoadedValue('xxx', '');
+    // @ts-ignore
+    const result2 = databaseDirectService.buildAutoLoadedValue('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc', '');
+    expect(result1).equal('xxx');
+    expect(result2).equal('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc');
+  });
+
+  it('#buildAutoLoadedValue (url)', () => {
+    // @ts-ignore
+    const result = databaseDirectService.buildAutoLoadedValue('json://https://xxx.xxx', 'json://');
+    expect(result).equal('https://xxx.xxx');
+  });
+
+  it('#buildAutoLoadedValue (file id)', () => {
+    // @ts-ignore
+    const result = databaseDirectService.buildAutoLoadedValue(
+      'content://17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W', 'content://');
+    expect(result).equal(
+      'https://drive.google.com/uc?id=17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W');
+  });
+
+  it('#buildPublishedUrl', () => {
+    const result = databaseDirectService.buildPublishedUrl('xxx');
     expect(result).equal(
       'https://docs.google.com/spreadsheets/d/1Abc/pub?gid=123&output=csv&single=true',
     );
@@ -147,6 +245,8 @@ describe('(Database) Database direct service', () => {
     expect(result3).equal(clean);
   });
 
+  it.skip('#loadItemContent');
+
   it('#all', async () => {
     let fetchGetArgs;
     fetchGetStub.callsFake((...args) => {
@@ -189,5 +289,9 @@ describe('(Database) Database direct service', () => {
     ]);
     expect(result).equal('<p>doc content ...</p>');
   });
+
+  it.skip('#textContent');
+
+  it.skip('#jsonContent');
 
 });
