@@ -92,6 +92,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="mailservice.html#quota" class="tsd-kind-icon">quota</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="mailservice.html#send" class="tsd-kind-icon">send</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="mailservice.html#threads" class="tsd-kind-icon">threads</a></li>
 							</ul>
 						</section>
 					</div>
@@ -109,7 +110,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/13edce1/src/lib/mail/mail.service.ts#L10">lib/mail/mail.service.ts:10</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/a3eff13/src/lib/mail/mail.service.ts#L10">lib/mail/mail.service.ts:10</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -131,7 +132,7 @@
 					<div class="tsd-signature tsd-kind-icon">Api<span class="tsd-signature-symbol">:</span> <a href="apiservice.html" class="tsd-signature-type">ApiService</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/13edce1/src/lib/mail/mail.service.ts#L8">lib/mail/mail.service.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/a3eff13/src/lib/mail/mail.service.ts#L8">lib/mail/mail.service.ts:8</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -141,7 +142,7 @@
 					<div class="tsd-signature tsd-kind-icon">app<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">AppService</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/client/blob/13edce1/src/lib/mail/mail.service.ts#L10">lib/mail/mail.service.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/client/blob/a3eff13/src/lib/mail/mail.service.ts#L10">lib/mail/mail.service.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -152,16 +153,16 @@
 					<a name="quota" class="tsd-anchor"></a>
 					<h3>quota</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">quota<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">quota<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/mailingquota.html" class="tsd-signature-type">MailingQuota</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/13edce1/src/lib/mail/mail.service.ts#L19">lib/mail/mail.service.ts:19</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/a3eff13/src/lib/mail/mail.service.ts#L19">lib/mail/mail.service.ts:19</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/mailingquota.html" class="tsd-signature-type">MailingQuota</a><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -169,13 +170,13 @@
 					<a name="send" class="tsd-anchor"></a>
 					<h3>send</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">send<span class="tsd-signature-symbol">(</span>mailingData<span class="tsd-signature-symbol">: </span><a href="../interfaces/mailingdata.html" class="tsd-signature-type">MailingData</a>, category<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, template<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, silent<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">send<span class="tsd-signature-symbol">(</span>mailingData<span class="tsd-signature-symbol">: </span><a href="../interfaces/mailingdata.html" class="tsd-signature-type">MailingData</a>, category<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, template<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, silent<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/mailsentresult.html" class="tsd-signature-type">MailSentResult</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/client/blob/13edce1/src/lib/mail/mail.service.ts#L23">lib/mail/mail.service.ts:23</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/a3eff13/src/lib/mail/mail.service.ts#L27">lib/mail/mail.service.ts:27</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -193,7 +194,30 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> silent: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;null</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/mailsentresult.html" class="tsd-signature-type">MailSentResult</a><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="threads" class="tsd-anchor"></a>
+					<h3>threads</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">threads<span class="tsd-signature-symbol">(</span>category<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/mailingthread.html" class="tsd-signature-type">MailingThread</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/client/blob/a3eff13/src/lib/mail/mail.service.ts#L23">lib/mail/mail.service.ts:23</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> category: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;uncategorized&quot;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/mailingthread.html" class="tsd-signature-type">MailingThread</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -228,6 +252,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="mailservice.html#send" class="tsd-kind-icon">send</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="mailservice.html#threads" class="tsd-kind-icon">threads</a>
 							</li>
 						</ul>
 					</li>

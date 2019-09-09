@@ -70,7 +70,7 @@ export class DatabaseService {
     } = options;
     return {
       useCached: (useCached === undefined) ? databaseUseCached : useCached,
-      cacheTime: cacheTime || databaseCacheTime,
+      cacheTime: (cacheTime === undefined) ? databaseCacheTime : cacheTime,
       segment,
       order,
       orderBy,
@@ -124,7 +124,7 @@ export class DatabaseService {
   }
 
   async query<Item>(sheet: string, filter: Filter<Item>, options: ItemsOptions = {}) {
-    const { useCached, cacheTime, segment } = this.getItemsOptions(options);
+    const { useCached, segment, cacheTime } = this.getItemsOptions(options);
     return this.app.Cache.get(
       `database_${ sheet }_query_${ md5(JSON.stringify(filter)) }`,
       async () => {
@@ -151,7 +151,8 @@ export class DatabaseService {
           return this.DataFilter.applyListingFilter(items, options);
         }
       },
-      cacheTime,
+      // only save query cache with server data
+      (useCached ? 0 : cacheTime),
     );
   }
 
@@ -202,7 +203,7 @@ export class DatabaseService {
           }
         }
         // return final item
-        return !!autoContent ? this.DatabaseDirect.loadItemContent(item, docsStyle) : item;
+        return !!autoContent ? this.DatabaseDirect.fulfillItemContent(item, docsStyle) : item;
       },
       cacheTime,
       item => `database_${ sheet }_item_${ item['$key'] }`,
@@ -216,7 +217,7 @@ export class DatabaseService {
     cacheTime = 1440,
   ) {
     return this.app.Cache.get<string>(
-      'content_' + docId + '_' + docsStyle,
+      `content_${ docId }_${ docsStyle }`,
       () => this.DatabaseDirect.docsContent(docId, docsStyle),
       cacheTime,
     );
@@ -225,7 +226,7 @@ export class DatabaseService {
   // text-based content (txt, html, md, ...)
   textContent(url: string, cacheTime = 1440) {
     return this.app.Cache.get<string>(
-      'content_' + md5(url),
+      `content_${ md5(url) }`,
       () => this.DatabaseDirect.textContent(url),
       cacheTime,
     );
@@ -234,7 +235,7 @@ export class DatabaseService {
   // json content
   jsonContent<Data>(url: string, cacheTime = 1440) {
     return this.app.Cache.get<Data>(
-      'content_' + md5(url),
+      `content_${ md5(url) }`,
       () => this.DatabaseDirect.jsonContent(url),
       cacheTime,
     );
@@ -283,6 +284,12 @@ export class DatabaseService {
 
   clearCachedItem(sheet: string, key: string) {
     return this.app.Cache.removeByPrefix(`database_${ sheet }_item_${ key }`);
+  }
+
+  // remove cached content by doc id or url
+  clearCachedContent(cachedInput: string) {
+    cachedInput = this.DatabaseDirect.isUrl(cachedInput) ? md5(cachedInput) : cachedInput;
+    return this.app.Cache.removeByPrefix(`content_${ cachedInput }`);
   }
 
   /**

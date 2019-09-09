@@ -1,15 +1,15 @@
 import { UserProviderId } from '@sheetbase/models';
 
-export interface OauthProvider {
-  clientId: string;
-  redirectUri?: string;
-}
-
 export interface AuthOptions {
   authEndpoint?: string;
   authProviders?: {
     [key in UserProviderId]?: OauthProvider;
   };
+}
+
+export interface OauthProvider {
+  clientId: string;
+  redirectUri?: string;
 }
 
 export interface AuthCredential {

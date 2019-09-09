@@ -79,9 +79,16 @@ Configs object for `initializeApp()`
   databaseEndpoint?: string; // custom database endpoint
   databaseId?: string; // database for accessing directly
   databaseGids?: {} // gids map for accessing directly
+  databaseUseCached?: boolean; // cache data
+  databaseCacheTime?: number; // cache expiration
+  databaseAutoContent?: boolean; // auto loaded content
+  databaseDocsStyle?: DocsContentStyle; // Google Docs content style
 
   // auth
   authEndpoint?: string; // custom auth endpoint
+  authProviders?: { // oauth cofigs
+    [key in UserProviderId]?: OauthProvider;
+  }
 
   // storage
   storageEndpoint?: string; // custom storage endpoint
@@ -90,34 +97,6 @@ Configs object for `initializeApp()`
 
   // mail
   mailEndpoint?: string; // custom mail endpoint
-}
-```
-
-## API
-
-### `app.api()`
-
-```ts
-class ApiService {
-  app: AppService;
-  extend(): ApiService;
-  setData(data: ApiInstanceData): ApiService;
-  setEndpoint(endpoint: string): ApiService;
-  addQuery(query: {}): ApiService;
-  addBody(body: {}): ApiService;
-  addBeforeHooks(hooks: BeforeRequestHook | BeforeRequestHook[]): ApiService;
-  request(inputs?: {
-    method?: string;
-    endpoint?: string;
-    query?: {};
-    body?: {};
-    cacheTime?: number;
-  }): Promise<any>;
-  get(endpoint?: string, query?: {}, cacheTime?: number): Promise<any>;
-  post(endpoint?: string, query?: {}, body?: {}): Promise<any>;
-  put(endpoint?: string, query?: {}, body?: {}): Promise<any>;
-  patch(endpoint?: string, query?: {}, body?: {}): Promise<any>;
-  delete(endpoint?: string, query?: {}, body?: {}): Promise<any>;
 }
 ```
 
@@ -168,7 +147,7 @@ class CacheService {
   app: AppService;
   instance(storageConfigs: LocalstorageConfigs): CacheService;
   set<Data>(key: string, data: Data, cacheTime?: number): Promise<Data>;
-  get<Data>(key: string, refresher?: CacheRefresher<Data>, cacheTime?: number): Promise<Data>;
+  get<Data>(key: string, refresher?: CacheRefresher<Data>, cacheTime?: number, keyBuilder?: (data: Data) => string): Promise<Data>;
   iterate<Data>(handler: LocalstorageIterateHandler<Data>): Promise<any>;
   iterateKeys(handler: LocalstorageIterateKeysHandler): Promise<void>;
   remove(key: string): Promise<void>;
@@ -177,6 +156,40 @@ class CacheService {
   removeBySuffix(suffix: string): Promise<void>;
   flush(): Promise<void>;
   flushExpired(): Promise<void>;
+}
+```
+
+## API
+
+### `app.api()`
+
+```ts
+class ApiService {
+  app: AppService;
+  extend(): ApiService;
+  setData(data: ApiInstanceData): ApiService;
+  setEndpoint(endpoint: string): ApiService;
+  addQuery(query: RequestQuery): ApiService;
+  addBody(body: RequestBody): ApiService;
+  addBeforeHooks(hooks: BeforeRequestHook | BeforeRequestHook[]): ApiService;
+  request<Data>(inputs?: {
+    method?: string;
+    endpoint?: string;
+    query?: {};
+    body?: {};
+    cacheTime?: number;
+  }): Promise<Data>;
+  get<Data>(endpoint?: string, query?: {}, cacheTime?: number): Promise<Data>;
+  post<Data>(endpoint?: string, query?: {}, body?: {}): Promise<Data>;
+  put<Data>(endpoint?: string, query?: {}, body?: {}): Promise<Data>;
+  patch<Data>(endpoint?: string, query?: {}, body?: {}): Promise<Data>;
+  delete<Data>(endpoint?: string, query?: {}, body?: {}): Promise<Data>;
+  system<Data>(): Promise<Data>;
+  logging<Value>(value: Value, level?: LoggingLevel): Promise<any>;
+  log<Value>(value: Value): Promise<any>;
+  info<Value>(value: Value): Promise<any>;
+  warn<Value>(value: Value): Promise<any>;
+  error<Value>(value: Value): Promise<any>;
 }
 ```
 
@@ -191,12 +204,12 @@ class DatabaseService {
   setSegmentation(globalSegment: DataSegment): DatabaseService;
   registerDataParser(parser: DataParser): DatabaseService;
   all<Item>(sheet: string, cacheTime?: number): Promise<Item[]>;
-  query<Item>(sheet: string, filter: Filter, options?: ItemsOptions): Promise<Item[]>;
-  items<Item>(sheet: string, filter?: Filter, options?: ItemsOptions): Promise<Item[]>;
-  item<Item>(sheet: string, finder: string | Filter, options?: ItemOptions): Promise<Item>;
-  docsContent(itemKey: string, docId: string, docsStyle?: DocsContentStyle, cacheTime?: number): Promise<string>;
-  textContent(itemKey: string, url: string, cacheTime?: number): Promise<string>;
-  jsonContent<Data>(itemKey: string, url: string, cacheTime?: number): Promise<Data>;
+  query<Item>(sheet: string, filter: Filter<Item>, options?: ItemsOptions): Promise<Item[]>;
+  items<Item>(sheet: string, filter?: Filter<Item>, options?: ItemsOptions): Promise<Item[]>;
+  item<Item>(sheet: string, finder: string | number | Filter<Item>, options?: ItemOptions): Promise<Item>;
+  docsContent(docId: string, docsStyle?: DocsContentStyle, cacheTime?: number): Promise<string>;
+  textContent(url: string, cacheTime?: number): Promise<string>;
+  jsonContent<Data>(url: string, cacheTime?: number): Promise<Data>;
   set<Data>(sheet: string, key: string, data: Data): Promise<any>;
   update<Data>(sheet: string, key: string, data: Data): Promise<any>;
   add<Data>(sheet: string, key: string, data: Data): Promise<any>;
@@ -204,8 +217,9 @@ class DatabaseService {
   increase(sheet: string, key: string, increasing: string | string[] | {
     [path: string]: number;
   }): Promise<any>;
-  clearCachedAll(input: string | string[]): Promise<void>;
-  clearCachedItem(sheet: string, itemKey: string): Promise<void>;
+  clearCachedAll(input: string | string[]): void;
+  clearCachedItem(sheet: string, key: string): Promise<void>;
+  clearCachedContent(cachedInput: string): Promise<void>;
   itemsOriginal<Item>(sheet: string, options?: ItemsOptions): Promise<Item[]>;
   itemsDraft<Item>(sheet: string, options?: ItemsOptions): Promise<Item[]>;
   itemsPublished<Item>(sheet: string, options?: ItemsOptions): Promise<Item[]>;
@@ -234,12 +248,21 @@ class DatabaseService {
 class DatabaseDirectService {
   app: AppService;
   registerDataParser(parser: DataParser): DatabaseDirectService;
-  getPublishedUrl(sheet: string, output?: string): string;
+  all<Item>(sheet: string): Promise<Item[]>;
+  docsContent(docId: string, style?: DocsContentStyle): Promise<string>;
+  textContent(url: string): Promise<string>;
+  jsonContent<Data>(url: string): Promise<Data>;
+  hasAccess(sheet: string): boolean;
+  isUrl(value: string): boolean;
+  isFileId(value: string): boolean;
+  isDocId(value: string): boolean;
+  buildFileUrl(id: string): string;
+  buildAutoLoadedValue(rawValue: string, scheme: string): string;
+  buildPublishedUrl(sheet: string, output?: string): string;
   parseCSV<Item>(csv: string): Promise<Item[]>;
   parseData<Item>(item: Item): Item;
   processDocsContent(html: string, style?: DocsContentStyle): string;
-  all<Item>(sheet: string): Promise<Item[]>;
-  docsContent(docId: string, style?: DocsContentStyle): Promise<string>;
+  fulfillItemContent<Item>(item: Item, docsStyle?: DocsContentStyle): Promise<Item>;
 }
 
 // DatabaseServerService
@@ -389,8 +412,9 @@ class StorageService {
 ```ts
 class MailService {
   app: AppService;
-  quota(): Promise<any>;
-  send(mailingData: MailingData, category?: string, template?: any, silent?: any): Promise<any>;
+  quota(): Promise<MailingQuota>;
+  threads(category?: string): Promise<MailingThread[]>;
+  send(mailingData: MailingData, category?: string, template?: any, silent?: any): Promise<MailSentResult>;
 }
 ```
 

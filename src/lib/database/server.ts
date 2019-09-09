@@ -37,15 +37,15 @@ export class DatabaseServerService {
     const result = await this.Api.get<{docId: string, content: string}>(
       '/content', { docId, style },
     );
-    return result.content as string;
+    return result.content;
   }
 
   set<Data>(sheet: string, key: string, data: Data) {
-    return this.Api.post('/', {}, { sheet, key, data, clean: true });
+    return this.Api.post<any>('/', {}, { sheet, key, data, clean: true });
   }
 
   update<Data>(sheet: string, key: string, data: Data) {
-    return this.Api.post('/', {}, { sheet, key, data });
+    return this.Api.post<any>('/', {}, { sheet, key, data });
   }
 
   add<Data>(sheet: string, key: string, data: Data) {
@@ -61,7 +61,7 @@ export class DatabaseServerService {
     key: string,
     increasing: string | string[] | {[path: string]: number},
   ) {
-    return this.Api.post('/', {}, { sheet, key, increasing });
+    return this.Api.post<any>('/', {}, { sheet, key, increasing });
   }
 
 }

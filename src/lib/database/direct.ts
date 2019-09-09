@@ -259,7 +259,7 @@ export class DatabaseDirectService {
     return content;
   }
 
-  async loadItemContent<Item>(item: Item, docsStyle: DocsContentStyle = 'full') {
+  async fulfillItemContent<Item>(item: Item, docsStyle: DocsContentStyle = 'full') {
     // check all props and load values
     for (const prop of Object.keys(item)) {
       const propValue = item[prop];

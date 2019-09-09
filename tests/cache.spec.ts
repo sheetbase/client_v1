@@ -80,7 +80,20 @@ describe('(Cache) Cache service', () => {
     expect(configs).eql({ name: 'xxx' });
   });
 
-  it('#set (time = 0)', async () => {
+  it('#set (no key)', async () => {
+    setStub.restore();
+
+    let error: Error;
+    try {
+      await cacheService.set(null, { a: 1 });
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error.message).equal('No cache key provided.');
+  });
+
+  it('#set (no time)', async () => {
     setStub.restore();
 
     let error: Error;
@@ -90,7 +103,7 @@ describe('(Cache) Cache service', () => {
       error = err;
     }
 
-    expect(error.message).equal('Not caching when time is 0. Set time globally or use the argument.');
+    expect(error.message).equal('No cache time provided.');
   });
 
   it('#set', async () => {
@@ -169,6 +182,7 @@ describe('(Cache) Cache service', () => {
       new Date().getTime() - 10000, // expired 10s earlier
     );
     localstorageGetStub.onSecondCall().returns('abc'); // value in cached
+
     let setArgs;
     setStub.callsFake((...args) => {
       setArgs = args;
@@ -189,6 +203,7 @@ describe('(Cache) Cache service', () => {
       new Date().getTime() - 10000, // expired 10s earlier
     );
     localstorageGetStub.onSecondCall().returns('abc'); // value in cached
+
     let setArgs;
     setStub.callsFake((...args) => {
       setArgs = args;
@@ -202,7 +217,26 @@ describe('(Cache) Cache service', () => {
     expect(result).equal('ABC');
   });
 
-  it.skip('#get (key builder)');
+  it('#get (key builder)', async () => {
+    getStub.restore();
+
+    localstorageGetStub.onFirstCall().returns(
+      new Date().getTime() - 10000, // expired 10s earlier
+    );
+    localstorageGetStub.onSecondCall().returns('abc'); // value in cached
+
+    let setArgs;
+    setStub.callsFake((...args) => {
+      setArgs = args;
+      return args[1]; // value
+    });
+
+    const result = await cacheService.get(
+      'xxx', async () => 'ABC', 10000, item => `xxx-${ item.toLowerCase() }`,
+    );
+    expect(setArgs).eql([ 'xxx-abc', 'ABC', 10000 ]);
+    expect(result).equal('ABC');
+  });
 
   it('#iterate', async () => {
     const result = await cacheService.iterate('handler()' as any);

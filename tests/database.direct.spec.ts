@@ -9,23 +9,57 @@ import { DatabaseDirectService } from '../src/lib/database/direct';
 let databaseDirectService: DatabaseDirectService;
 
 let fetchGetStub: sinon.SinonStub;
+let docsContentStub: sinon.SinonStub;
+let textContentStub: sinon.SinonStub;
+let jsonContentStub: sinon.SinonStub;
 
 function before() {
   databaseDirectService = new DatabaseDirectService(
-    new MockedAppService() as any,
+    new MockedAppService({
+      databaseId: '1Abc',
+      databaseGids: { xxx: '123' },
+    }) as any,
   );
   // stubs
-  fetchGetStub = sinon.stub(databaseDirectService.app.Fetch, 'get');
+  fetchGetStub = sinon.stub(databaseDirectService.app.Fetch, 'get')
+  .callsFake(async (...args) => args);
+  docsContentStub = sinon.stub(databaseDirectService, 'docsContent');
+  textContentStub = sinon.stub(databaseDirectService, 'textContent');
+  jsonContentStub = sinon.stub(databaseDirectService, 'jsonContent');
 }
 
 function after() {
   fetchGetStub.restore();
+  docsContentStub.restore();
+  textContentStub.restore();
+  jsonContentStub.restore();
 }
 
 describe('(Database) Database direct service', () => {
 
   beforeEach(before);
   afterEach(after);
+
+  it('database options (not provided)', () => {
+    const databaseDirectService = new DatabaseDirectService(
+      new MockedAppService() as any,
+    );
+    expect(databaseDirectService.app.options.databaseId).equal(undefined);
+    expect(databaseDirectService.app.options.databaseGids).equal(undefined);
+  });
+
+  it('database options (custom)', () => {
+    const databaseDirectService = new DatabaseDirectService(
+      new MockedAppService({
+        databaseId: '1Abc',
+        databaseGids: { xxx: '123' },
+      }) as any,
+    );
+    expect(databaseDirectService.app.options.databaseId).equal('1Abc');
+    expect(databaseDirectService.app.options.databaseGids).eql({
+      xxx: '123',
+    });
+  });
 
   it('properties', () => {
     expect(databaseDirectService.app instanceof MockedAppService).equal(true);
@@ -52,7 +86,11 @@ describe('(Database) Database direct service', () => {
     // @ts-ignore
     expect(databaseDirectService.databaseId).equal('1Abc');
     // @ts-ignore
-    expect(databaseDirectService.databaseGids).eql({ xxx: '123' });
+    expect(databaseDirectService.databaseGids).eql({
+      // @ts-ignore
+      ... databaseDirectService.BUILTIN_PUBLIC_GIDS,
+      xxx: '123',
+    });
     // @ts-ignore
     expect(databaseDirectService.customDataParser).equal(undefined);
   });
@@ -64,80 +102,158 @@ describe('(Database) Database direct service', () => {
     expect(result instanceof DatabaseDirectService).equal(true);
   });
 
-  it('#hasDirectAccess (no database id)', () => {
-    databaseDirectService.app.options.databaseId = null;
+  /**
+   * main
+   */
+
+  it('#all', async () => {
+    let fetchGetArgs;
+    fetchGetStub.callsFake((...args) => {
+      fetchGetArgs = args;
+      return (
+        'a,b,c\n' +
+        '1,2,3\n' +
+        ',,\n' +
+        '4,5,6'
+      );
+    });
+
+    const result = await databaseDirectService.all('xxx');
+    expect(fetchGetArgs).eql([
+      'https://docs.google.com/spreadsheets/d/1Abc/pub?gid=123&output=csv&single=true',
+      {},
+      false,
+    ]);
+    expect(result).eql([
+      { _row: 2, a: 1, b: 2, c: 3 },
+      { _row: 4, a: 4, b: 5, c: 6 },
+    ]);
+  });
+
+  it('#docsContent', async () => {
+    docsContentStub.restore();
+
+    let fetchGetArgs;
+    fetchGetStub.callsFake((...args) => {
+      fetchGetArgs = args;
+      return '<p>doc content ...</p>';
+    });
+
+    const result = await databaseDirectService.docsContent(
+      'doc-id-xxx',
+    );
+
+    expect(fetchGetArgs).eql([
+      'https://docs.google.com/document/d/doc-id-xxx/pub?embedded=true',
+      {},
+      false,
+    ]);
+    expect(result).equal('<p>doc content ...</p>');
+  });
+
+  it('#textContent', async () => {
+    textContentStub.restore();
+
+    const result = await databaseDirectService.textContent(
+      'https://xxx.xxx',
+    );
+    expect(result).eql([
+      'https://xxx.xxx',
+      {},
+      false,
+    ]);
+  });
+
+  it('#jsonContent', async () => {
+    jsonContentStub.restore();
+
+    const result = await databaseDirectService.jsonContent(
+      'https://xxx.xxx',
+    );
+    expect(result).eql([ 'https://xxx.xxx' ]);
+  });
+
+  /**
+   * helpers
+   */
+
+  it('#hasAccess (no database id)', () => {
     // @ts-ignore
-    const result = databaseDirectService.hasDirectAccess('categories');
+    databaseDirectService.databaseId = null;
+    const result = databaseDirectService.hasAccess('categories');
     expect(result).equal(false);
   });
 
-  it('#hasDirectAccess (no direct access)', () => {
-    // @ts-ignore
-    const result = databaseDirectService.hasDirectAccess('xxx2');
+  it('#hasAccess (no direct access)', () => {
+    const result = databaseDirectService.hasAccess('xxx2');
     expect(result).equal(false);
   });
 
-  it('#hasDirectAccess (has direct access)', () => {
-    // @ts-ignore
-    const result = databaseDirectService.hasDirectAccess('categories');
+  it('#hasAccess (has direct access)', () => {
+    const result = databaseDirectService.hasAccess('categories');
     expect(result).equal(true);
   });
 
-  it('#hasDirectAccess (custom gids)', () => {
-    // @ts-ignore
-    const result = databaseDirectService.hasDirectAccess('xxx');
+  it('#hasAccess (custom gids)', () => {
+    const result = databaseDirectService.hasAccess('xxx');
     expect(result).equal(true);
   });
 
   it('#isUrl', () => {
-    // @ts-ignore
     const result1 = databaseDirectService.isUrl('xxx');
-    // @ts-ignore
     const result2 = databaseDirectService.isUrl('http://xxx.xxx');
-    // @ts-ignore
     const result3 = databaseDirectService.isUrl('https://xxx.xxx');
-    expect(result1).equal(false);
-    expect(result2).equal(true);
-    expect(result3).equal(true);
+    const result4 = databaseDirectService.isUrl(null);
+    const result5 = databaseDirectService.isUrl(123 as any);
+    expect(result1).equal(false, 'invalid');
+    expect(result2).equal(true, 'http');
+    expect(result3).equal(true, 'https');
+    expect(result4).equal(false, 'null');
+    expect(result5).equal(false, 'not string');
   });
 
   it('#isFileId', () => {
-    // @ts-ignore
     const result1 = databaseDirectService.isFileId('xxx');
-    // @ts-ignore
     const result2 = databaseDirectService.isFileId('17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W');
-    expect(result1).equal(false);
+    const result3 = databaseDirectService.isFileId(null);
+    const result4 = databaseDirectService.isFileId(123 as any);
+    expect(result1).equal(false, 'invalid');
     expect(result2).equal(true);
+    expect(result3).equal(false, 'null');
+    expect(result4).equal(false, 'not string');
   });
 
   it('#isDocId', () => {
-    // @ts-ignore
     const result1 = databaseDirectService.isDocId('xxx');
-    // @ts-ignore
     const result2 = databaseDirectService.isDocId('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc');
-    expect(result1).equal(false);
+    const result3 = databaseDirectService.isDocId(null);
+    const result4 = databaseDirectService.isDocId(123 as any);
+    expect(result1).equal(false, 'invalid');
     expect(result2).equal(true);
+    expect(result3).equal(false, 'null');
+    expect(result4).equal(false, 'not string');
   });
 
-  it.skip('#buildFileUrl');
+  it('#buildFileUrl', () => {
+    const result = databaseDirectService.buildFileUrl('xxx');
+    expect(result).equal('https://drive.google.com/uc?id=xxx');
+  });
 
   it('#buildAutoLoadedValue (any or doc id)', () => {
-    // @ts-ignore
     const result1 = databaseDirectService.buildAutoLoadedValue('xxx', '');
-    // @ts-ignore
-    const result2 = databaseDirectService.buildAutoLoadedValue('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc', '');
+    const result2 = databaseDirectService.buildAutoLoadedValue(
+      '1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc', '',
+    );
     expect(result1).equal('xxx');
     expect(result2).equal('1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc');
   });
 
   it('#buildAutoLoadedValue (url)', () => {
-    // @ts-ignore
     const result = databaseDirectService.buildAutoLoadedValue('json://https://xxx.xxx', 'json://');
     expect(result).equal('https://xxx.xxx');
   });
 
   it('#buildAutoLoadedValue (file id)', () => {
-    // @ts-ignore
     const result = databaseDirectService.buildAutoLoadedValue(
       'content://17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W', 'content://');
     expect(result).equal(
@@ -245,53 +361,24 @@ describe('(Database) Database direct service', () => {
     expect(result3).equal(clean);
   });
 
-  it.skip('#loadItemContent');
+  it('#fulfillItemContent', async () => {
+    docsContentStub.returns('<p>doc content ... </p>');
+    textContentStub.returns('<p>content ... </p>');
+    jsonContentStub.returns({ b1: 1, b2: 2 });
 
-  it('#all', async () => {
-    let fetchGetArgs;
-    fetchGetStub.callsFake((...args) => {
-      fetchGetArgs = args;
-      return (
-        'a,b,c\n' +
-        '1,2,3\n' +
-        ',,\n' +
-        '4,5,6'
-      );
+    const item = {
+      a: 1,
+      b: 'json://https://xxx.xxx',
+      c: 'content://17wmkJn5wDY8o_91kYw72XLT_NdZS3u0W',
+      d: 'content://1u1J4omqU7wBKJTspw53p6U_B_IA2Rxsac4risNxwTTc',
+    };
+    const result = await databaseDirectService.fulfillItemContent(item);
+    expect(result).eql({
+      a: 1,
+      b: { b1: 1, b2: 2 },
+      c: '<p>content ... </p>',
+      d: '<p>doc content ... </p>',
     });
-
-    const result = await databaseDirectService.all('xxx');
-    expect(fetchGetArgs).eql([
-      'https://docs.google.com/spreadsheets/d/1Abc/pub?gid=123&output=csv&single=true',
-      {},
-      false,
-    ]);
-    expect(result).eql([
-      { _row: 2, a: 1, b: 2, c: 3 },
-      { _row: 4, a: 4, b: 5, c: 6 },
-    ]);
   });
-
-  it('#docsContent', async () => {
-    let fetchGetArgs;
-    fetchGetStub.callsFake((...args) => {
-      fetchGetArgs = args;
-      return '<p>doc content ...</p>';
-    });
-
-    const result = await databaseDirectService.docsContent(
-      'doc-id-xxx',
-    );
-
-    expect(fetchGetArgs).eql([
-      'https://docs.google.com/document/d/doc-id-xxx/pub?embedded=true',
-      {},
-      false,
-    ]);
-    expect(result).equal('<p>doc content ...</p>');
-  });
-
-  it.skip('#textContent');
-
-  it.skip('#jsonContent');
 
 });
