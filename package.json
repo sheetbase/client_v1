@@ -51,7 +51,7 @@
     "@sheetbase/models": "^1.8.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
-    "papaparse": "4.4.0",
+    "papaparse": "5.2.0",
     "pubsub-js": "^1.7.0"
   },
   "devDependencies": {
